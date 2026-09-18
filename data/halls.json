@@ -1,0 +1,23 @@
+{
+  "updated_at": "2026-09-18",
+  "halls": [
+    {
+      "id": "hyper-arrow-mihara",
+      "name": "HYPER ARROW美原店",
+      "prefecture": "大阪府",
+      "city": "堺市美原区",
+      "category": "スロット",
+      "seat_count": 551,
+      "updated_at": "2026-09-18",
+      "path": "halls/hyper-arrow-mihara/",
+      "status": "published",
+      "features": [
+        "機種名検索",
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": "2026-09-15"
+    }
+  ]
+}

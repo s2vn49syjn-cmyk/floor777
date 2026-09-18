@@ -1,0 +1,14 @@
+{
+  "name": "FLOOR777",
+  "short_name": "FLOOR777",
+  "description": "パチンコ・スロットの台位置を島図から検索",
+  "start_url": "/floor777/",
+  "scope": "/floor777/",
+  "display": "standalone",
+  "background_color": "#07101f",
+  "theme_color": "#07101f",
+  "icons": [
+    {"src":"assets/icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"assets/icons/icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}

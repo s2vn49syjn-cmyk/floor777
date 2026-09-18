@@ -1,0 +1,1 @@
+# AdSense審査・承認後に、Google AdSenseが指定するads.txt行へ置き換えてください。
