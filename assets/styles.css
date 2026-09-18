@@ -118,3 +118,25 @@ html{color-scheme:dark}body{background:radial-gradient(circle at 78% -12%,rgba(2
 
 /* continuous compass rotation */
 #mapContent{transform-box:view-box;will-change:transform}.phone-orientation-btn.active{border-color:#ff4058;background:#4b0b16;color:#fff}
+
+
+/* Recommended seats: high-visibility overlay (must override diff palette) */
+.seat.recommended rect{
+  stroke:#ffd400!important;
+  stroke-width:7!important;
+  filter:drop-shadow(0 0 5px rgba(255,212,0,.95)) drop-shadow(0 0 12px rgba(255,120,0,.72))!important;
+}
+.seat.recommended .recommend-star{
+  fill:#ffd400!important;
+  stroke:#111!important;
+  stroke-width:2px!important;
+  paint-order:stroke fill!important;
+  font-size:15px!important;
+  font-weight:1000!important;
+  filter:drop-shadow(0 0 4px rgba(255,212,0,.95))!important;
+}
+.seat.recommended.selected rect{
+  stroke:#fff36a!important;
+  stroke-width:8!important;
+  filter:drop-shadow(0 0 6px rgba(255,243,106,1)) drop-shadow(0 0 16px rgba(255,120,0,.85))!important;
+}
