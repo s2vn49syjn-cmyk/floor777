@@ -53,11 +53,16 @@ async function initHallPage(){
   const rawPositions=await posRes.json();
   const positions=compactPositions(rawPositions);
   let stats=null;
-  if(hall.stats_url){
+  const liveStatsUrl=`${base}data/live/${hall.id}-stats.json?v=${Date.now()}`;
+  const statsCandidates=[liveStatsUrl,hall.stats_url].filter((u,i,a)=>u&&a.indexOf(u)===i);
+  for(const url of statsCandidates){
     try{
-      const statsRes=await fetch(hall.stats_url,{cache:'no-store'});
-      if(statsRes.ok) stats=await statsRes.json();
-    }catch(err){console.warn('stats load failed',err)}
+      const statsRes=await fetch(url,{cache:'no-store'});
+      if(statsRes.ok){
+        const loaded=await statsRes.json();
+        if(loaded?.seats && loaded?.hall_id===hall.id){stats=loaded;break}
+      }
+    }catch(err){console.warn('stats load failed',url,err)}
   }
   let seats=hall.seats.map(x=>({...x}));
   if(stats?.seats){
