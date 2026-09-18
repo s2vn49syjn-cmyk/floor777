@@ -6,7 +6,7 @@ const NORMALIZE_MAP = new Map([
 function normalizeLiteral(s){return String(s).normalize('NFKC').toLowerCase().replace(/[\s・･\-‐ー~〜～ⅡⅢⅣⅤ]/g,'')}
 function normalize(s=''){
   let v=normalizeLiteral(s);
-  for(const [a,b] of NORMALIZE_MAP) v=v.replace(normalizeLiteral(a),normalizeLiteral(b));
+  for(const [a,b] of NORMALIZE_MAP) if(!v.includes(normalizeLiteral(b))) v=v.replace(normalizeLiteral(a),normalizeLiteral(b));
   return v;
 }
 function shortName(name){
@@ -15,11 +15,12 @@ function shortName(name){
   return name.replace(/^(スマスロ\s*|Lパチスロ\s*|パチスロ\s*|Lスマスロ\s*|スロット\s*|L)/,'').slice(0,10);
 }
 function escapeHtml(str){return String(str).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-function fmtNumber(v,signed=false,suffix=''){if(v===null||v===undefined||Number.isNaN(Number(v)))return '—';const n=Number(v);const txt=Math.round(n).toLocaleString('ja-JP');return `${signed&&n>0?'+':''}${txt}${suffix}`}
-function diffClass(v){if(v===null||v===undefined||Number.isNaN(Number(v)))return '';return Number(v)>0?'plus':Number(v)<0?'minus':''}
+function hasNumber(v){return typeof v==='number'&&Number.isFinite(v)}
+function fmtNumber(v,signed=false,suffix=''){if(!hasNumber(v))return '—';const n=Number(v);const txt=Math.round(n).toLocaleString('ja-JP');return `${signed&&n>0?'+':''}${txt}${suffix}`}
+function diffClass(v){if(!hasNumber(v))return '';return Number(v)>0?'plus':Number(v)<0?'minus':''}
 function shortDate(s){if(!s)return '—';const p=String(s).split('-');return p.length===3?`${Number(p[1])}/${Number(p[2])}`:s}
 function mapValue(v,mode){
-  if(v===null||v===undefined||Number.isNaN(Number(v)))return '—';
+  if(!hasNumber(v))return '—';
   const n=Math.round(Number(v));
   if(mode==='diff')return `${n>0?'+':''}${n}`;
   if(mode==='spins')return `${n}G`;
@@ -52,24 +53,18 @@ async function initHallPage(){
   const base=app.dataset.base || '../../';
   const hallFile=app.dataset.hallFile || 'hyper-arrow-mihara.json';
   const posFile=app.dataset.positionFile || 'positions-mihara.json';
-  const [hallRes,posRes]=await Promise.all([
-    fetch(`${base}data/${hallFile}`,{cache:'no-store'}), fetch(`${base}data/${posFile}`,{cache:'no-store'})
+  const [hall,rawPositions]=await Promise.all([
+    Floor777.fetchJSON(`${base}data/${hallFile}`), Floor777.fetchJSON(`${base}data/${posFile}`)
   ]);
-  if(!hallRes.ok || !posRes.ok) throw new Error('data load failed');
-  const hall=await hallRes.json();
-  const rawPositions=await posRes.json();
+  if(!Array.isArray(hall.seats)||!hall.seats.length)throw Error('No hall seats');
   const positions=compactPositions(rawPositions);
+  if(!Object.keys(positions).length)throw Error('No map positions');
   let stats=null;
-  const liveStatsUrl=`${base}data/live/${hall.id}-stats.json?v=${Date.now()}`;
-  const statsCandidates=[liveStatsUrl,hall.stats_url].filter((u,i,a)=>u&&a.indexOf(u)===i);
+  const liveStatsUrl=new URL(`${base}data/live/${hall.id}-stats.json`,location.href).href;
+  const statsCandidates=[...new Set([liveStatsUrl,hall.stats_url&&Floor777.safeURL(hall.stats_url)].filter(Boolean))];
   for(const url of statsCandidates){
-    try{
-      const statsRes=await fetch(url,{cache:'no-store'});
-      if(statsRes.ok){
-        const loaded=await statsRes.json();
-        if(loaded?.seats && loaded?.hall_id===hall.id){stats=loaded;break}
-      }
-    }catch(err){console.warn('stats load failed',url,err)}
+    try{const loaded=await Floor777.fetchJSON(url);if(loaded?.seats && loaded?.hall_id===hall.id){stats=loaded;break}}
+    catch(err){console.warn('Stats unavailable',err.message)}
   }
   let seats=hall.seats.map(x=>({...x}));
   if(stats?.seats){
@@ -91,35 +86,50 @@ async function initHallPage(){
   const mapW=Math.ceil(Math.max(...posValues.map(p=>p[0]+p[2]))+24);
   const mapH=Math.ceil(Math.max(...posValues.map(p=>p[1]+p[3]))+84);
   const full={x:0,y:0,w:mapW,h:mapH};
+  svg.style.aspectRatio=`${mapW} / ${mapH}`;
   let view={...full};
   let mode='machine',matches=[],selected=null,selectedIndex=-1;
   let sensorRotation=0;
-  let flipped=localStorage.getItem(`floor777-orientation-${hall.id}`)==='180';
-  let showNames=localStorage.getItem(`floor777-show-names-${hall.id}`)!=='0';
-  let mapDisplay=localStorage.getItem(`floor777-map-display-${hall.id}`)||'seat';
+  let flipped=Floor777.storage.get(`floor777-orientation-${hall.id}`)==='180';
+  let showNames=Floor777.storage.get(`floor777-show-names-${hall.id}`)!=='0';
+  let mapDisplay=Floor777.storage.get(`floor777-map-display-${hall.id}`)||'seat';
   if(!['seat','diff','diff3','diff7','spins'].includes(mapDisplay))mapDisplay='seat';
-  let showRecommendations=localStorage.getItem(`floor777-recommend-${hall.id}`)==='1';
+  let showRecommendations=Floor777.storage.get(`floor777-recommend-${hall.id}`)==='1';
   const recommendationRule=hall.recommendation||{method:'negative_top10',days:1,limit:10,label:'マイナス差枚上位10台'};
-  let recommendationDays=Number(localStorage.getItem(`floor777-recommend-days-${hall.id}`)||recommendationRule.days||1);
+  let recommendationDays=Number(Floor777.storage.get(`floor777-recommend-days-${hall.id}`)||recommendationRule.days||1);
   if(![1,3,7].includes(recommendationDays))recommendationDays=1;
   function recommendationMetric(rec,days=recommendationDays){
     if(days===1)return rec?.latest?.diff;
     const p=rec?.periods?.[String(days)];
-    return p?.complete?p.diff_sum:null;
+    return hasNumber(p?.diff_sum)?p.diff_sum:null;
   }
   function recommendationPeriodLabel(days=recommendationDays){
-    return days===1?'前日差枚':`${days}日合計差枚`;
+    return days===1?'最新日の差枚':`直近${days}営業日の合計差枚`;
   }
   function buildRecommendedRows(){
     return Object.entries(stats?.seats||{})
       .map(([seat,rec])=>({seat:Number(seat),value:recommendationMetric(rec),rec}))
-      .filter(x=>Number.isFinite(Number(x.value))&&Number(x.value)<0)
-      .sort((a,b)=>Number(a.value)-Number(b.value))
+      .filter(x=>bySeat.has(x.seat)&&hasNumber(x.value)&&x.value<0)
+      .sort((a,b)=>a.value-b.value||a.seat-b.seat)
       .slice(0,Number(recommendationRule.limit||10));
   }
   let recommendedRows=buildRecommendedRows();
   let recommendedSeats=new Set(recommendedRows.map(x=>x.seat));
 
+  let shortlistUI=null;
+  const detailDialog=document.getElementById('seatDialog');
+  detailDialog.append(document.querySelector('.detail-card'));
+  detailDialog.querySelector('[data-close-detail]').onclick=()=>detailDialog.close();
+  detailDialog.addEventListener('click',e=>{if(e.target===detailDialog){const r=detailDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)detailDialog.close()}});
+  const pageNav=document.getElementById('pageNav');
+  function switchScreen(name){
+    const valid=['map','recommend','picks'].includes(name)?name:'map';
+    document.querySelectorAll('[data-panel]').forEach(el=>el.hidden=el.dataset.panel!==valid);
+    pageNav.querySelectorAll('[data-screen]').forEach(btn=>{const active=btn.dataset.screen===valid;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});
+    const url=new URL(location.href);url.searchParams.set('view',valid);history.replaceState(null,'',url);
+  }
+  pageNav.addEventListener('click',e=>{const btn=e.target.closest('[data-screen]');if(btn)switchScreen(btn.dataset.screen)});
+  document.getElementById('detailMapBtn').onclick=()=>{detailDialog.close();switchScreen('map');focusSeats([selected]);document.querySelector('.map-card').scrollIntoView({behavior:'smooth',block:'start'})};
   Floor777.addRecent(hall.id);
   document.getElementById('hallUpdated').textContent=Floor777.formatDate(hall.layout_updated_at || hall.updated_at);
   const mu=document.getElementById('machineUpdated'); if(mu) mu.textContent=Floor777.formatDate(hall.machine_updated_at || hall.updated_at);
@@ -156,11 +166,11 @@ async function initHallPage(){
       const g=document.createElementNS(NS,'g');g.setAttribute('class','seat');g.dataset.seat=item.seat;g.dataset.machine=item.machine;g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label',`${item.seat}番台 ${item.machine}`);
       const r=document.createElementNS(NS,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx','3');
       const seatText=document.createElementNS(NS,'text');seatText.setAttribute('x',x+w/2);seatText.setAttribute('y',y+10);seatText.setAttribute('class','seat-number');
-      const diffValue=mapDisplay==='diff3'?(rec?.periods?.['3']?.complete?rec.periods['3'].diff_sum:null):mapDisplay==='diff7'?(rec?.periods?.['7']?.complete?rec.periods['7'].diff_sum:null):rec?.latest?.diff;
+      const diffValue=mapDisplay==='diff3'?(hasNumber(rec?.periods?.['3']?.diff_sum)?rec.periods['3'].diff_sum:null):mapDisplay==='diff7'?(hasNumber(rec?.periods?.['7']?.diff_sum)?rec.periods['7'].diff_sum:null):rec?.latest?.diff;
       const isDiffMode=['diff','diff3','diff7'].includes(mapDisplay);
       seatText.textContent=isDiffMode?mapValue(diffValue,'diff'):mapDisplay==='spins'?mapValue(rec?.latest?.spins,'spins'):item.seat;
       const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+27);nameText.setAttribute('class','seat-machine');nameText.textContent=shortName(item.machine).slice(0,7);nameText.style.display=showNames?'':'none';
-      if(isDiffMode&&Number.isFinite(Number(diffValue))){
+      if(isDiffMode&&hasNumber(diffValue)){
         const d=Number(diffValue);
         g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
       }
@@ -170,10 +180,10 @@ async function initHallPage(){
         const star=document.createElementNS(NS,'text');star.setAttribute('x',x+w-5);star.setAttribute('y',y+7);star.setAttribute('class','recommend-star');star.textContent='★';g.appendChild(star);
       }
       mapContent.appendChild(g);
-      g.addEventListener('click',()=>{if(!moved)selectSeat(item.seat,true,true)});g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectSeat(item.seat,true,true)}});
+      g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectSeat(item.seat,true,true)}});
     }
     applySensorRotationToMap();
-    applyClasses();
+    applyClasses();shortlistUI?.paint();
   }
 
   function rotatedBounds(angle=sensorRotation){
@@ -215,7 +225,7 @@ async function initHallPage(){
     if(next===flipped)return;
     const old={...view};
     flipped=next;
-    localStorage.setItem(`floor777-orientation-${hall.id}`,flipped?'180':'0');
+    Floor777.storage.set(`floor777-orientation-${hall.id}`,flipped?'180':'0');
     renderMap();
     setView({x:full.w-(old.x+old.w),y:full.h-(old.y+old.h),w:old.w,h:old.h});
     updateOrientationLabel();
@@ -227,21 +237,19 @@ async function initHallPage(){
   });
 
   const pdfBtn=document.getElementById('pdfBtn');
-  const clearPrintMode=()=>document.body.classList.remove('print-map');
+  let printState=null;
+  function preparePrint(){if(printState)return;printState={view:{...view},rotation:sensorRotation};sensorRotation=0;applySensorRotationToMap();fullMap();document.body.classList.add('print-map')}
+  function clearPrintMode(){if(!printState)return;sensorRotation=printState.rotation;applySensorRotationToMap();setView(printState.view);printState=null;document.body.classList.remove('print-map')}
   window.addEventListener('afterprint',clearPrintMode);
-  pdfBtn?.addEventListener('click',()=>{
-    document.body.classList.add('print-map');
-    Floor777.toast('印刷画面から「PDFとして保存」を選べます');
-    setTimeout(()=>window.print(),120);
-    setTimeout(clearPrintMode,60000);
-  });
+  window.addEventListener('beforeprint',preparePrint);
+  pdfBtn?.addEventListener('click',()=>{preparePrint();window.print()});
 
   const phoneOrientationBtn=document.getElementById('phoneOrientationBtn');
   const phoneOrientationStatus=document.getElementById('phoneOrientationStatus');
   let phoneOrientationOn=false,phoneBaseHeading=null,lastHeadingAt=0,currentHeading=null,rotationFrame=0;
   function headingFromEvent(e){
-    if(Number.isFinite(Number(e.webkitCompassHeading)))return (Number(e.webkitCompassHeading)+360)%360;
-    if(Number.isFinite(Number(e.alpha)))return (360-Number(e.alpha)+360)%360;
+    if(hasNumber(e.webkitCompassHeading))return (Number(e.webkitCompassHeading)+360)%360;
+    if(hasNumber(e.alpha))return (360-Number(e.alpha)+360)%360;
     return null;
   }
   function normalizeAngle(v){return ((v+540)%360)-180}
@@ -260,12 +268,12 @@ async function initHallPage(){
     if(wasFull||!keepZoom)fullMap();else setView(view);
   }
   function scheduleSensorRotation(target){
-    sensorRotation=smoothAngle(sensorRotation,target);
     if(rotationFrame)return;
-    rotationFrame=requestAnimationFrame(()=>{rotationFrame=0;setSensorRotation(sensorRotation)});
+    rotationFrame=requestAnimationFrame(()=>{rotationFrame=0;setSensorRotation(smoothAngle(sensorRotation,target))});
   }
   function handlePhoneOrientation(e){
-    if(!phoneOrientationOn)return;
+    if(!phoneOrientationOn||document.hidden||document.body.classList.contains('print-map'))return;
+    if(hasNumber(e.webkitCompassAccuracy)&&(e.webkitCompassAccuracy<0||e.webkitCompassAccuracy>45)){updatePhoneOrientationUI('方位が不安定です。手動回転をご利用ください');return}
     const heading=headingFromEvent(e);if(heading===null)return;
     currentHeading=heading;lastHeadingAt=Date.now();
     if(phoneBaseHeading===null){
@@ -279,7 +287,7 @@ async function initHallPage(){
     if(phoneOrientationStatus)phoneOrientationStatus.textContent=`自動回転 ${Math.round(sensorRotation)}°`;
   }
   function stopPhoneOrientation(){
-    phoneOrientationOn=false;phoneBaseHeading=null;currentHeading=null;
+    phoneOrientationOn=false;phoneBaseHeading=null;currentHeading=null;cancelAnimationFrame(rotationFrame);rotationFrame=0;
     window.removeEventListener('deviceorientationabsolute',handlePhoneOrientation,true);
     window.removeEventListener('deviceorientation',handlePhoneOrientation,true);
     setSensorRotation(0,false);updatePhoneOrientationUI();
@@ -293,7 +301,6 @@ async function initHallPage(){
       }
     }catch(err){Floor777.toast('方角センサーの許可を取得できませんでした');return}
     phoneOrientationOn=true;phoneBaseHeading=null;currentHeading=null;lastHeadingAt=0;setSensorRotation(0,false);
-    window.addEventListener('deviceorientationabsolute',handlePhoneOrientation,true);
     window.addEventListener('deviceorientation',handlePhoneOrientation,true);
     updatePhoneOrientationUI('今の島図が店内の向きと合う状態で基準設定中…');
     setTimeout(()=>{if(phoneOrientationOn&&!lastHeadingAt)Floor777.toast('端末の「動作と方向」センサーを確認してください')},1800);
@@ -303,11 +310,11 @@ async function initHallPage(){
 
   const namesBtn=document.getElementById('namesBtn');
   const updateNamesLabel=()=>{namesBtn.classList.toggle('active',showNames);namesBtn.textContent=showNames?'機種名 ON':'機種名 OFF'};updateNamesLabel();
-  namesBtn.addEventListener('click',()=>{showNames=!showNames;localStorage.setItem(`floor777-show-names-${hall.id}`,showNames?'1':'0');svg.querySelectorAll('.seat-machine').forEach(x=>x.style.display=showNames?'':'none');updateNamesLabel()});
+  namesBtn.addEventListener('click',()=>{showNames=!showNames;Floor777.storage.set(`floor777-show-names-${hall.id}`,showNames?'1':'0');svg.querySelectorAll('.seat-machine').forEach(x=>x.style.display=showNames?'':'none');updateNamesLabel()});
 
   const mapValueButtons=[...document.querySelectorAll('[data-map-value]')];
   function updateMapValueButtons(){mapValueButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.mapValue===mapDisplay))}
-  mapValueButtons.forEach(btn=>btn.addEventListener('click',()=>{mapDisplay=btn.dataset.mapValue;localStorage.setItem(`floor777-map-display-${hall.id}`,mapDisplay);updateMapValueButtons();renderMap();setView(view)}));updateMapValueButtons();
+  mapValueButtons.forEach(btn=>btn.addEventListener('click',()=>{mapDisplay=btn.dataset.mapValue;Floor777.storage.set(`floor777-map-display-${hall.id}`,mapDisplay);updateMapValueButtons();renderMap();setView(view)}));updateMapValueButtons();
   const recommendBtn=document.getElementById('recommendBtn');
   const recommendInfo=document.getElementById('recommendInfo');
   const recommendDayButtons=[...document.querySelectorAll('[data-recommend-days]')];
@@ -319,19 +326,19 @@ async function initHallPage(){
     recommendDayButtons.forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.recommendDays)===recommendationDays));
     const completeCount=recommendationDays===1
       ? Object.keys(stats?.seats||{}).length
-      : Object.values(stats?.seats||{}).filter(rec=>rec?.periods?.[String(recommendationDays)]?.complete).length;
+      : Object.values(stats?.seats||{}).filter(rec=>hasNumber(rec?.periods?.[String(recommendationDays)]?.diff_sum)).length;
     if(recommendInfo){
       if(!stats)recommendInfo.textContent='台データ同期後に利用できます';
       else if(recommendationDays>1&&completeCount===0)recommendInfo.textContent=`${recommendationDays}日分のデータが揃うと表示されます`;
       else recommendInfo.textContent=`${recommendationPeriodLabel()}マイナス上位：${recommendedSeats.size}台`;
     }
     const ruleText=document.getElementById('recommendedRuleText');
-    if(ruleText)ruleText.textContent=`${recommendationPeriodLabel()}がマイナスの台から凹み順に最大${Number(recommendationRule.limit||10)}台`;
+    if(ruleText)ruleText.textContent=`${recommendationPeriodLabel()}がマイナスの台から凹み順に最大${Number(recommendationRule.limit||10)}台。対象日：${(stats?.dates||[]).slice(0,recommendationDays).map(shortDate).join(' / ')||'未取得'}（回転数不問）`;
   }
   function setRecommendationDays(days){
     const next=Number(days);if(![1,3,7].includes(next)||next===recommendationDays)return;
     recommendationDays=next;
-    localStorage.setItem(`floor777-recommend-days-${hall.id}`,String(next));
+    Floor777.storage.set(`floor777-recommend-days-${hall.id}`,String(next));
     recommendedRows=buildRecommendedRows();
     recommendedSeats=new Set(recommendedRows.map(x=>x.seat));
     updateRecommendUI();
@@ -340,14 +347,14 @@ async function initHallPage(){
     setView(view);
   }
   recommendDayButtons.forEach(btn=>btn.addEventListener('click',()=>setRecommendationDays(btn.dataset.recommendDays)));
-  recommendBtn?.addEventListener('click',()=>{showRecommendations=!showRecommendations;localStorage.setItem(`floor777-recommend-${hall.id}`,showRecommendations?'1':'0');updateRecommendUI();renderMap();setView(view)});
+  recommendBtn?.addEventListener('click',()=>{showRecommendations=!showRecommendations;Floor777.storage.set(`floor777-recommend-${hall.id}`,showRecommendations?'1':'0');updateRecommendUI();renderMap();setView(view)});
   updateRecommendUI();
 
-  let dragging=false,lastPoint=null,downPoint=null,moved=false,pinch=null;
+  let dragging=false,lastPoint=null,downPoint=null,moved=false,pinch=null,tapSeat=null;
   const pointers=new Map();
   function pointerValues(){return [...pointers.values()]}
   function screenToMap(x,y){
-    const g=svg.querySelector('#mapContent'),m=g?.getScreenCTM?.();if(!m)return null;
+    const m=svg.getScreenCTM?.();if(!m)return null;
     try{const pt=svg.createSVGPoint();pt.x=x;pt.y=y;return pt.matrixTransform(m.inverse())}catch{return null}
   }
   function beginPinch(){
@@ -359,6 +366,8 @@ async function initHallPage(){
   }
   svg.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'&&e.button!==0)return;
+    if(!pointers.size)tapSeat=e.target.closest('.seat')?.dataset.seat||null;
+    else tapSeat=null;
     pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
     svg.setPointerCapture?.(e.pointerId);
     if(pointers.size===1){dragging=true;moved=false;downPoint={x:e.clientX,y:e.clientY};lastPoint={x:e.clientX,y:e.clientY};pinch=null}
@@ -374,7 +383,9 @@ async function initHallPage(){
       const factor=dist/Math.max(1,pinch.distance);
       const start=pinch.startView,w=start.w/factor,h=start.h/factor;
       const anchorX=start.x+start.w*pinch.rx,anchorY=start.y+start.h*pinch.ry;
-      setView({x:anchorX-w*pinch.rx,y:anchorY-h*pinch.ry,w,h});
+      const center=screenToMap((a.x+b.x)/2,(a.y+b.y)/2);
+      const rx=center?(center.x-view.x)/view.w:pinch.rx,ry=center?(center.y-view.y)/view.h:pinch.ry;
+      setView({x:anchorX-w*rx,y:anchorY-h*ry,w,h});
       moved=true;return;
     }
     if(!dragging||!lastPoint)return;
@@ -385,23 +396,25 @@ async function initHallPage(){
     lastPoint={x:e.clientX,y:e.clientY};
   });
   function endPointer(e){
+    const tapped=e.type==='pointerup'&&pointers.size===1&&!moved&&tapSeat;
     pointers.delete(e.pointerId);
     if(pointers.size>=2){beginPinch();return}
     pinch=null;
     if(pointers.size===1){
       const p=pointerValues()[0];dragging=true;lastPoint={...p};downPoint={...p};moved=true;
-    }else{dragging=false;lastPoint=null;downPoint=null}
+    }else{dragging=false;lastPoint=null;downPoint=null;tapSeat=null}
+    if(tapped)selectSeat(Number(tapped),false,true);
   }
   svg.addEventListener('pointerup',endPointer);svg.addEventListener('pointercancel',endPointer);
   svg.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')endPointer(e)});
   svg.addEventListener('wheel',e=>{e.preventDefault();const p=screenToMap(e.clientX,e.clientY);zoomAt(e.deltaY<0?1.18:.84,p?.x??view.x+view.w/2,p?.y??view.y+view.h/2)},{passive:false});
 
   function applyClasses(){const matchSet=new Set(matches);svg.querySelectorAll('.seat').forEach(g=>{const n=Number(g.dataset.seat);g.classList.toggle('match',matchSet.has(n));g.classList.toggle('selected',selected===n)})}
-  function updateURL(){const url=new URL(location.href);url.search='';const q=input.value.trim();if(q){url.searchParams.set('mode',mode);url.searchParams.set('q',q)}if(selected)url.searchParams.set('seat',selected);history.replaceState(null,'',url)}
+  function updateURL(){const url=new URL(location.href);url.searchParams.delete('mode');url.searchParams.delete('q');url.searchParams.delete('seat');const q=input.value.trim();if(q){url.searchParams.set('mode',mode);url.searchParams.set('q',q)}if(selected)url.searchParams.set('seat',selected);history.replaceState(null,'',url)}
   function renderDiffChart(rec){
     const host=document.getElementById('detailDiffChart');if(!host)return;
     const rows=(rec?.history||[]).slice(0,7).filter(r=>r&&r.date).reverse();
-    const finite=rows.filter(r=>Number.isFinite(Number(r.diff)));
+    const finite=rows.filter(r=>hasNumber(r.diff));
     if(!finite.length){host.innerHTML='<div class="chart-empty">差枚データがありません。</div>';return}
     const W=360,H=184,L=34,R=10,T=14,B=34,plotW=W-L-R,plotH=H-T-B;
     const values=finite.map(r=>Number(r.diff));
@@ -414,12 +427,12 @@ async function initHallPage(){
     const zeroY=y(0);
     const pathParts=[];let started=false;
     rows.forEach((r,i)=>{
-      const v=Number(r.diff);
-      if(!Number.isFinite(v)){started=false;return}
+      const v=r.diff;
+      if(!hasNumber(v)){started=false;return}
       pathParts.push(`${started?'L':'M'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`);started=true;
     });
     const pointSvg=rows.map((r,i)=>{
-      const v=Number(r.diff);if(!Number.isFinite(v))return '';
+      const v=r.diff;if(!hasNumber(v))return '';
       const cls=v>0?'chart-point plus':v<0?'chart-point minus':'chart-point zero';
       return `<g><circle class="${cls}" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="4.2"><title>${escapeHtml(shortDate(r.date))} ${fmtNumber(v,true,'枚')}</title></circle></g>`;
     }).join('');
@@ -433,9 +446,9 @@ async function initHallPage(){
       <line class="chart-grid" x1="${L}" y1="${T}" x2="${W-R}" y2="${T}"/>
       <line class="chart-grid" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/>
       <line class="chart-zero" x1="${L}" y1="${zeroY.toFixed(1)}" x2="${W-R}" y2="${zeroY.toFixed(1)}"/>
-      <text class="chart-y-label" x="${L-5}" y="${T+4}" text-anchor="end">${fmtAxis(rawMax)}</text>
+      <text class="chart-y-label" x="${L-5}" y="${y(rawMax)+4}" text-anchor="end">${fmtAxis(rawMax)}</text>
       <text class="chart-y-label" x="${L-5}" y="${zeroY+4}" text-anchor="end">0</text>
-      <text class="chart-y-label" x="${L-5}" y="${H-B+4}" text-anchor="end">${fmtAxis(rawMin)}</text>
+      <text class="chart-y-label" x="${L-5}" y="${y(rawMin)+4}" text-anchor="end">${fmtAxis(rawMin)}</text>
       <path class="chart-line" d="${pathParts.join(' ')}"/>
       ${pointSvg}${dateSvg}
     </svg>`;
@@ -459,25 +472,25 @@ async function initHallPage(){
     renderDiffChart(rec);
     document.getElementById('detailHistory').innerHTML=(rec.history||[]).map(r=>`<tr><td>${escapeHtml(shortDate(r.date))}</td><td class="${diffClass(r.diff)}">${fmtNumber(r.diff,true,'枚')}</td><td>${fmtNumber(r.spins,false,'G')}</td></tr>`).join('');
   }
-  function selectSeat(seat,focus=false,update=true){const item=bySeat.get(Number(seat));if(!item)return;selected=item.seat;selectedIndex=Math.max(0,matches.indexOf(selected));applyClasses();document.getElementById('detailSeat').textContent=`${item.seat}番台`;document.getElementById('detailMachine').textContent=item.machine;document.getElementById('detailShort').textContent=shortName(item.machine);document.getElementById('detailEmpty').hidden=true;document.getElementById('detailData').hidden=false;renderSeatStats(item.seat);if(focus)focusSeats([item.seat]);updateNavButtons();if(update)updateURL()}
+  function selectSeat(seat,focus=false,update=true,open=true){const item=bySeat.get(Number(seat));if(!item)return;selected=item.seat;selectedIndex=Math.max(0,matches.indexOf(selected));applyClasses();document.getElementById('detailSeat').textContent=`${item.seat}番台`;document.getElementById('detailMachine').textContent=item.machine;document.getElementById('detailShort').textContent=shortName(item.machine);document.getElementById('detailEmpty').hidden=true;document.getElementById('detailData').hidden=false;renderSeatStats(item.seat);if(focus)focusSeats([item.seat]);updateNavButtons();if(update)updateURL();shortlistUI?.select(Number(item.seat));if(open&&!detailDialog.open)detailDialog.showModal()}
   function updateNavButtons(){const multi=matches.length>1;resultPrev.disabled=!multi;resultNext.disabled=!multi;document.getElementById('resultPos').textContent=matches.length?`${selectedIndex+1} / ${matches.length}`:'0 / 0'}
   function cycle(step){if(!matches.length)return;selectedIndex=(selectedIndex+step+matches.length)%matches.length;selectSeat(matches[selectedIndex],true,true)}resultPrev.addEventListener('click',()=>cycle(-1));resultNext.addEventListener('click',()=>cycle(1));
 
   function runSearch(focus=true){
     const q=input.value.trim();matches=[];selected=null;selectedIndex=-1;document.getElementById('detailEmpty').hidden=false;document.getElementById('detailData').hidden=true;
-    if(!q){resultBox.classList.remove('show');applyClasses();fullMap();updateURL();return}
+    if(!q){resultBox.classList.remove('show');applyClasses();fullMap();updateNavButtons();updateURL();return}
     if(mode==='seat'){
-      const n=Number(q.replace(/[^0-9]/g,''));if(bySeat.has(n))matches=[n];
+      const normalized=q.normalize('NFKC').replace(/番台?$/,'').trim();const n=/^\d+$/.test(normalized)?Number(normalized):NaN;if(bySeat.has(n))matches=[n];
     }else{
       const nq=normalize(q);matches=seats.filter(x=>normalize(x.machine).includes(nq)).map(x=>Number(x.seat));
     }
     resultBox.classList.add('show');resultText.innerHTML=matches.length?`<strong>${escapeHtml(q)}</strong>：${matches.length}台見つかりました`:`<strong>${escapeHtml(q)}</strong>：該当台が見つかりません`;
     resultList.innerHTML=matches.slice(0,80).map(n=>`<button class="seat-pill" data-seat="${n}">${n}</button>`).join('')+(matches.length>80?`<span class="muted">ほか${matches.length-80}台</span>`:'');
     resultList.querySelectorAll('[data-seat]').forEach(b=>b.addEventListener('click',()=>selectSeat(Number(b.dataset.seat),true,true)));
-    if(matches.length){selectedIndex=0;selected=matches[0];if(focus)focusSeats(matches.length<=12?matches:[matches[0]]);selectSeat(matches[0],false,false)}else fullMap();
+    if(matches.length){selectedIndex=0;selected=matches[0];if(focus)focusSeats(matches.length<=12?matches:[matches[0]]);selectSeat(matches[0],false,false,false)}else fullMap();
     applyClasses();updateNavButtons();updateURL();
   }
-  modeButtons.forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.searchMode;modeButtons.forEach(x=>x.classList.toggle('active',x===btn));input.placeholder=mode==='seat'?'例：821':'例：東京喰種 / モンキー / 北斗';input.value='';matches=[];selected=null;resultBox.classList.remove('show');applyClasses();fullMap();input.focus()}));
+  modeButtons.forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.searchMode;modeButtons.forEach(x=>x.classList.toggle('active',x===btn));input.placeholder=mode==='seat'?'例：821':'例：東京喰種 / モンキー / 北斗';input.value='';matches=[];selected=null;runSearch(false);input.inputMode=mode==='seat'?'numeric':'search';input.focus()}));
   document.getElementById('searchBtn').addEventListener('click',()=>runSearch(true));input.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch(true)});document.getElementById('clearBtn').addEventListener('click',()=>{input.value='';runSearch(false);input.focus()});document.querySelectorAll('[data-quick]').forEach(b=>b.addEventListener('click',()=>{mode='machine';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='machine'));input.value=b.dataset.quick;runSearch(true)}));
 
   function renderRecommendedList(){
@@ -496,28 +509,35 @@ async function initHallPage(){
         <span class="recommend-rank">${index+1}</span>
         <span class="recommend-main"><strong>${row.seat}番台</strong><small>${escapeHtml(shortName(machine))}</small><span class="recommend-basis">${escapeHtml(recommendationPeriodLabel())} ${fmtNumber(selectedValue,true,'枚')}</span></span>
         <span class="recommend-metrics">
-          <span class="recommend-metric ${recommendationDays===1?'selected-period':''}"><em>前日</em><b class="${diffClass(latestDiff)}">${fmtNumber(latestDiff,true,'枚')}</b><small>${fmtNumber(latestSpins,false,'G')}</small></span>
+          <span class="recommend-metric ${recommendationDays===1?'selected-period':''}"><em>最新日</em><b class="${diffClass(latestDiff)}">${fmtNumber(latestDiff,true,'枚')}</b><small>${fmtNumber(latestSpins,false,'G')}</small></span>
           <span class="recommend-metric ${recommendationDays===3?'selected-period':''}"><em>3日合計</em><b class="${diffClass(d3)}">${fmtNumber(d3,true,'枚')}</b></span>
           <span class="recommend-metric ${recommendationDays===7?'selected-period':''}"><em>7日合計</em><b class="${diffClass(d7)}">${fmtNumber(d7,true,'枚')}</b></span>
         </span>
       </button>`;
-    }).join(''):`<div class="empty-state compact">${recommendationDays>1?`${recommendationDays}日分のデータが揃った台がないか、マイナス差枚の台がありません。`:'マイナス差枚のおすすめ候補がありません。'}</div>`;
+    }).join(''):`<div class="empty-state compact">${!stats?'台データを読み込めません。島図と狙い台登録は利用できます。':recommendationDays>1?`${recommendationDays}日分のデータが揃った台がないか、マイナス差枚の台がありません。`:'マイナス差枚のおすすめ候補がありません。'}</div>`;
     recommendedList.querySelectorAll('[data-recommend-seat]').forEach(btn=>btn.addEventListener('click',()=>{
       const seat=Number(btn.dataset.recommendSeat);
       showRecommendations=true;
-      localStorage.setItem(`floor777-recommend-${hall.id}`,'1');
+      Floor777.storage.set(`floor777-recommend-${hall.id}`,'1');
       updateRecommendUI();
       renderMap();
       selectSeat(seat,true,true);
-      document.querySelector('.map-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+      // Details open directly; the location action switches to the map.
     }));
   }
   renderRecommendedList();
 
   document.getElementById('machineList').innerHTML=[...machineCount.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'ja')).map(([name,count])=>`<button class="machine-row" type="button" data-machine="${escapeHtml(name)}"><span>${escapeHtml(name)}</span><b>${count}台</b></button>`).join('');
-  document.querySelectorAll('[data-machine]').forEach(b=>b.addEventListener('click',()=>{mode='machine';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='machine'));input.value=b.dataset.machine;document.getElementById('searchCard').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>runSearch(true),220)}));
+  document.querySelectorAll('#machineList [data-machine]').forEach(b=>b.addEventListener('click',()=>{mode='machine';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='machine'));input.value=b.dataset.machine;document.getElementById('searchCard').scrollIntoView({behavior:'smooth',block:'start'});switchScreen('map');runSearch(true)}));
 
+  shortlistUI=Floor777Shortlist({hall,bySeat,svg,onDetail:n=>selectSeat(n,false,true),onMap:n=>{detailDialog.close();switchScreen('map');selectSeat(n,true,true,false);document.querySelector('.map-card').scrollIntoView({behavior:'smooth',block:'start'})}});
+  const initialParams=new URLSearchParams(location.search);
+  switchScreen(initialParams.get('view')||'map');
+  document.getElementById('dataSummary').textContent=stats?`データ基準日 ${Floor777.formatDate(stats.latest_date)} ／ ${Object.keys(stats.seats).length}台`:'台データを読み込めませんでした。島図・検索は利用できます。';
+  document.getElementById('reloadData').onclick=()=>location.reload();
+  input.setAttribute('aria-label','機種名・台番号で検索');
+  document.getElementById('recommendListToggle').onclick=()=>{showRecommendations=true;Floor777.storage.set(`floor777-recommend-${hall.id}`,'1');updateRecommendUI();renderMap();switchScreen('map');fullMap()};
   renderMap(); fullMap();
-  const params=new URLSearchParams(location.search);if(params.get('mode')==='seat'){mode='seat';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='seat'));input.placeholder='例：821'}if(params.get('q')){input.value=params.get('q');runSearch(true)}if(params.get('seat'))selectSeat(Number(params.get('seat')),true,false);
+  const params=new URLSearchParams(location.search);if(params.get('mode')==='seat'){mode='seat';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='seat'));input.placeholder='例：821'}if(params.get('q')){input.value=params.get('q');runSearch(true)}if(params.get('seat'))selectSeat(Number(params.get('seat')),initialParams.get('view')==='map'||!initialParams.get('view'),false,false);
 }
 initHallPage().catch(err=>{console.error(err);const el=document.getElementById('loadError');if(el)el.hidden=false});

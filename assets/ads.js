@@ -2,7 +2,7 @@
   const cfg = window.FLOOR777_CONFIG || {};
   const slots = document.querySelectorAll('[data-ad-slot]');
   if (!cfg.adsenseClient || (!cfg.enableAutoAds && !cfg.adsenseSlot)) {
-    slots.forEach(el => el.classList.add('ad-placeholder'));
+    slots.forEach(el => { el.hidden = true; if (el.previousElementSibling?.classList.contains('ad-label')) el.previousElementSibling.hidden = true; });
     return;
   }
 

@@ -208,3 +208,87 @@ html{color-scheme:dark}body{background:radial-gradient(circle at 78% -12%,rgba(2
   .recommend-period-switch button{flex:0 0 52px}
   .recommend-info{order:3}
 }
+
+/* Usability review: keep the black/red identity, simplify the working area. */
+:root{--muted:#b1b1ba}
+[hidden]{display:none!important}
+button,a,input,textarea,summary{touch-action:manipulation}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #ffbdc7;outline-offset:3px}
+button:disabled{opacity:.48;cursor:default}
+.main-stack,.map-card,.recommended-section,.pick-card{min-width:0}
+.hall-layout.review-layout{grid-template-columns:minmax(0,1fr);padding-bottom:24px}
+.original-detail{display:none}
+.page-nav{display:flex;gap:8px;position:sticky;top:68px;z-index:25;background:#08080aee;backdrop-filter:blur(12px);padding-top:10px;padding-bottom:10px}
+.page-nav button{flex:1;min-height:48px;padding:8px 12px;border:1px solid #3b3b42;border-radius:12px;color:#bcbcc5;background:#111114;font:inherit;font-weight:750}
+.page-nav button.active{background:#400b14;border-color:#ff4058;color:#fff}
+#pickCount{display:inline-grid;place-items:center;min-width:22px;padding:0 5px;background:#ffffff12;border-radius:7px;font-size:.8rem}
+.data-summary{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#b7b7c0;font-size:.83rem;padding-top:10px}
+.data-summary .btn{min-height:40px;white-space:nowrap}
+.hall-hero{padding-top:18px;padding-bottom:18px}
+.hall-actions .btn{white-space:nowrap}
+.search-row input{min-width:0}.search-row>.btn{flex-shrink:0;white-space:nowrap}
+.map-toolbar-actions{flex-wrap:wrap;overflow:visible;gap:7px}
+.map-toolbar-actions .icon-btn{min-height:44px;height:auto;min-width:44px}
+.map-card,#searchCard,.recommended-section,#shortlistPanel{scroll-margin-top:135px}
+.map-viewport{background:#08080a;min-height:420px}.map-viewport svg{height:clamp(420px,70vh,780px)}
+.map-hint{pointer-events:none;color:#c4c4ca;background:#101013e8;border-color:#44444c}
+.map-value-switch{display:flex;flex-wrap:wrap;max-width:100%;gap:2px}
+.map-value-btn,.recommend-btn{min-height:42px}
+.map-value-btn{padding:0 11px!important;flex:1 0 auto!important}
+.recommend-period-switch{flex-wrap:wrap;max-width:100%}.recommend-period-switch button{min-height:40px;min-width:64px;font-size:.82rem}
+.recommend-info,.orientation-status{color:#b2b2bc;font-size:.8rem}
+.recommended-section>.recommend-period-switch{margin-bottom:18px}
+.recommended-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.recommended-row{grid-template-columns:32px minmax(0,1fr);padding:16px;gap:10px}
+.recommend-main strong{font-size:1.3rem}.recommend-main small{font-size:.9rem;color:#c2c2ca;white-space:normal;overflow:visible}
+.recommend-basis{font-size:.84rem;margin-top:8px;padding:5px 8px}
+.recommend-metrics{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));text-align:center;border-top:1px solid #333028;padding-top:12px;width:100%}
+.recommend-metric{padding:6px 3px!important;overflow:hidden}.recommend-metric em{font-size:.76rem;color:#b0b0b9}.recommend-metric b{font-size:1rem}.recommend-metric small{font-size:.78rem;color:#aaaab4}
+.recommended-head{flex-wrap:wrap}.recommended-head h2{margin:.2em 0}.recommended-head .muted{max-width:760px;font-size:.85rem}
+.seat-dialog{width:min(700px,calc(100% - 24px));max-height:88dvh;overflow:auto;border:1px solid #56565e;border-radius:20px;background:#101013;color:#f5f5f7;padding:12px;box-shadow:0 28px 100px #0009}
+.seat-dialog::backdrop{background:#000a;backdrop-filter:blur(4px)}
+.dialog-close{display:block;margin-left:auto;min-height:44px;position:sticky;top:0;z-index:2}
+.seat-dialog .detail-card{position:static;box-shadow:none;border:0;background:none;padding:14px}
+.detail-actions{display:flex;gap:10px;position:sticky;bottom:-12px;background:#101013;padding:14px 0 4px;flex-wrap:wrap}
+.detail-actions .btn{flex:1;white-space:nowrap;min-height:46px;font-size:.9rem}
+.stat-box strong{font-size:1.25rem}.stat-box span{font-size:.83rem;color:#b6b6c0}
+.history-table{font-size:.9rem}.history-table th{color:#b1b1bc}.history-title{font-size:.94rem}
+.diff-line-chart{min-height:170px}.chart-x-label,.chart-y-label{fill:#b5b5bf;font-size:9px}
+.seat.picked rect{stroke:#fa7cc5!important;stroke-width:4!important}
+.seat.selected rect{stroke:#64c8ff!important;stroke-width:5!important;filter:drop-shadow(0 0 4px #64c8ff)!important}
+.seat.recommended rect{stroke-width:4!important;filter:none!important}
+.seat.recommended.selected rect{stroke:#64c8ff!important;stroke-width:5!important;filter:drop-shadow(0 0 4px #64c8ff)!important}
+.seat.recommended.picked rect{stroke:#fa7cc5!important}.seat.recommended.picked.selected rect{stroke:#64c8ff!important}
+.seat .seat-number{font-size:11px}.seat .seat-machine{font-size:6.5px}
+.seat.recommended .recommend-star{font-size:11px!important;stroke-width:1px!important;filter:none!important}
+.pick-card{border:1px solid #36363d;border-radius:14px;padding:18px;margin-top:16px;background:#0b0b0e}
+.pick-heading{display:flex;gap:12px;align-items:center}.pick-heading strong{font-size:1.4rem}.pick-heading .muted{font-size:.86rem}
+.pick-card label{display:block;margin-top:14px}.pick-card input{display:block;margin-top:6px}
+.pick-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}.pick-actions .btn{min-height:44px;padding:0 15px}.pick-actions .muted{font-size:.78rem}
+#bulkSeats{display:block;resize:vertical;width:100%;min-height:90px;padding:12px;margin-top:8px;font:inherit}
+#pickSaveStatus{font-size:.85rem;color:#ffc3cd;min-height:1.5em}
+.backup-panel{border-top:1px solid #33333b;padding-top:18px;margin-top:24px}.backup-panel summary{cursor:pointer;min-height:44px;font-weight:700}
+.import-label{display:inline-flex;align-items:center;cursor:pointer}.import-label:focus-within{outline:3px solid #ffbdc7}
+.empty-state .btn{margin:14px auto 0;display:block}.bottom-machine-section{padding-bottom:36px}
+.toast{max-width:calc(100% - 24px);width:max-content;z-index:1000}
+@media(max-width:720px){.recommended-list{grid-template-columns:1fr}.recommended-head{gap:12px}.recommend-list-badge{width:auto;margin:0}.recommended-row{padding:14px}.recommend-metric b{font-size:.95rem}}
+@media(max-width:620px){
+ .page-nav{top:62px;gap:6px}.page-nav button{font-size:.87rem;padding:6px;min-height:46px}
+ .hall-hero h1{font-size:1.45rem}.hall-meta{gap:6px 12px;font-size:.75rem}.hall-actions{gap:7px}.hall-actions .btn{min-height:40px;font-size:.8rem;padding:0 10px}
+ .breadcrumb{font-size:.7rem;padding-top:12px;padding-bottom:6px}
+ .data-summary{font-size:.75rem;gap:6px}.data-summary .btn{font-size:.75rem;padding:0 10px}
+ .search-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px}.search-row .btn{padding:0 10px;font-size:.8rem}.search-row input{padding:0 10px;font-size:16px}
+ .card-pad{padding:14px}.quick-chips{gap:6px}.chip{font-size:.75rem;padding:6px 9px}
+ .map-toolbar{padding:12px;gap:12px}.map-toolbar-actions{width:100%;overflow:visible}.map-toolbar-actions .icon-btn{min-height:44px}.icon-btn.wide{min-width:75px}.phone-orientation-btn{min-width:105px}
+ .map-data-controls{padding:10px;gap:8px}.map-value-switch{overflow:visible;flex-wrap:wrap}.map-value-btn{min-width:0;font-size:.8rem;padding:0 9px!important}
+ .recommend-period-switch{order:initial}.recommend-period-switch>span{flex:initial}.recommend-period-switch button{flex:1;min-width:55px}.recommend-info{order:initial}
+ .map-viewport{min-height:0}.map-viewport svg{height:auto}.seat .seat-number{font-size:11px}.seat .seat-machine{font-size:6.5px}
+ .seat-dialog{max-height:90dvh;padding:10px}.seat-dialog .detail-card{padding:10px}.detail-seat{font-size:1.9rem}.detail-actions .btn{font-size:.82rem;padding:0 10px}.pick-card{padding:14px}
+ .nav{display:flex}.nav a{display:none}.nav a:first-child{display:block;font-size:.8rem}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+@media print{
+ body.print-map .page-nav,body.print-map .data-summary,body.print-map .bottom-machine-section,body.print-map dialog,body.print-map .toast{display:none!important}
+ body.print-map .map-card{display:block!important}
+ body.print-map .hall-hero h1{font-size:18pt!important}
+}

@@ -1,32 +1,40 @@
 # FLOOR777
 
-パチンコ・スロット店の島図から、機種名・台番号で台の位置を探せる静的Webサイトです。
+GitHub Pagesで公開する、店舗の島図・台データ・狙い台管理サイトです。現在はHYPER ARROW美原店の551台を掲載しています。
 
-## 現在の掲載
-- HYPER ARROW美原店
-- 551台
-- 島図座標: 2026-09-18版
-- 機種名/台番号: SLOTDASH公開データが取れる場合は最新営業日に自動更新、取得できない場合は静的スナップショットへフォールバック
+## 画面
 
-## 主な機能
-- 機種名検索 / 台番号検索
-- 検索台ハイライト
-- ドラッグ / 拡大縮小
-- 島図180°向き切替
-- 機種名ラベルON/OFF
-- 台タップで最新差枚 / G数 / 3日 / 7日 / 直近7日履歴
-- お気に入り / 最近見た店舗
-- AdSense差し込み用広告枠
-- PWA / SEO / sitemap / robots.txt
+- 島図・検索：機種名／全角対応の台番号検索、拡大・移動・2本指ズーム、180°回転、スマホ方位センサー、PDF印刷
+- おすすめ：最新日／3営業日／7営業日のマイナス差枚TOP10。回転数に依存せず、差枚が取得済みの台から抽出
+- 狙い台：台の詳細から追加、一括入力、メモ、優先順、全削除、JSONバックアップと復元
+- 台の詳細：その場で開くダイアログに差枚・回転数・履歴・グラフを表示。未取得値を0に変換しない
 
-## 台データの同期
-FLOOR777側にはGoogle Sheetsの秘密情報を置きません。
-`slotdash-mihara` 側のGitHub Actionsが、既存の `SPREADSHEET_ID` / `GCP_CREDENTIALS` Secretsを使って `public_data/mihara-stats.json` を毎朝更新します。
-FLOOR777はその公開JSONをブラウザから読み込みます。
+狙い台・メモ・お気に入り・表示設定は店舗別にブラウザーへ保存します。サーバーへは送信しません。別端末への移行にはバックアップを使います。
 
-## GitHub Pages
-このフォルダの**中身**を `floor777` リポジトリのルートへアップロードします。
-既にPages公開済みなら、同名ファイルを上書きしてCommitするだけです。
+## データの流れ
 
-## AdSense
-審査通過後、`assets/site-config.js` の `adsenseClient` / `adsenseSlot` を設定してください。審査前は空欄のままでOKです。
+`floor777-data` のGitHub Actionsが毎朝08:30 JSTに収集・集計し、このリポジトリの `data/live/hyper-arrow-mihara-stats.json` を更新します。公開サイトにはGoogle認証情報を置きません。
+
+島図の座標は `data/positions-mihara.json`、店舗設定は `data/hyper-arrow-mihara.json`。公開JSONの取得に失敗した場合も、静的な機種配置・検索・狙い台登録を利用できます。
+
+3・7営業日の集計は収集側の `periods` を利用し、機種入替・欠損の扱いを引き継ぎます。`diff_sum` と `avg_spins` は独立した欠損値です。例えば回転数だけ未取得でも、揃っている差枚は表示します。おすすめ欄に実際の対象日を表示します。
+
+## 開発・確認
+
+静的サイトのためビルドは不要です。
+
+```sh
+python3 -m http.server 8000
+npm install
+npx playwright install chromium
+npm test
+```
+
+既存のChromiumを使用する場合は `CHROMIUM_PATH=/absolute/path/to/chromium npm test`。
+ブラウザーテストはローカルファイルと公開データのテスト用コピーを使い、外部サイトへのアクセスやGitHubへの書き込みは行いません。
+
+キャッシュはネットワークを優先し、成功レスポンスをオフライン用に保存します。HTML・データは読み直され、同じドメインの別サイトのキャッシュを削除しません。
+
+## 広告
+
+`assets/site-config.js` のAdSense設定が空なら広告の空き枠を表示しません。広告を利用するときに実際のIDを設定してください。

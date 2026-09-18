@@ -1,16 +1,24 @@
-const CACHE='floor777-v1-20260919-recperiod1';
-const CORE=[
-  './','./index.html','./halls/','./halls/hyper-arrow-mihara/','./assets/styles.css','./assets/common.js','./assets/home.js','./assets/app.js','./data/halls.json','./data/hyper-arrow-mihara.json','./data/positions-mihara.json','./offline.html'
-];
+const CACHE='floor777-review-20260919-1';
+const CORE=['./','./index.html','./halls/','./halls/hyper-arrow-mihara/','./assets/styles.css','./assets/common.js','./assets/home.js','./assets/app.js','./assets/shortlist.js','./assets/ads.js','./assets/site-config.js','./data/halls.json','./data/hyper-arrow-mihara.json','./data/positions-mihara.json','./offline.html'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('floor777-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET')return;
-  const url=new URL(e.request.url);
-  if(url.origin!==location.origin)return;
-  if(url.pathname.endsWith('.json')){
-    e.respondWith(fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>caches.match(e.request)));
-    return;
-  }
-  e.respondWith(caches.match(e.request).then(cached=>cached||fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>caches.match('./offline.html'))));
+  const url=new URL(e.request.url),scope=new URL(self.registration.scope);
+  if(url.origin!==scope.origin||!url.pathname.startsWith(scope.pathname))return;
+  // Version query strings share one cache entry; HTML and data always try the network.
+  const key=new URL(url);key.search='';
+  e.respondWith((async()=>{
+    const cache=await caches.open(CACHE);
+    try{
+      const response=await fetch(e.request,{cache:'no-cache'});
+      if(response.ok){try{await cache.put(key.href,response.clone())}catch{}}
+      else if(response.status>=500){const cached=await cache.match(key.href);if(cached)return cached;}
+      return response;
+    }catch{
+      const cached=await cache.match(key.href);if(cached)return cached;
+      if(e.request.mode==='navigate')return await cache.match(new URL('offline.html',scope).href)||Response.error();
+      return Response.error();
+    }
+  })());
 });
