@@ -178,7 +178,85 @@ async function initHallPage(){
   document.getElementById('mapFull').addEventListener('click',fullMap);document.getElementById('zoomIn').addEventListener('click',()=>zoomAt(1.35));document.getElementById('zoomOut').addEventListener('click',()=>zoomAt(.74));
   const orientationBtn=document.getElementById('orientationBtn');
   const updateOrientationLabel=()=>{orientationBtn.textContent=flipped?'↺ 標準':'↻ 180°';orientationBtn.title=flipped?'標準の向きに戻す':'島図を180度回転'};updateOrientationLabel();
-  orientationBtn.addEventListener('click',()=>{flipped=!flipped;localStorage.setItem(`floor777-orientation-${hall.id}`,flipped?'180':'0');renderMap();fullMap();updateOrientationLabel();Floor777.toast(flipped?'島図を180°表示にしました':'標準表示に戻しました')});
+  function applyFlip(next,announce=''){
+    if(next===flipped)return;
+    const old={...view};
+    flipped=next;
+    localStorage.setItem(`floor777-orientation-${hall.id}`,flipped?'180':'0');
+    renderMap();
+    setView({x:full.w-(old.x+old.w),y:full.h-(old.y+old.h),w:old.w,h:old.h});
+    updateOrientationLabel();
+    if(announce)Floor777.toast(announce);
+  }
+  orientationBtn.addEventListener('click',()=>applyFlip(!flipped,flipped?'標準表示に戻しました':'島図を180°表示にしました'));
+
+  const pdfBtn=document.getElementById('pdfBtn');
+  const clearPrintMode=()=>document.body.classList.remove('print-map');
+  window.addEventListener('afterprint',clearPrintMode);
+  pdfBtn?.addEventListener('click',()=>{
+    document.body.classList.add('print-map');
+    Floor777.toast('印刷画面から「PDFとして保存」を選べます');
+    setTimeout(()=>window.print(),120);
+    setTimeout(clearPrintMode,1800);
+  });
+
+  const phoneOrientationBtn=document.getElementById('phoneOrientationBtn');
+  const phoneOrientationStatus=document.getElementById('phoneOrientationStatus');
+  let phoneOrientationOn=false,phoneBaseHeading=null,phoneBaseFlip=flipped,lastHeadingAt=0;
+  function headingFromEvent(e){
+    if(Number.isFinite(Number(e.webkitCompassHeading)))return (Number(e.webkitCompassHeading)+360)%360;
+    if(Number.isFinite(Number(e.alpha)))return (360-Number(e.alpha)+360)%360;
+    return null;
+  }
+  function normalizeAngle(v){return ((v+540)%360)-180}
+  function updatePhoneOrientationUI(text=''){
+    if(!phoneOrientationBtn)return;
+    phoneOrientationBtn.classList.toggle('active',phoneOrientationOn);
+    phoneOrientationBtn.textContent=phoneOrientationOn?'📱 自動向き ON':'📱 スマホ向き';
+    if(phoneOrientationStatus)phoneOrientationStatus.textContent=text||(phoneOrientationOn?'向きを取得中…':'スマホ向き OFF');
+  }
+  function handlePhoneOrientation(e){
+    if(!phoneOrientationOn)return;
+    const heading=headingFromEvent(e);if(heading===null)return;
+    lastHeadingAt=Date.now();
+    if(phoneBaseHeading===null){
+      phoneBaseHeading=heading;phoneBaseFlip=flipped;
+      if(phoneOrientationStatus)phoneOrientationStatus.textContent='基準をセットしました';
+      return;
+    }
+    const delta=normalizeAngle(heading-phoneBaseHeading);
+    const abs=Math.abs(delta);
+    let target=flipped;
+    if(flipped===phoneBaseFlip&&abs>100)target=!phoneBaseFlip;
+    else if(flipped!==phoneBaseFlip&&abs<80)target=phoneBaseFlip;
+    if(target!==flipped)applyFlip(target);
+    if(phoneOrientationStatus)phoneOrientationStatus.textContent=`向き差 ${Math.round(delta)}° ・ ${flipped?'180°表示':'標準表示'}`;
+  }
+  function stopPhoneOrientation(){
+    phoneOrientationOn=false;phoneBaseHeading=null;
+    window.removeEventListener('deviceorientationabsolute',handlePhoneOrientation,true);
+    window.removeEventListener('deviceorientation',handlePhoneOrientation,true);
+    updatePhoneOrientationUI();
+  }
+  async function startPhoneOrientation(){
+    if(typeof DeviceOrientationEvent==='undefined'){
+      Floor777.toast('この端末ではスマホ向きを利用できません');return;
+    }
+    try{
+      if(typeof DeviceOrientationEvent.requestPermission==='function'){
+        const result=await DeviceOrientationEvent.requestPermission();
+        if(result!=='granted'){Floor777.toast('スマホ向きの利用が許可されませんでした');return}
+      }
+    }catch(err){Floor777.toast('スマホ向きの許可を取得できませんでした');return}
+    phoneOrientationOn=true;phoneBaseHeading=null;phoneBaseFlip=flipped;lastHeadingAt=0;
+    window.addEventListener('deviceorientationabsolute',handlePhoneOrientation,true);
+    window.addEventListener('deviceorientation',handlePhoneOrientation,true);
+    updatePhoneOrientationUI('今の表示が合っている向きで基準設定中…');
+    setTimeout(()=>{if(phoneOrientationOn&&!lastHeadingAt)Floor777.toast('端末の「動作と方向」センサーを確認してください')},1800);
+  }
+  phoneOrientationBtn?.addEventListener('click',()=>phoneOrientationOn?stopPhoneOrientation():startPhoneOrientation());
+  updatePhoneOrientationUI();
+
   const namesBtn=document.getElementById('namesBtn');
   const updateNamesLabel=()=>{namesBtn.classList.toggle('active',showNames);namesBtn.textContent=showNames?'機種名 ON':'機種名 OFF'};updateNamesLabel();
   namesBtn.addEventListener('click',()=>{showNames=!showNames;localStorage.setItem(`floor777-show-names-${hall.id}`,showNames?'1':'0');svg.querySelectorAll('.seat-machine').forEach(x=>x.style.display=showNames?'':'none');updateNamesLabel()});
@@ -197,10 +275,53 @@ async function initHallPage(){
   }
   recommendBtn?.addEventListener('click',()=>{showRecommendations=!showRecommendations;localStorage.setItem(`floor777-recommend-${hall.id}`,showRecommendations?'1':'0');updateRecommendUI();renderMap();setView(view)});updateRecommendUI();
 
-  let dragging=false,lastPoint=null,downPoint=null,moved=false;
-  svg.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragging=true;moved=false;downPoint={x:e.clientX,y:e.clientY};lastPoint={x:e.clientX,y:e.clientY};svg.setPointerCapture?.(e.pointerId)});
-  svg.addEventListener('pointermove',e=>{if(!dragging||!lastPoint)return;const dx=e.clientX-lastPoint.x,dy=e.clientY-lastPoint.y;if(downPoint&&Math.hypot(e.clientX-downPoint.x,e.clientY-downPoint.y)>10)moved=true;const sx=view.w/Math.max(1,svg.clientWidth),sy=view.h/Math.max(1,svg.clientHeight);setView({x:view.x-dx*sx,y:view.y-dy*sy,w:view.w,h:view.h});lastPoint={x:e.clientX,y:e.clientY}});
-  const endDrag=()=>{dragging=false;lastPoint=null;downPoint=null};svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);svg.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')endDrag()});
+  let dragging=false,lastPoint=null,downPoint=null,moved=false,pinch=null;
+  const pointers=new Map();
+  function pointerValues(){return [...pointers.values()]}
+  function beginPinch(){
+    const pts=pointerValues();if(pts.length<2)return;
+    const a=pts[0],b=pts[1],rect=svg.getBoundingClientRect();
+    const cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;
+    pinch={distance:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),startView:{...view},rx:(cx-rect.left)/Math.max(1,rect.width),ry:(cy-rect.top)/Math.max(1,rect.height)};
+    dragging=false;lastPoint=null;downPoint=null;moved=true;
+  }
+  svg.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    svg.setPointerCapture?.(e.pointerId);
+    if(pointers.size===1){dragging=true;moved=false;downPoint={x:e.clientX,y:e.clientY};lastPoint={x:e.clientX,y:e.clientY};pinch=null}
+    else beginPinch();
+  });
+  svg.addEventListener('pointermove',e=>{
+    if(!pointers.has(e.pointerId))return;
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size>=2){
+      const pts=pointerValues(),a=pts[0],b=pts[1];
+      if(!pinch)beginPinch();
+      const dist=Math.max(1,Math.hypot(a.x-b.x,a.y-b.y));
+      const factor=dist/Math.max(1,pinch.distance);
+      const start=pinch.startView,w=start.w/factor,h=start.h/factor;
+      const anchorX=start.x+start.w*pinch.rx,anchorY=start.y+start.h*pinch.ry;
+      setView({x:anchorX-w*pinch.rx,y:anchorY-h*pinch.ry,w,h});
+      moved=true;return;
+    }
+    if(!dragging||!lastPoint)return;
+    const dx=e.clientX-lastPoint.x,dy=e.clientY-lastPoint.y;
+    if(downPoint&&Math.hypot(e.clientX-downPoint.x,e.clientY-downPoint.y)>10)moved=true;
+    const sx=view.w/Math.max(1,svg.clientWidth),sy=view.h/Math.max(1,svg.clientHeight);
+    setView({x:view.x-dx*sx,y:view.y-dy*sy,w:view.w,h:view.h});
+    lastPoint={x:e.clientX,y:e.clientY};
+  });
+  function endPointer(e){
+    pointers.delete(e.pointerId);
+    if(pointers.size>=2){beginPinch();return}
+    pinch=null;
+    if(pointers.size===1){
+      const p=pointerValues()[0];dragging=true;lastPoint={...p};downPoint={...p};moved=true;
+    }else{dragging=false;lastPoint=null;downPoint=null}
+  }
+  svg.addEventListener('pointerup',endPointer);svg.addEventListener('pointercancel',endPointer);
+  svg.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')endPointer(e)});
   svg.addEventListener('wheel',e=>{e.preventDefault();const rect=svg.getBoundingClientRect(),rx=(e.clientX-rect.left)/rect.width,ry=(e.clientY-rect.top)/rect.height;zoomAt(e.deltaY<0?1.18:.84,view.x+view.w*rx,view.y+view.h*ry)},{passive:false});
 
   function applyClasses(){const matchSet=new Set(matches);svg.querySelectorAll('.seat').forEach(g=>{const n=Number(g.dataset.seat);g.classList.toggle('match',matchSet.has(n));g.classList.toggle('selected',selected===n)})}
