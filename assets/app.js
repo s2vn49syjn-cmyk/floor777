@@ -197,7 +197,7 @@ async function initHallPage(){
     document.body.classList.add('print-map');
     Floor777.toast('印刷画面から「PDFとして保存」を選べます');
     setTimeout(()=>window.print(),120);
-    setTimeout(clearPrintMode,1800);
+    setTimeout(clearPrintMode,60000);
   });
 
   const phoneOrientationBtn=document.getElementById('phoneOrientationBtn');
