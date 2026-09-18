@@ -106,14 +106,12 @@ async function initHallPage(){
     const p=rec?.periods?.[String(days)];
     return p?.complete?p.diff_sum:null;
   }
-  const recommendedSeats=new Set(
-    Object.entries(stats?.seats||{})
-      .map(([seat,rec])=>({seat:Number(seat),value:recommendationMetric(rec)}))
-      .filter(x=>Number.isFinite(Number(x.value))&&Number(x.value)<0)
-      .sort((a,b)=>Number(a.value)-Number(b.value))
-      .slice(0,Number(recommendationRule.limit||10))
-      .map(x=>x.seat)
-  );
+  const recommendedRows=Object.entries(stats?.seats||{})
+    .map(([seat,rec])=>({seat:Number(seat),value:recommendationMetric(rec),rec}))
+    .filter(x=>Number.isFinite(Number(x.value))&&Number(x.value)<0)
+    .sort((a,b)=>Number(a.value)-Number(b.value))
+    .slice(0,Number(recommendationRule.limit||10));
+  const recommendedSeats=new Set(recommendedRows.map(x=>x.seat));
 
   Floor777.addRecent(hall.id);
   document.getElementById('hallUpdated').textContent=Floor777.formatDate(hall.layout_updated_at || hall.updated_at);
@@ -404,6 +402,32 @@ async function initHallPage(){
   }
   modeButtons.forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.searchMode;modeButtons.forEach(x=>x.classList.toggle('active',x===btn));input.placeholder=mode==='seat'?'例：821':'例：東京喰種 / モンキー / 北斗';input.value='';matches=[];selected=null;resultBox.classList.remove('show');applyClasses();fullMap();input.focus()}));
   document.getElementById('searchBtn').addEventListener('click',()=>runSearch(true));input.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch(true)});document.getElementById('clearBtn').addEventListener('click',()=>{input.value='';runSearch(false);input.focus()});document.querySelectorAll('[data-quick]').forEach(b=>b.addEventListener('click',()=>{mode='machine';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='machine'));input.value=b.dataset.quick;runSearch(true)}));
+
+  const recommendedList=document.getElementById('recommendedList');
+  const recommendedRuleText=document.getElementById('recommendedRuleText');
+  if(recommendedRuleText)recommendedRuleText.textContent=recommendationRule.label||'おすすめ候補';
+  if(recommendedList){
+    recommendedList.innerHTML=recommendedRows.length?recommendedRows.map((row,index)=>{
+      const rec=row.rec||{};
+      const machine=rec.machine||bySeat.get(row.seat)?.machine||'機種不明';
+      const latestDiff=rec.latest?.diff;
+      const latestSpins=rec.latest?.spins;
+      return `<button class="recommended-row" type="button" data-recommend-seat="${row.seat}">
+        <span class="recommend-rank">${index+1}</span>
+        <span class="recommend-main"><strong>${row.seat}番台</strong><small>${escapeHtml(shortName(machine))}</small></span>
+        <span class="recommend-metrics"><b class="${diffClass(latestDiff)}">${fmtNumber(latestDiff,true,'枚')}</b><small>${fmtNumber(latestSpins,false,'G')}</small></span>
+      </button>`;
+    }).join(''):'<div class="empty-state compact">おすすめ候補を作れる台データがまだありません。</div>';
+    recommendedList.querySelectorAll('[data-recommend-seat]').forEach(btn=>btn.addEventListener('click',()=>{
+      const seat=Number(btn.dataset.recommendSeat);
+      showRecommendations=true;
+      localStorage.setItem(`floor777-recommend-${hall.id}`,'1');
+      updateRecommendUI();
+      renderMap();
+      selectSeat(seat,true,true);
+      document.querySelector('.map-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+    }));
+  }
 
   document.getElementById('machineList').innerHTML=[...machineCount.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'ja')).map(([name,count])=>`<button class="machine-row" type="button" data-machine="${escapeHtml(name)}"><span>${escapeHtml(name)}</span><b>${count}台</b></button>`).join('');
   document.querySelectorAll('[data-machine]').forEach(b=>b.addEventListener('click',()=>{mode='machine';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='machine'));input.value=b.dataset.machine;document.getElementById('searchCard').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>runSearch(true),220)}));
