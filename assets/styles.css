@@ -183,3 +183,12 @@ html{color-scheme:dark}body{background:radial-gradient(circle at 78% -12%,rgba(2
 .chart-x-label,.chart-y-label{fill:#7f7f88;font-size:8px;font-weight:700}
 .chart-empty{padding:24px 10px;text-align:center;color:#85858e;font-size:.78rem}
 @media(max-width:620px){.detail-diff-chart{padding:6px 4px 2px}.diff-line-chart{min-height:145px}.chart-x-label{font-size:7.5px}}
+
+
+/* Map period selector */
+.map-value-btn{white-space:nowrap}
+@media(max-width:620px){
+  .map-value-switch{display:flex;flex:1 1 100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .map-value-switch::-webkit-scrollbar{display:none}
+  .map-value-btn{flex:0 0 auto!important;min-width:72px}
+}
