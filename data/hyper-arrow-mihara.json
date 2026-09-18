@@ -2223,5 +2223,11 @@
   "stats_source": {
     "name": "みんレポ",
     "url": "https://min-repo.com/tag/hyper-arrow%E7%BE%8E%E5%8E%9F%E5%BA%97/"
+  },
+  "recommendation": {
+    "method": "negative_top10",
+    "days": 1,
+    "limit": 10,
+    "label": "前日差枚マイナス上位10台"
   }
 }
