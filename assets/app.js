@@ -93,6 +93,7 @@ async function initHallPage(){
   const full={x:0,y:0,w:mapW,h:mapH};
   let view={...full};
   let mode='machine',matches=[],selected=null,selectedIndex=-1;
+  let sensorRotation=0;
   let flipped=localStorage.getItem(`floor777-orientation-${hall.id}`)==='180';
   let showNames=localStorage.getItem(`floor777-show-names-${hall.id}`)!=='0';
   let mapDisplay=localStorage.getItem(`floor777-map-display-${hall.id}`)||'seat';
@@ -140,8 +141,9 @@ async function initHallPage(){
   function renderMap(){
     svg.innerHTML='';
     svg.setAttribute('viewBox',`${full.x} ${full.y} ${full.w} ${full.h}`);
-    const bg=document.createElementNS(NS,'rect');bg.setAttribute('x','3');bg.setAttribute('y','3');bg.setAttribute('width',full.w-6);bg.setAttribute('height',full.h-6);bg.setAttribute('rx','18');bg.setAttribute('class','floor-bg');svg.appendChild(bg);
-    const label=document.createElementNS(NS,'text');label.setAttribute('x','20');label.setAttribute('y','35');label.setAttribute('class','floor-label');label.textContent=`${hall.name} / ${flipped?'180°表示':'標準表示'}`;svg.appendChild(label);
+    const mapContent=document.createElementNS(NS,'g');mapContent.setAttribute('id','mapContent');svg.appendChild(mapContent);
+    const bg=document.createElementNS(NS,'rect');bg.setAttribute('x','3');bg.setAttribute('y','3');bg.setAttribute('width',full.w-6);bg.setAttribute('height',full.h-6);bg.setAttribute('rx','18');bg.setAttribute('class','floor-bg');mapContent.appendChild(bg);
+    const label=document.createElementNS(NS,'text');label.setAttribute('x','20');label.setAttribute('y','35');label.setAttribute('class','floor-label');label.textContent=`${hall.name} / ${flipped?'180°表示':'標準表示'}`;mapContent.appendChild(label);
     for(const item of seats){
       const raw=positions[String(item.seat)]; if(!raw) continue;
       const [x,y,w,h]=orientedPosition(raw);
@@ -160,17 +162,41 @@ async function initHallPage(){
         g.classList.add('recommended');
         const star=document.createElementNS(NS,'text');star.setAttribute('x',x+w-5);star.setAttribute('y',y+7);star.setAttribute('class','recommend-star');star.textContent='★';g.appendChild(star);
       }
-      svg.appendChild(g);
+      mapContent.appendChild(g);
       g.addEventListener('click',()=>{if(!moved)selectSeat(item.seat,true,true)});g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectSeat(item.seat,true,true)}});
     }
+    applySensorRotationToMap();
     applyClasses();
   }
 
-  function clampView(v){const w=Math.max(250,Math.min(full.w,v.w));const h=Math.max(220,Math.min(full.h,v.h));return{x:Math.max(0,Math.min(full.w-w,v.x)),y:Math.max(0,Math.min(full.h-h,v.y)),w,h}}
+  function rotatedBounds(angle=sensorRotation){
+    const rad=angle*Math.PI/180,c=Math.abs(Math.cos(rad)),s=Math.abs(Math.sin(rad));
+    const w=full.w*c+full.h*s,h=full.w*s+full.h*c,cx=full.x+full.w/2,cy=full.y+full.h/2;
+    return{x:cx-w/2,y:cy-h/2,w,h};
+  }
+  function applySensorRotationToMap(){
+    const g=svg.querySelector('#mapContent');if(!g)return;
+    const cx=full.x+full.w/2,cy=full.y+full.h/2;
+    g.setAttribute('transform',Math.abs(sensorRotation)>.01?`rotate(${sensorRotation} ${cx} ${cy})`:'');
+  }
+  function rotatePoint(x,y,angle=sensorRotation){
+    if(Math.abs(angle)<.01)return{x,y};
+    const cx=full.x+full.w/2,cy=full.y+full.h/2,rad=angle*Math.PI/180,co=Math.cos(rad),si=Math.sin(rad),dx=x-cx,dy=y-cy;
+    return{x:cx+dx*co-dy*si,y:cy+dx*si+dy*co};
+  }
+  function rotatedPosition(p){
+    const [x,y,w,h]=p,center=rotatePoint(x+w/2,y+h/2);
+    return[center.x-w/2,center.y-h/2,w,h];
+  }
+  function clampView(v){
+    const bounds=rotatedBounds();
+    const w=Math.max(250,Math.min(bounds.w,v.w)),h=Math.max(220,Math.min(bounds.h,v.h));
+    return{x:Math.max(bounds.x,Math.min(bounds.x+bounds.w-w,v.x)),y:Math.max(bounds.y,Math.min(bounds.y+bounds.h-h,v.y)),w,h};
+  }
   function setView(v){view=clampView(v);svg.setAttribute('viewBox',`${view.x} ${view.y} ${view.w} ${view.h}`)}
-  function fullMap(){setView({...full})}
+  function fullMap(){setView(rotatedBounds())}
   function focusSeats(list){
-    const ps=list.map(s=>positions[String(s)]).filter(Boolean).map(orientedPosition);if(!ps.length){fullMap();return}
+    const ps=list.map(s=>positions[String(s)]).filter(Boolean).map(orientedPosition).map(rotatedPosition);if(!ps.length){fullMap();return}
     const minX=Math.min(...ps.map(p=>p[0])),maxX=Math.max(...ps.map(p=>p[0]+p[2])),minY=Math.min(...ps.map(p=>p[1])),maxY=Math.max(...ps.map(p=>p[1]+p[3]));
     const cx=(minX+maxX)/2,cy=(minY+maxY)/2;let w=Math.max(430,(maxX-minX)+340),h=Math.max(360,(maxY-minY)+300);const aspect=svg.clientWidth/Math.max(1,svg.clientHeight);if(w/h<aspect)w=h*aspect;else h=w/aspect;w=Math.min(w,full.w);h=Math.min(h,full.h);setView({x:cx-w/2,y:cy-h/2,w,h});
   }
@@ -188,7 +214,10 @@ async function initHallPage(){
     updateOrientationLabel();
     if(announce)Floor777.toast(announce);
   }
-  orientationBtn.addEventListener('click',()=>applyFlip(!flipped,flipped?'標準表示に戻しました':'島図を180°表示にしました'));
+  orientationBtn.addEventListener('click',()=>{
+    applyFlip(!flipped,flipped?'標準表示に戻しました':'島図を180°表示にしました');
+    if(phoneOrientationOn&&currentHeading!==null){phoneBaseHeading=currentHeading;setSensorRotation(0,false);updatePhoneOrientationUI('この向きを新しい基準にしました')}
+  });
 
   const pdfBtn=document.getElementById('pdfBtn');
   const clearPrintMode=()=>document.body.classList.remove('print-map');
@@ -202,56 +231,64 @@ async function initHallPage(){
 
   const phoneOrientationBtn=document.getElementById('phoneOrientationBtn');
   const phoneOrientationStatus=document.getElementById('phoneOrientationStatus');
-  let phoneOrientationOn=false,phoneBaseHeading=null,phoneBaseFlip=flipped,lastHeadingAt=0;
+  let phoneOrientationOn=false,phoneBaseHeading=null,lastHeadingAt=0,currentHeading=null,rotationFrame=0;
   function headingFromEvent(e){
     if(Number.isFinite(Number(e.webkitCompassHeading)))return (Number(e.webkitCompassHeading)+360)%360;
     if(Number.isFinite(Number(e.alpha)))return (360-Number(e.alpha)+360)%360;
     return null;
   }
   function normalizeAngle(v){return ((v+540)%360)-180}
+  function smoothAngle(current,target,factor=.24){return normalizeAngle(current+normalizeAngle(target-current)*factor)}
   function updatePhoneOrientationUI(text=''){
     if(!phoneOrientationBtn)return;
     phoneOrientationBtn.classList.toggle('active',phoneOrientationOn);
-    phoneOrientationBtn.textContent=phoneOrientationOn?'📱 自動向き ON':'📱 スマホ向き';
-    if(phoneOrientationStatus)phoneOrientationStatus.textContent=text||(phoneOrientationOn?'向きを取得中…':'スマホ向き OFF');
+    phoneOrientationBtn.textContent=phoneOrientationOn?'🧭 自動回転 ON':'🧭 自動回転';
+    if(phoneOrientationStatus)phoneOrientationStatus.textContent=text||(phoneOrientationOn?'方角を取得中…':'自動回転 OFF');
+  }
+  function setSensorRotation(next,keepZoom=true){
+    const oldBounds=rotatedBounds(sensorRotation);
+    const wasFull=view.w>=oldBounds.w*.97&&view.h>=oldBounds.h*.97;
+    sensorRotation=normalizeAngle(next);
+    applySensorRotationToMap();
+    if(wasFull||!keepZoom)fullMap();else setView(view);
+  }
+  function scheduleSensorRotation(target){
+    sensorRotation=smoothAngle(sensorRotation,target);
+    if(rotationFrame)return;
+    rotationFrame=requestAnimationFrame(()=>{rotationFrame=0;setSensorRotation(sensorRotation)});
   }
   function handlePhoneOrientation(e){
     if(!phoneOrientationOn)return;
     const heading=headingFromEvent(e);if(heading===null)return;
-    lastHeadingAt=Date.now();
+    currentHeading=heading;lastHeadingAt=Date.now();
     if(phoneBaseHeading===null){
-      phoneBaseHeading=heading;phoneBaseFlip=flipped;
-      if(phoneOrientationStatus)phoneOrientationStatus.textContent='基準をセットしました';
+      phoneBaseHeading=heading;setSensorRotation(0,false);
+      if(phoneOrientationStatus)phoneOrientationStatus.textContent='今の向きを基準にしました';
       return;
     }
+    if(typeof pointers!=='undefined'&&pointers.size)return;
     const delta=normalizeAngle(heading-phoneBaseHeading);
-    const abs=Math.abs(delta);
-    let target=flipped;
-    if(flipped===phoneBaseFlip&&abs>100)target=!phoneBaseFlip;
-    else if(flipped!==phoneBaseFlip&&abs<80)target=phoneBaseFlip;
-    if(target!==flipped)applyFlip(target);
-    if(phoneOrientationStatus)phoneOrientationStatus.textContent=`向き差 ${Math.round(delta)}° ・ ${flipped?'180°表示':'標準表示'}`;
+    scheduleSensorRotation(-delta);
+    if(phoneOrientationStatus)phoneOrientationStatus.textContent=`自動回転 ${Math.round(sensorRotation)}°`;
   }
   function stopPhoneOrientation(){
-    phoneOrientationOn=false;phoneBaseHeading=null;
+    phoneOrientationOn=false;phoneBaseHeading=null;currentHeading=null;
     window.removeEventListener('deviceorientationabsolute',handlePhoneOrientation,true);
     window.removeEventListener('deviceorientation',handlePhoneOrientation,true);
-    updatePhoneOrientationUI();
+    setSensorRotation(0,false);updatePhoneOrientationUI();
   }
   async function startPhoneOrientation(){
-    if(typeof DeviceOrientationEvent==='undefined'){
-      Floor777.toast('この端末ではスマホ向きを利用できません');return;
-    }
+    if(typeof DeviceOrientationEvent==='undefined'){Floor777.toast('この端末では自動回転を利用できません');return}
     try{
       if(typeof DeviceOrientationEvent.requestPermission==='function'){
         const result=await DeviceOrientationEvent.requestPermission();
-        if(result!=='granted'){Floor777.toast('スマホ向きの利用が許可されませんでした');return}
+        if(result!=='granted'){Floor777.toast('方角センサーの利用が許可されませんでした');return}
       }
-    }catch(err){Floor777.toast('スマホ向きの許可を取得できませんでした');return}
-    phoneOrientationOn=true;phoneBaseHeading=null;phoneBaseFlip=flipped;lastHeadingAt=0;
+    }catch(err){Floor777.toast('方角センサーの許可を取得できませんでした');return}
+    phoneOrientationOn=true;phoneBaseHeading=null;currentHeading=null;lastHeadingAt=0;setSensorRotation(0,false);
     window.addEventListener('deviceorientationabsolute',handlePhoneOrientation,true);
     window.addEventListener('deviceorientation',handlePhoneOrientation,true);
-    updatePhoneOrientationUI('今の表示が合っている向きで基準設定中…');
+    updatePhoneOrientationUI('今の島図が店内の向きと合う状態で基準設定中…');
     setTimeout(()=>{if(phoneOrientationOn&&!lastHeadingAt)Floor777.toast('端末の「動作と方向」センサーを確認してください')},1800);
   }
   phoneOrientationBtn?.addEventListener('click',()=>phoneOrientationOn?stopPhoneOrientation():startPhoneOrientation());
@@ -278,11 +315,15 @@ async function initHallPage(){
   let dragging=false,lastPoint=null,downPoint=null,moved=false,pinch=null;
   const pointers=new Map();
   function pointerValues(){return [...pointers.values()]}
+  function screenToMap(x,y){
+    const g=svg.querySelector('#mapContent'),m=g?.getScreenCTM?.();if(!m)return null;
+    try{const pt=svg.createSVGPoint();pt.x=x;pt.y=y;return pt.matrixTransform(m.inverse())}catch{return null}
+  }
   function beginPinch(){
     const pts=pointerValues();if(pts.length<2)return;
-    const a=pts[0],b=pts[1],rect=svg.getBoundingClientRect();
-    const cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;
-    pinch={distance:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),startView:{...view},rx:(cx-rect.left)/Math.max(1,rect.width),ry:(cy-rect.top)/Math.max(1,rect.height)};
+    const a=pts[0],b=pts[1],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2,anchor=screenToMap(cx,cy);
+    const start={...view};
+    pinch={distance:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),startView:start,rx:anchor?(anchor.x-start.x)/start.w:.5,ry:anchor?(anchor.y-start.y)/start.h:.5};
     dragging=false;lastPoint=null;downPoint=null;moved=true;
   }
   svg.addEventListener('pointerdown',e=>{
@@ -308,8 +349,8 @@ async function initHallPage(){
     if(!dragging||!lastPoint)return;
     const dx=e.clientX-lastPoint.x,dy=e.clientY-lastPoint.y;
     if(downPoint&&Math.hypot(e.clientX-downPoint.x,e.clientY-downPoint.y)>10)moved=true;
-    const sx=view.w/Math.max(1,svg.clientWidth),sy=view.h/Math.max(1,svg.clientHeight);
-    setView({x:view.x-dx*sx,y:view.y-dy*sy,w:view.w,h:view.h});
+    const prev=screenToMap(lastPoint.x,lastPoint.y),cur=screenToMap(e.clientX,e.clientY);
+    if(prev&&cur)setView({x:view.x+(prev.x-cur.x),y:view.y+(prev.y-cur.y),w:view.w,h:view.h});
     lastPoint={x:e.clientX,y:e.clientY};
   });
   function endPointer(e){
@@ -322,7 +363,7 @@ async function initHallPage(){
   }
   svg.addEventListener('pointerup',endPointer);svg.addEventListener('pointercancel',endPointer);
   svg.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')endPointer(e)});
-  svg.addEventListener('wheel',e=>{e.preventDefault();const rect=svg.getBoundingClientRect(),rx=(e.clientX-rect.left)/rect.width,ry=(e.clientY-rect.top)/rect.height;zoomAt(e.deltaY<0?1.18:.84,view.x+view.w*rx,view.y+view.h*ry)},{passive:false});
+  svg.addEventListener('wheel',e=>{e.preventDefault();const p=screenToMap(e.clientX,e.clientY);zoomAt(e.deltaY<0?1.18:.84,p?.x??view.x+view.w/2,p?.y??view.y+view.h/2)},{passive:false});
 
   function applyClasses(){const matchSet=new Set(matches);svg.querySelectorAll('.seat').forEach(g=>{const n=Number(g.dataset.seat);g.classList.toggle('match',matchSet.has(n));g.classList.toggle('selected',selected===n)})}
   function updateURL(){const url=new URL(location.href);url.search='';const q=input.value.trim();if(q){url.searchParams.set('mode',mode);url.searchParams.set('q',q)}if(selected)url.searchParams.set('seat',selected);history.replaceState(null,'',url)}
