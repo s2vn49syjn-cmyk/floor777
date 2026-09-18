@@ -97,7 +97,7 @@ async function initHallPage(){
   let flipped=localStorage.getItem(`floor777-orientation-${hall.id}`)==='180';
   let showNames=localStorage.getItem(`floor777-show-names-${hall.id}`)!=='0';
   let mapDisplay=localStorage.getItem(`floor777-map-display-${hall.id}`)||'seat';
-  if(!['seat','diff','spins'].includes(mapDisplay))mapDisplay='seat';
+  if(!['seat','diff','diff3','diff7','spins'].includes(mapDisplay))mapDisplay='seat';
   let showRecommendations=localStorage.getItem(`floor777-recommend-${hall.id}`)==='1';
   const recommendationRule=hall.recommendation||{method:'negative_top10',days:1,limit:10,label:'前日差枚マイナス上位10台'};
   function recommendationMetric(rec){
@@ -149,10 +149,12 @@ async function initHallPage(){
       const g=document.createElementNS(NS,'g');g.setAttribute('class','seat');g.dataset.seat=item.seat;g.dataset.machine=item.machine;g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label',`${item.seat}番台 ${item.machine}`);
       const r=document.createElementNS(NS,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx','3');
       const seatText=document.createElementNS(NS,'text');seatText.setAttribute('x',x+w/2);seatText.setAttribute('y',y+10);seatText.setAttribute('class','seat-number');
-      seatText.textContent=mapDisplay==='diff'?mapValue(rec?.latest?.diff,'diff'):mapDisplay==='spins'?mapValue(rec?.latest?.spins,'spins'):item.seat;
+      const diffValue=mapDisplay==='diff3'?(rec?.periods?.['3']?.complete?rec.periods['3'].diff_sum:null):mapDisplay==='diff7'?(rec?.periods?.['7']?.complete?rec.periods['7'].diff_sum:null):rec?.latest?.diff;
+      const isDiffMode=['diff','diff3','diff7'].includes(mapDisplay);
+      seatText.textContent=isDiffMode?mapValue(diffValue,'diff'):mapDisplay==='spins'?mapValue(rec?.latest?.spins,'spins'):item.seat;
       const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+27);nameText.setAttribute('class','seat-machine');nameText.textContent=shortName(item.machine).slice(0,7);nameText.style.display=showNames?'':'none';
-      if(mapDisplay==='diff'&&Number.isFinite(Number(rec?.latest?.diff))){
-        const d=Number(rec.latest.diff);
+      if(isDiffMode&&Number.isFinite(Number(diffValue))){
+        const d=Number(diffValue);
         g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
       }
       g.append(r,seatText,nameText);
