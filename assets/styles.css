@@ -64,3 +64,19 @@ html{color-scheme:dark}body{background:radial-gradient(circle at 78% -12%,rgba(2
 .stat-box strong.plus,.history-table .plus{color:#ff536a}.stat-box strong.minus,.history-table .minus{color:#bdbdc4}.history-title{color:#d8d8dc}.history-table th{color:#7e7e86}.history-table th,.history-table td{border-bottom-color:#27272c}
 .status-note{border-color:#303036;background:#0d0d10;color:#b7b7be}.status-dot{background:#ff4058}.footer{border-top-color:#242429;color:#8e8e96}.toast{background:#17171a;border-color:#6d1725}.ad-wrap{border-color:#38383e;background:rgba(12,12,14,.72)}
 @media(max-width:620px){.map-data-controls{align-items:stretch}.map-value-switch{flex:1}.map-value-btn{flex:1;padding:0 9px}.recommend-btn{width:100%}.recommend-info{width:100%}}
+
+
+/* FLOOR777 legacy diff-map palette */
+.seat.diff-p4000 rect{fill:#a60018!important;stroke:#ff334f!important}
+.seat.diff-p3000 rect{fill:#6d2aa8!important;stroke:#b67cff!important}
+.seat.diff-p2000 rect{fill:#168a45!important;stroke:#55d987!important}
+.seat.diff-p1000 rect{fill:#76a91f!important;stroke:#b8ef58!important}
+.seat.diff-positive rect{fill:#1779b8!important;stroke:#5fc4ff!important}
+.seat.diff-zero rect{fill:#b9dcf2!important;stroke:#e2f4ff!important}
+.seat.diff-negative rect{fill:#f2f2f2!important;stroke:#c9c9c9!important}
+.seat.diff-zero .seat-number,.seat.diff-zero .seat-machine,
+.seat.diff-negative .seat-number,.seat.diff-negative .seat-machine{fill:#111!important}
+.diff-legend{display:flex;gap:7px;flex-wrap:wrap;align-items:center;width:100%;margin-top:2px}
+.diff-legend span{display:inline-flex;align-items:center;gap:5px;color:#a8a8af;font-size:.69rem}
+.diff-legend i{width:11px;height:11px;border-radius:3px;border:1px solid rgba(255,255,255,.28);display:inline-block}
+.diff-legend .c4000{background:#a60018}.diff-legend .c3000{background:#6d2aa8}.diff-legend .c2000{background:#168a45}.diff-legend .c1000{background:#76a91f}.diff-legend .cplus{background:#1779b8}.diff-legend .czero{background:#b9dcf2}.diff-legend .cminus{background:#f2f2f2}
