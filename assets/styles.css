@@ -171,3 +171,15 @@ html{color-scheme:dark}body{background:radial-gradient(circle at 78% -12%,rgba(2
   .recommend-metric{padding-left:0;border-left:1px solid #302a16}
   .recommend-main{align-self:center}
 }
+
+
+/* 1-week machine diff chart */
+.detail-diff-chart{margin-top:7px;border:1px solid #2b2b30;border-radius:12px;background:linear-gradient(180deg,#0c0c0f,#08080a);padding:8px 7px 3px;overflow:hidden}
+.diff-line-chart{display:block;width:100%;height:auto;min-height:150px;overflow:visible}
+.chart-grid{stroke:#26262b;stroke-width:1}
+.chart-zero{stroke:#66666e;stroke-width:1.4;stroke-dasharray:4 4}
+.chart-line{fill:none;stroke:#ff4058;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px rgba(255,64,88,.25))}
+.chart-point{stroke:#09090b;stroke-width:2}.chart-point.plus{fill:#ff4058}.chart-point.minus{fill:#d5d5da}.chart-point.zero{fill:#ffd400}
+.chart-x-label,.chart-y-label{fill:#7f7f88;font-size:8px;font-weight:700}
+.chart-empty{padding:24px 10px;text-align:center;color:#85858e;font-size:.78rem}
+@media(max-width:620px){.detail-diff-chart{padding:6px 4px 2px}.diff-line-chart{min-height:145px}.chart-x-label{font-size:7.5px}}
