@@ -365,10 +365,53 @@ async function initHallPage(){
 
   function applyClasses(){const matchSet=new Set(matches);svg.querySelectorAll('.seat').forEach(g=>{const n=Number(g.dataset.seat);g.classList.toggle('match',matchSet.has(n));g.classList.toggle('selected',selected===n)})}
   function updateURL(){const url=new URL(location.href);url.search='';const q=input.value.trim();if(q){url.searchParams.set('mode',mode);url.searchParams.set('q',q)}if(selected)url.searchParams.set('seat',selected);history.replaceState(null,'',url)}
+  function renderDiffChart(rec){
+    const host=document.getElementById('detailDiffChart');if(!host)return;
+    const rows=(rec?.history||[]).slice(0,7).filter(r=>r&&r.date).reverse();
+    const finite=rows.filter(r=>Number.isFinite(Number(r.diff)));
+    if(!finite.length){host.innerHTML='<div class="chart-empty">差枚データがありません。</div>';return}
+    const W=360,H=184,L=34,R=10,T=14,B=34,plotW=W-L-R,plotH=H-T-B;
+    const values=finite.map(r=>Number(r.diff));
+    const rawMin=Math.min(0,...values),rawMax=Math.max(0,...values);
+    const span=Math.max(1000,rawMax-rawMin);
+    const pad=span*.12;
+    const min=rawMin-pad,max=rawMax+pad;
+    const x=i=>L+(rows.length<=1?plotW/2:(i/(rows.length-1))*plotW);
+    const y=v=>T+((max-v)/(max-min))*plotH;
+    const zeroY=y(0);
+    const pathParts=[];let started=false;
+    rows.forEach((r,i)=>{
+      const v=Number(r.diff);
+      if(!Number.isFinite(v)){started=false;return}
+      pathParts.push(`${started?'L':'M'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`);started=true;
+    });
+    const pointSvg=rows.map((r,i)=>{
+      const v=Number(r.diff);if(!Number.isFinite(v))return '';
+      const cls=v>0?'chart-point plus':v<0?'chart-point minus':'chart-point zero';
+      return `<g><circle class="${cls}" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="4.2"><title>${escapeHtml(shortDate(r.date))} ${fmtNumber(v,true,'枚')}</title></circle></g>`;
+    }).join('');
+    const dateSvg=rows.map((r,i)=>{
+      const show=rows.length<=7;
+      return show?`<text class="chart-x-label" x="${x(i).toFixed(1)}" y="${H-10}" text-anchor="middle">${escapeHtml(shortDate(r.date))}</text>`:'';
+    }).join('');
+    const fmtAxis=v=>Math.abs(v)>=1000?`${v<0?'-':''}${Math.round(Math.abs(v)/100)/10}k`:`${Math.round(v)}`;
+    host.innerHTML=`<svg class="diff-line-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="直近1週間の差枚グラフ">
+      <line class="chart-grid" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/>
+      <line class="chart-grid" x1="${L}" y1="${T}" x2="${W-R}" y2="${T}"/>
+      <line class="chart-grid" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/>
+      <line class="chart-zero" x1="${L}" y1="${zeroY.toFixed(1)}" x2="${W-R}" y2="${zeroY.toFixed(1)}"/>
+      <text class="chart-y-label" x="${L-5}" y="${T+4}" text-anchor="end">${fmtAxis(rawMax)}</text>
+      <text class="chart-y-label" x="${L-5}" y="${zeroY+4}" text-anchor="end">0</text>
+      <text class="chart-y-label" x="${L-5}" y="${H-B+4}" text-anchor="end">${fmtAxis(rawMin)}</text>
+      <path class="chart-line" d="${pathParts.join(' ')}"/>
+      ${pointSvg}${dateSvg}
+    </svg>`;
+  }
+
   function renderSeatStats(seat){
     const status=document.getElementById('detailStatsStatus'),box=document.getElementById('detailStats');
     const rec=stats?.seats?.[String(seat)];
-    if(!rec){status.hidden=false;status.textContent=stats?'この台の公開データはありません。':'台データはまだ同期されていません。';box.hidden=true;return}
+    if(!rec){status.hidden=false;status.textContent=stats?'この台の公開データはありません。':'台データはまだ同期されていません。';box.hidden=true;const chart=document.getElementById('detailDiffChart');if(chart)chart.innerHTML='';return}
     status.hidden=true;box.hidden=false;
     const put=(id,value,cls='')=>{const el=document.getElementById(id);el.textContent=value;el.className=cls};
     put('statLatestDiff',fmtNumber(rec.latest?.diff,true,'枚'),diffClass(rec.latest?.diff));
@@ -380,6 +423,7 @@ async function initHallPage(){
     document.getElementById('statsLatestDate').textContent=Floor777.formatDate(rec.latest?.date||stats.latest_date);
     const src=document.getElementById('statsSourceLink');src.textContent=stats.source?.name||hall.stats_source?.name||'出典';src.href=stats.report_urls?.[rec.latest?.date||stats.latest_date]||stats.source?.url||hall.stats_source?.url||hall.source.url;
     document.getElementById('statsGeneratedAt').textContent=stats.generated_at?`同期 ${new Date(stats.generated_at).toLocaleString('ja-JP')}`:'';
+    renderDiffChart(rec);
     document.getElementById('detailHistory').innerHTML=(rec.history||[]).map(r=>`<tr><td>${escapeHtml(shortDate(r.date))}</td><td class="${diffClass(r.diff)}">${fmtNumber(r.diff,true,'枚')}</td><td>${fmtNumber(r.spins,false,'G')}</td></tr>`).join('');
   }
   function selectSeat(seat,focus=false,update=true){const item=bySeat.get(Number(seat));if(!item)return;selected=item.seat;selectedIndex=Math.max(0,matches.indexOf(selected));applyClasses();document.getElementById('detailSeat').textContent=`${item.seat}番台`;document.getElementById('detailMachine').textContent=item.machine;document.getElementById('detailShort').textContent=shortName(item.machine);document.getElementById('detailEmpty').hidden=true;document.getElementById('detailData').hidden=false;renderSeatStats(item.seat);if(focus)focusSeats([item.seat]);updateNavButtons();if(update)updateURL()}
