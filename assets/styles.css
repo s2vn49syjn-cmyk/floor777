@@ -115,3 +115,6 @@ html{color-scheme:dark}body{background:radial-gradient(circle at 78% -12%,rgba(2
   body.print-map .map-viewport{min-height:0!important;overflow:visible!important;background:#fff!important}
   body.print-map .map-viewport svg{width:100%!important;height:auto!important;max-height:165mm!important}
 }
+
+/* continuous compass rotation */
+#mapContent{transform-box:view-box;will-change:transform}.phone-orientation-btn.active{border-color:#ff4058;background:#4b0b16;color:#fff}
