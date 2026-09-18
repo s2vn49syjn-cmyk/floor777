@@ -155,3 +155,19 @@ html{color-scheme:dark}body{background:radial-gradient(circle at 78% -12%,rgba(2
 .recommend-metrics{text-align:right}.recommend-metrics b{display:block;font-size:.93rem}.recommend-metrics b.plus{color:#ff536a}.recommend-metrics b.minus{color:#ddd}.recommend-metrics small{display:block;color:#8e8e96;font-size:.7rem;margin-top:1px}
 .bottom-machine-section{padding:0 0 70px}.bottom-machine-section .card{margin-top:18px}
 @media(max-width:720px){.recommended-list{grid-template-columns:1fr}.recommended-head{align-items:flex-start}.recommend-list-badge{width:100%;margin-top:8px}.bottom-machine-section{padding-bottom:52px}}
+
+
+/* Recommended list period totals */
+.recommended-row{grid-template-columns:34px minmax(120px,1fr) minmax(300px,1.35fr)}
+.recommend-metrics{display:grid;grid-template-columns:repeat(3,minmax(78px,1fr));gap:7px;text-align:right}
+.recommend-metric{min-width:0;padding-left:8px;border-left:1px solid #302a16}
+.recommend-metric:first-child{border-left:0}
+.recommend-metric em{display:block;color:#898991;font-size:.64rem;font-style:normal;font-weight:800;margin-bottom:1px}
+.recommend-metric b{display:block;font-size:.85rem;white-space:nowrap}
+.recommend-metric small{display:block;color:#777780;font-size:.66rem;margin-top:0}
+@media(max-width:720px){
+  .recommended-row{grid-template-columns:32px minmax(0,1fr);gap:8px}
+  .recommend-metrics{grid-column:1/-1;grid-template-columns:repeat(3,1fr);padding-top:8px;border-top:1px solid #2b2719;text-align:center}
+  .recommend-metric{padding-left:0;border-left:1px solid #302a16}
+  .recommend-main{align-self:center}
+}
