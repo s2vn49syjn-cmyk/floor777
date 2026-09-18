@@ -1,4 +1,4 @@
-const CACHE='floor777-v1-20260919-livefix2';
+const CACHE='floor777-v1-20260919-tapfix3';
 const CORE=[
   './','./index.html','./halls/','./halls/hyper-arrow-mihara/','./assets/styles.css','./assets/common.js','./assets/home.js','./assets/app.js','./data/halls.json','./data/hyper-arrow-mihara.json','./data/positions-mihara.json','./offline.html'
 ];
