@@ -153,7 +153,7 @@ async function initHallPage(){
       const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+27);nameText.setAttribute('class','seat-machine');nameText.textContent=shortName(item.machine).slice(0,7);nameText.style.display=showNames?'':'none';
       if(mapDisplay==='diff'&&Number.isFinite(Number(rec?.latest?.diff))){
         const d=Number(rec.latest.diff);
-        g.classList.add(d>3000?'diff-pos-3':d>1500?'diff-pos-2':d>0?'diff-pos-1':d<0?'diff-negative':'diff-zero');
+        g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
       }
       g.append(r,seatText,nameText);
       if(showRecommendations&&recommendedSeats.has(Number(item.seat))){
