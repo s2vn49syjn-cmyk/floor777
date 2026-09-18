@@ -412,10 +412,16 @@ async function initHallPage(){
       const machine=rec.machine||bySeat.get(row.seat)?.machine||'機種不明';
       const latestDiff=rec.latest?.diff;
       const latestSpins=rec.latest?.spins;
+      const d3=rec.periods?.['3']?.diff_sum;
+      const d7=rec.periods?.['7']?.diff_sum;
       return `<button class="recommended-row" type="button" data-recommend-seat="${row.seat}">
         <span class="recommend-rank">${index+1}</span>
         <span class="recommend-main"><strong>${row.seat}番台</strong><small>${escapeHtml(shortName(machine))}</small></span>
-        <span class="recommend-metrics"><b class="${diffClass(latestDiff)}">${fmtNumber(latestDiff,true,'枚')}</b><small>${fmtNumber(latestSpins,false,'G')}</small></span>
+        <span class="recommend-metrics">
+          <span class="recommend-metric"><em>前日</em><b class="${diffClass(latestDiff)}">${fmtNumber(latestDiff,true,'枚')}</b><small>${fmtNumber(latestSpins,false,'G')}</small></span>
+          <span class="recommend-metric"><em>3日合計</em><b class="${diffClass(d3)}">${fmtNumber(d3,true,'枚')}</b></span>
+          <span class="recommend-metric"><em>7日合計</em><b class="${diffClass(d7)}">${fmtNumber(d7,true,'枚')}</b></span>
+        </span>
       </button>`;
     }).join(''):'<div class="empty-state compact">おすすめ候補を作れる台データがまだありません。</div>';
     recommendedList.querySelectorAll('[data-recommend-seat]').forEach(btn=>btn.addEventListener('click',()=>{
