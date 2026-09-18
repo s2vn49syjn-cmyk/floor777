@@ -140,3 +140,18 @@ html{color-scheme:dark}body{background:radial-gradient(circle at 78% -12%,rgba(2
   stroke-width:8!important;
   filter:drop-shadow(0 0 6px rgba(255,243,106,1)) drop-shadow(0 0 16px rgba(255,120,0,.85))!important;
 }
+
+
+/* Recommended list + bottom machine list */
+.recommended-section{overflow:hidden}
+.recommended-head{align-items:center}
+.recommend-list-badge{min-height:38px;border:1px solid #7a6210;border-radius:11px;padding:0 12px;background:linear-gradient(135deg,#3b3005,#171200);color:#ffe36a;font-weight:900;white-space:nowrap}
+.recommend-list-badge:hover{border-color:#ffd400;background:#4b3b05}
+.recommended-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.recommended-row{width:100%;border:1px solid #39321a;background:linear-gradient(145deg,#15130b,#0b0b0d);border-radius:13px;padding:11px 12px;color:#f5f5f6;display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:10px;text-align:left;transition:.16s transform,.16s border-color,.16s background}
+.recommended-row:hover{transform:translateY(-1px);border-color:#ffd400;background:linear-gradient(145deg,#211c08,#0f0d08)}
+.recommend-rank{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:#ffd400;color:#111;font-weight:1000;box-shadow:0 0 16px rgba(255,212,0,.18)}
+.recommend-main{min-width:0}.recommend-main strong{display:block;font-size:.96rem}.recommend-main small{display:block;color:#aaaab1;font-size:.73rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.recommend-metrics{text-align:right}.recommend-metrics b{display:block;font-size:.93rem}.recommend-metrics b.plus{color:#ff536a}.recommend-metrics b.minus{color:#ddd}.recommend-metrics small{display:block;color:#8e8e96;font-size:.7rem;margin-top:1px}
+.bottom-machine-section{padding:0 0 70px}.bottom-machine-section .card{margin-top:18px}
+@media(max-width:720px){.recommended-list{grid-template-columns:1fr}.recommended-head{align-items:flex-start}.recommend-list-badge{width:100%;margin-top:8px}.bottom-machine-section{padding-bottom:52px}}
