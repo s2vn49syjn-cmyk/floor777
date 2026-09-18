@@ -99,19 +99,26 @@ async function initHallPage(){
   let mapDisplay=localStorage.getItem(`floor777-map-display-${hall.id}`)||'seat';
   if(!['seat','diff','diff3','diff7','spins'].includes(mapDisplay))mapDisplay='seat';
   let showRecommendations=localStorage.getItem(`floor777-recommend-${hall.id}`)==='1';
-  const recommendationRule=hall.recommendation||{method:'negative_top10',days:1,limit:10,label:'前日差枚マイナス上位10台'};
-  function recommendationMetric(rec){
-    const days=Number(recommendationRule.days||1);
+  const recommendationRule=hall.recommendation||{method:'negative_top10',days:1,limit:10,label:'マイナス差枚上位10台'};
+  let recommendationDays=Number(localStorage.getItem(`floor777-recommend-days-${hall.id}`)||recommendationRule.days||1);
+  if(![1,3,7].includes(recommendationDays))recommendationDays=1;
+  function recommendationMetric(rec,days=recommendationDays){
     if(days===1)return rec?.latest?.diff;
     const p=rec?.periods?.[String(days)];
     return p?.complete?p.diff_sum:null;
   }
-  const recommendedRows=Object.entries(stats?.seats||{})
-    .map(([seat,rec])=>({seat:Number(seat),value:recommendationMetric(rec),rec}))
-    .filter(x=>Number.isFinite(Number(x.value))&&Number(x.value)<0)
-    .sort((a,b)=>Number(a.value)-Number(b.value))
-    .slice(0,Number(recommendationRule.limit||10));
-  const recommendedSeats=new Set(recommendedRows.map(x=>x.seat));
+  function recommendationPeriodLabel(days=recommendationDays){
+    return days===1?'前日差枚':`${days}日合計差枚`;
+  }
+  function buildRecommendedRows(){
+    return Object.entries(stats?.seats||{})
+      .map(([seat,rec])=>({seat:Number(seat),value:recommendationMetric(rec),rec}))
+      .filter(x=>Number.isFinite(Number(x.value))&&Number(x.value)<0)
+      .sort((a,b)=>Number(a.value)-Number(b.value))
+      .slice(0,Number(recommendationRule.limit||10));
+  }
+  let recommendedRows=buildRecommendedRows();
+  let recommendedSeats=new Set(recommendedRows.map(x=>x.seat));
 
   Floor777.addRecent(hall.id);
   document.getElementById('hallUpdated').textContent=Floor777.formatDate(hall.layout_updated_at || hall.updated_at);
@@ -303,14 +310,38 @@ async function initHallPage(){
   mapValueButtons.forEach(btn=>btn.addEventListener('click',()=>{mapDisplay=btn.dataset.mapValue;localStorage.setItem(`floor777-map-display-${hall.id}`,mapDisplay);updateMapValueButtons();renderMap();setView(view)}));updateMapValueButtons();
   const recommendBtn=document.getElementById('recommendBtn');
   const recommendInfo=document.getElementById('recommendInfo');
+  const recommendDayButtons=[...document.querySelectorAll('[data-recommend-days]')];
   function updateRecommendUI(){
     if(!recommendBtn)return;
-    recommendBtn.disabled=!stats||recommendedSeats.size===0;
+    recommendBtn.disabled=!stats;
     recommendBtn.classList.toggle('active',showRecommendations);
     recommendBtn.textContent=showRecommendations?'★ おすすめ ON':'☆ おすすめ OFF';
-    if(recommendInfo)recommendInfo.textContent=stats?`${recommendationRule.label||'おすすめ台'}：${recommendedSeats.size}台`:'台データ同期後に利用できます';
+    recommendDayButtons.forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.recommendDays)===recommendationDays));
+    const completeCount=recommendationDays===1
+      ? Object.keys(stats?.seats||{}).length
+      : Object.values(stats?.seats||{}).filter(rec=>rec?.periods?.[String(recommendationDays)]?.complete).length;
+    if(recommendInfo){
+      if(!stats)recommendInfo.textContent='台データ同期後に利用できます';
+      else if(recommendationDays>1&&completeCount===0)recommendInfo.textContent=`${recommendationDays}日分のデータが揃うと表示されます`;
+      else recommendInfo.textContent=`${recommendationPeriodLabel()}マイナス上位：${recommendedSeats.size}台`;
+    }
+    const ruleText=document.getElementById('recommendedRuleText');
+    if(ruleText)ruleText.textContent=`${recommendationPeriodLabel()}がマイナスの台から凹み順に最大${Number(recommendationRule.limit||10)}台`;
   }
-  recommendBtn?.addEventListener('click',()=>{showRecommendations=!showRecommendations;localStorage.setItem(`floor777-recommend-${hall.id}`,showRecommendations?'1':'0');updateRecommendUI();renderMap();setView(view)});updateRecommendUI();
+  function setRecommendationDays(days){
+    const next=Number(days);if(![1,3,7].includes(next)||next===recommendationDays)return;
+    recommendationDays=next;
+    localStorage.setItem(`floor777-recommend-days-${hall.id}`,String(next));
+    recommendedRows=buildRecommendedRows();
+    recommendedSeats=new Set(recommendedRows.map(x=>x.seat));
+    updateRecommendUI();
+    renderRecommendedList();
+    renderMap();
+    setView(view);
+  }
+  recommendDayButtons.forEach(btn=>btn.addEventListener('click',()=>setRecommendationDays(btn.dataset.recommendDays)));
+  recommendBtn?.addEventListener('click',()=>{showRecommendations=!showRecommendations;localStorage.setItem(`floor777-recommend-${hall.id}`,showRecommendations?'1':'0');updateRecommendUI();renderMap();setView(view)});
+  updateRecommendUI();
 
   let dragging=false,lastPoint=null,downPoint=null,moved=false,pinch=null;
   const pointers=new Map();
@@ -449,10 +480,10 @@ async function initHallPage(){
   modeButtons.forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.searchMode;modeButtons.forEach(x=>x.classList.toggle('active',x===btn));input.placeholder=mode==='seat'?'例：821':'例：東京喰種 / モンキー / 北斗';input.value='';matches=[];selected=null;resultBox.classList.remove('show');applyClasses();fullMap();input.focus()}));
   document.getElementById('searchBtn').addEventListener('click',()=>runSearch(true));input.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch(true)});document.getElementById('clearBtn').addEventListener('click',()=>{input.value='';runSearch(false);input.focus()});document.querySelectorAll('[data-quick]').forEach(b=>b.addEventListener('click',()=>{mode='machine';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='machine'));input.value=b.dataset.quick;runSearch(true)}));
 
-  const recommendedList=document.getElementById('recommendedList');
-  const recommendedRuleText=document.getElementById('recommendedRuleText');
-  if(recommendedRuleText)recommendedRuleText.textContent=recommendationRule.label||'おすすめ候補';
-  if(recommendedList){
+  function renderRecommendedList(){
+    const recommendedList=document.getElementById('recommendedList');
+    if(!recommendedList)return;
+    const periodMetric=rec=>recommendationMetric(rec);
     recommendedList.innerHTML=recommendedRows.length?recommendedRows.map((row,index)=>{
       const rec=row.rec||{};
       const machine=rec.machine||bySeat.get(row.seat)?.machine||'機種不明';
@@ -460,16 +491,17 @@ async function initHallPage(){
       const latestSpins=rec.latest?.spins;
       const d3=rec.periods?.['3']?.diff_sum;
       const d7=rec.periods?.['7']?.diff_sum;
+      const selectedValue=periodMetric(rec);
       return `<button class="recommended-row" type="button" data-recommend-seat="${row.seat}">
         <span class="recommend-rank">${index+1}</span>
-        <span class="recommend-main"><strong>${row.seat}番台</strong><small>${escapeHtml(shortName(machine))}</small></span>
+        <span class="recommend-main"><strong>${row.seat}番台</strong><small>${escapeHtml(shortName(machine))}</small><span class="recommend-basis">${escapeHtml(recommendationPeriodLabel())} ${fmtNumber(selectedValue,true,'枚')}</span></span>
         <span class="recommend-metrics">
-          <span class="recommend-metric"><em>前日</em><b class="${diffClass(latestDiff)}">${fmtNumber(latestDiff,true,'枚')}</b><small>${fmtNumber(latestSpins,false,'G')}</small></span>
-          <span class="recommend-metric"><em>3日合計</em><b class="${diffClass(d3)}">${fmtNumber(d3,true,'枚')}</b></span>
-          <span class="recommend-metric"><em>7日合計</em><b class="${diffClass(d7)}">${fmtNumber(d7,true,'枚')}</b></span>
+          <span class="recommend-metric ${recommendationDays===1?'selected-period':''}"><em>前日</em><b class="${diffClass(latestDiff)}">${fmtNumber(latestDiff,true,'枚')}</b><small>${fmtNumber(latestSpins,false,'G')}</small></span>
+          <span class="recommend-metric ${recommendationDays===3?'selected-period':''}"><em>3日合計</em><b class="${diffClass(d3)}">${fmtNumber(d3,true,'枚')}</b></span>
+          <span class="recommend-metric ${recommendationDays===7?'selected-period':''}"><em>7日合計</em><b class="${diffClass(d7)}">${fmtNumber(d7,true,'枚')}</b></span>
         </span>
       </button>`;
-    }).join(''):'<div class="empty-state compact">おすすめ候補を作れる台データがまだありません。</div>';
+    }).join(''):`<div class="empty-state compact">${recommendationDays>1?`${recommendationDays}日分のデータが揃った台がないか、マイナス差枚の台がありません。`:'マイナス差枚のおすすめ候補がありません。'}</div>`;
     recommendedList.querySelectorAll('[data-recommend-seat]').forEach(btn=>btn.addEventListener('click',()=>{
       const seat=Number(btn.dataset.recommendSeat);
       showRecommendations=true;
@@ -480,6 +512,7 @@ async function initHallPage(){
       document.querySelector('.map-card')?.scrollIntoView({behavior:'smooth',block:'start'});
     }));
   }
+  renderRecommendedList();
 
   document.getElementById('machineList').innerHTML=[...machineCount.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'ja')).map(([name,count])=>`<button class="machine-row" type="button" data-machine="${escapeHtml(name)}"><span>${escapeHtml(name)}</span><b>${count}台</b></button>`).join('');
   document.querySelectorAll('[data-machine]').forEach(b=>b.addEventListener('click',()=>{mode='machine';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='machine'));input.value=b.dataset.machine;document.getElementById('searchCard').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>runSearch(true),220)}));
