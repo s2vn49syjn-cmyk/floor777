@@ -18,6 +18,13 @@ function escapeHtml(str){return String(str).replace(/[&<>'"]/g,c=>({'&':'&amp;',
 function fmtNumber(v,signed=false,suffix=''){if(v===null||v===undefined||Number.isNaN(Number(v)))return '—';const n=Number(v);const txt=Math.round(n).toLocaleString('ja-JP');return `${signed&&n>0?'+':''}${txt}${suffix}`}
 function diffClass(v){if(v===null||v===undefined||Number.isNaN(Number(v)))return '';return Number(v)>0?'plus':Number(v)<0?'minus':''}
 function shortDate(s){if(!s)return '—';const p=String(s).split('-');return p.length===3?`${Number(p[1])}/${Number(p[2])}`:s}
+function mapValue(v,mode){
+  if(v===null||v===undefined||Number.isNaN(Number(v)))return '—';
+  const n=Math.round(Number(v));
+  if(mode==='diff')return `${n>0?'+':''}${n}`;
+  if(mode==='spins')return `${n}G`;
+  return String(n);
+}
 
 function compactPositions(raw){
   const entries=Object.entries(raw).map(([seat,p])=>[seat,p.map(Number)]);
@@ -88,6 +95,24 @@ async function initHallPage(){
   let mode='machine',matches=[],selected=null,selectedIndex=-1;
   let flipped=localStorage.getItem(`floor777-orientation-${hall.id}`)==='180';
   let showNames=localStorage.getItem(`floor777-show-names-${hall.id}`)!=='0';
+  let mapDisplay=localStorage.getItem(`floor777-map-display-${hall.id}`)||'seat';
+  if(!['seat','diff','spins'].includes(mapDisplay))mapDisplay='seat';
+  let showRecommendations=localStorage.getItem(`floor777-recommend-${hall.id}`)==='1';
+  const recommendationRule=hall.recommendation||{method:'negative_top10',days:1,limit:10,label:'前日差枚マイナス上位10台'};
+  function recommendationMetric(rec){
+    const days=Number(recommendationRule.days||1);
+    if(days===1)return rec?.latest?.diff;
+    const p=rec?.periods?.[String(days)];
+    return p?.complete?p.diff_sum:null;
+  }
+  const recommendedSeats=new Set(
+    Object.entries(stats?.seats||{})
+      .map(([seat,rec])=>({seat:Number(seat),value:recommendationMetric(rec)}))
+      .filter(x=>Number.isFinite(Number(x.value))&&Number(x.value)<0)
+      .sort((a,b)=>Number(a.value)-Number(b.value))
+      .slice(0,Number(recommendationRule.limit||10))
+      .map(x=>x.seat)
+  );
 
   Floor777.addRecent(hall.id);
   document.getElementById('hallUpdated').textContent=Floor777.formatDate(hall.layout_updated_at || hall.updated_at);
@@ -120,10 +145,20 @@ async function initHallPage(){
     for(const item of seats){
       const raw=positions[String(item.seat)]; if(!raw) continue;
       const [x,y,w,h]=orientedPosition(raw);
+      const rec=stats?.seats?.[String(item.seat)];
       const g=document.createElementNS(NS,'g');g.setAttribute('class','seat');g.dataset.seat=item.seat;g.dataset.machine=item.machine;g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label',`${item.seat}番台 ${item.machine}`);
       const r=document.createElementNS(NS,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx','3');
-      const seatText=document.createElementNS(NS,'text');seatText.setAttribute('x',x+w/2);seatText.setAttribute('y',y+10);seatText.setAttribute('class','seat-number');seatText.textContent=item.seat;
+      const seatText=document.createElementNS(NS,'text');seatText.setAttribute('x',x+w/2);seatText.setAttribute('y',y+10);seatText.setAttribute('class','seat-number');
+      seatText.textContent=mapDisplay==='diff'?mapValue(rec?.latest?.diff,'diff'):mapDisplay==='spins'?mapValue(rec?.latest?.spins,'spins'):item.seat;
       const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+27);nameText.setAttribute('class','seat-machine');nameText.textContent=shortName(item.machine).slice(0,7);nameText.style.display=showNames?'':'none';
+      if(mapDisplay==='diff'&&Number.isFinite(Number(rec?.latest?.diff))){
+        const d=Number(rec.latest.diff);
+        g.classList.add(d>3000?'diff-pos-3':d>1500?'diff-pos-2':d>0?'diff-pos-1':d<0?'diff-negative':'diff-zero');
+      }
+      if(showRecommendations&&recommendedSeats.has(Number(item.seat))){
+        g.classList.add('recommended');
+        const star=document.createElementNS(NS,'text');star.setAttribute('x',x+w-5);star.setAttribute('y',y+6);star.setAttribute('class','recommend-star');star.textContent='★';g.appendChild(star);
+      }
       g.append(r,seatText,nameText);svg.appendChild(g);
       g.addEventListener('click',()=>{if(!moved)selectSeat(item.seat,true,true)});g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectSeat(item.seat,true,true)}});
     }
@@ -146,6 +181,20 @@ async function initHallPage(){
   const namesBtn=document.getElementById('namesBtn');
   const updateNamesLabel=()=>{namesBtn.classList.toggle('active',showNames);namesBtn.textContent=showNames?'機種名 ON':'機種名 OFF'};updateNamesLabel();
   namesBtn.addEventListener('click',()=>{showNames=!showNames;localStorage.setItem(`floor777-show-names-${hall.id}`,showNames?'1':'0');svg.querySelectorAll('.seat-machine').forEach(x=>x.style.display=showNames?'':'none');updateNamesLabel()});
+
+  const mapValueButtons=[...document.querySelectorAll('[data-map-value]')];
+  function updateMapValueButtons(){mapValueButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.mapValue===mapDisplay))}
+  mapValueButtons.forEach(btn=>btn.addEventListener('click',()=>{mapDisplay=btn.dataset.mapValue;localStorage.setItem(`floor777-map-display-${hall.id}`,mapDisplay);updateMapValueButtons();renderMap();setView(view)}));updateMapValueButtons();
+  const recommendBtn=document.getElementById('recommendBtn');
+  const recommendInfo=document.getElementById('recommendInfo');
+  function updateRecommendUI(){
+    if(!recommendBtn)return;
+    recommendBtn.disabled=!stats||recommendedSeats.size===0;
+    recommendBtn.classList.toggle('active',showRecommendations);
+    recommendBtn.textContent=showRecommendations?'★ おすすめ ON':'☆ おすすめ OFF';
+    if(recommendInfo)recommendInfo.textContent=stats?`${recommendationRule.label||'おすすめ台'}：${recommendedSeats.size}台`:'台データ同期後に利用できます';
+  }
+  recommendBtn?.addEventListener('click',()=>{showRecommendations=!showRecommendations;localStorage.setItem(`floor777-recommend-${hall.id}`,showRecommendations?'1':'0');updateRecommendUI();renderMap();setView(view)});updateRecommendUI();
 
   let dragging=false,lastPoint=null,downPoint=null,moved=false;
   svg.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragging=true;moved=false;downPoint={x:e.clientX,y:e.clientY};lastPoint={x:e.clientX,y:e.clientY};svg.setPointerCapture?.(e.pointerId)});
