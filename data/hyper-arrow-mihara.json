@@ -2218,5 +2218,10 @@
     }
   ],
   "layout_updated_at": "2026-09-18",
-  "machine_updated_at": "2026-09-15"
+  "machine_updated_at": "2026-09-15",
+  "stats_url": "https://raw.githubusercontent.com/s2vn49syjn-cmyk/slotdash-mihara/main/public_data/mihara-stats.json",
+  "stats_source": {
+    "name": "みんレポ",
+    "url": "https://min-repo.com/tag/hyper-arrow%E7%BE%8E%E5%8E%9F%E5%BA%97/"
+  }
 }

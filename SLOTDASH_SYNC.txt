@@ -1,0 +1,14 @@
+FLOOR777 台データ自動同期パッチ
+
+この3点を既存の slotdash-mihara リポジトリへ追加/上書きします。
+- export_public_data.py（追加）
+- .github/workflows/scrape.yml（上書き）
+- README_FLOOR777_SYNC.txt（説明用・アップロード不要）
+
+変更後は、毎朝の美原スクレイピング終了後に Google Sheets の最新14営業日から
+public_data/mihara-stats.json を生成し、同じ slotdash-mihara リポジトリへ自動コミットします。
+既存の SPREADSHEET_ID / GCP_CREDENTIALS Secrets をそのまま使うため、FLOOR777 側に秘密情報を置く必要はありません。
+
+初回確認:
+Actions → みんレポ自動スクレイピング → Run workflow → normal
+完了後に slotdash-mihara/public_data/mihara-stats.json ができれば成功です。

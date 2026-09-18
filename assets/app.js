@@ -15,6 +15,9 @@ function shortName(name){
   return name.replace(/^(スマスロ\s*|Lパチスロ\s*|パチスロ\s*|Lスマスロ\s*|スロット\s*|L)/,'').slice(0,10);
 }
 function escapeHtml(str){return String(str).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function fmtNumber(v,signed=false,suffix=''){if(v===null||v===undefined||Number.isNaN(Number(v)))return '—';const n=Number(v);const txt=Math.round(n).toLocaleString('ja-JP');return `${signed&&n>0?'+':''}${txt}${suffix}`}
+function diffClass(v){if(v===null||v===undefined||Number.isNaN(Number(v)))return '';return Number(v)>0?'plus':Number(v)<0?'minus':''}
+function shortDate(s){if(!s)return '—';const p=String(s).split('-');return p.length===3?`${Number(p[1])}/${Number(p[2])}`:s}
 
 function compactPositions(raw){
   const entries=Object.entries(raw).map(([seat,p])=>[seat,p.map(Number)]);
@@ -49,7 +52,17 @@ async function initHallPage(){
   const hall=await hallRes.json();
   const rawPositions=await posRes.json();
   const positions=compactPositions(rawPositions);
-  const seats=hall.seats;
+  let stats=null;
+  if(hall.stats_url){
+    try{
+      const statsRes=await fetch(hall.stats_url,{cache:'no-store'});
+      if(statsRes.ok) stats=await statsRes.json();
+    }catch(err){console.warn('stats load failed',err)}
+  }
+  let seats=hall.seats.map(x=>({...x}));
+  if(stats?.seats){
+    seats=seats.map(x=>{const st=stats.seats[String(x.seat)];return st?.machine?{...x,machine:st.machine}:x});
+  }
   const bySeat=new Map(seats.map(x=>[Number(x.seat),x]));
   const machineCount=new Map(); seats.forEach(x=>machineCount.set(x.machine,(machineCount.get(x.machine)||0)+1));
   const machineNames=[...machineCount.keys()].sort((a,b)=>a.localeCompare(b,'ja'));
@@ -78,7 +91,10 @@ async function initHallPage(){
   document.getElementById('machineCount').textContent=machineNames.length.toLocaleString('ja-JP');
   document.getElementById('sourceName').textContent=hall.source.name;
   document.getElementById('sourceLink').href=hall.source.url;
-  document.getElementById('sourceDate').textContent=Floor777.formatDate(hall.machine_updated_at || hall.updated_at);
+  document.getElementById('sourceDate').textContent=Floor777.formatDate(stats?.latest_date || hall.machine_updated_at || hall.updated_at);
+  const statsBadge=document.getElementById('statsBadge');
+  if(stats?.latest_date){statsBadge.textContent=`台データ ${Floor777.formatDate(stats.latest_date)}`;statsBadge.classList.add('live');const mu2=document.getElementById('machineUpdated');if(mu2)mu2.textContent=Floor777.formatDate(stats.latest_date);if(stats.source?.name)document.getElementById('sourceName').textContent=stats.source.name;if(stats.source?.url)document.getElementById('sourceLink').href=stats.report_urls?.[stats.latest_date]||stats.source.url}
+  else{statsBadge.textContent='台データ同期前';statsBadge.classList.add('warn')}
   datalist.innerHTML=machineNames.map(n=>`<option value="${escapeHtml(n)}"></option>`).join('');
 
   const favoriteBtn=document.getElementById('favoriteBtn');
@@ -134,7 +150,24 @@ async function initHallPage(){
 
   function applyClasses(){const matchSet=new Set(matches);svg.querySelectorAll('.seat').forEach(g=>{const n=Number(g.dataset.seat);g.classList.toggle('match',matchSet.has(n));g.classList.toggle('selected',selected===n)})}
   function updateURL(){const url=new URL(location.href);url.search='';const q=input.value.trim();if(q){url.searchParams.set('mode',mode);url.searchParams.set('q',q)}if(selected)url.searchParams.set('seat',selected);history.replaceState(null,'',url)}
-  function selectSeat(seat,focus=false,update=true){const item=bySeat.get(Number(seat));if(!item)return;selected=item.seat;selectedIndex=Math.max(0,matches.indexOf(selected));applyClasses();document.getElementById('detailSeat').textContent=`${item.seat}番台`;document.getElementById('detailMachine').textContent=item.machine;document.getElementById('detailShort').textContent=shortName(item.machine);document.getElementById('detailEmpty').hidden=true;document.getElementById('detailData').hidden=false;if(focus)focusSeats([item.seat]);updateNavButtons();if(update)updateURL()}
+  function renderSeatStats(seat){
+    const status=document.getElementById('detailStatsStatus'),box=document.getElementById('detailStats');
+    const rec=stats?.seats?.[String(seat)];
+    if(!rec){status.hidden=false;status.textContent=stats?'この台の公開データはありません。':'台データはまだ同期されていません。';box.hidden=true;return}
+    status.hidden=true;box.hidden=false;
+    const put=(id,value,cls='')=>{const el=document.getElementById(id);el.textContent=value;el.className=cls};
+    put('statLatestDiff',fmtNumber(rec.latest?.diff,true,'枚'),diffClass(rec.latest?.diff));
+    put('statLatestSpins',fmtNumber(rec.latest?.spins,false,'G'));
+    put('stat3Diff',fmtNumber(rec.periods?.['3']?.diff_sum,true,'枚'),diffClass(rec.periods?.['3']?.diff_sum));
+    put('stat3Spins',fmtNumber(rec.periods?.['3']?.avg_spins,false,'G'));
+    put('stat7Diff',fmtNumber(rec.periods?.['7']?.diff_sum,true,'枚'),diffClass(rec.periods?.['7']?.diff_sum));
+    put('stat7Spins',fmtNumber(rec.periods?.['7']?.avg_spins,false,'G'));
+    document.getElementById('statsLatestDate').textContent=Floor777.formatDate(rec.latest?.date||stats.latest_date);
+    const src=document.getElementById('statsSourceLink');src.textContent=stats.source?.name||hall.stats_source?.name||'出典';src.href=stats.report_urls?.[rec.latest?.date||stats.latest_date]||stats.source?.url||hall.stats_source?.url||hall.source.url;
+    document.getElementById('statsGeneratedAt').textContent=stats.generated_at?`同期 ${new Date(stats.generated_at).toLocaleString('ja-JP')}`:'';
+    document.getElementById('detailHistory').innerHTML=(rec.history||[]).map(r=>`<tr><td>${escapeHtml(shortDate(r.date))}</td><td class="${diffClass(r.diff)}">${fmtNumber(r.diff,true,'枚')}</td><td>${fmtNumber(r.spins,false,'G')}</td></tr>`).join('');
+  }
+  function selectSeat(seat,focus=false,update=true){const item=bySeat.get(Number(seat));if(!item)return;selected=item.seat;selectedIndex=Math.max(0,matches.indexOf(selected));applyClasses();document.getElementById('detailSeat').textContent=`${item.seat}番台`;document.getElementById('detailMachine').textContent=item.machine;document.getElementById('detailShort').textContent=shortName(item.machine);document.getElementById('detailEmpty').hidden=true;document.getElementById('detailData').hidden=false;renderSeatStats(item.seat);if(focus)focusSeats([item.seat]);updateNavButtons();if(update)updateURL()}
   function updateNavButtons(){const multi=matches.length>1;resultPrev.disabled=!multi;resultNext.disabled=!multi;document.getElementById('resultPos').textContent=matches.length?`${selectedIndex+1} / ${matches.length}`:'0 / 0'}
   function cycle(step){if(!matches.length)return;selectedIndex=(selectedIndex+step+matches.length)%matches.length;selectSeat(matches[selectedIndex],true,true)}resultPrev.addEventListener('click',()=>cycle(-1));resultNext.addEventListener('click',()=>cycle(1));
 
