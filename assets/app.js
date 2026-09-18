@@ -155,11 +155,12 @@ async function initHallPage(){
         const d=Number(rec.latest.diff);
         g.classList.add(d>3000?'diff-pos-3':d>1500?'diff-pos-2':d>0?'diff-pos-1':d<0?'diff-negative':'diff-zero');
       }
+      g.append(r,seatText,nameText);
       if(showRecommendations&&recommendedSeats.has(Number(item.seat))){
         g.classList.add('recommended');
-        const star=document.createElementNS(NS,'text');star.setAttribute('x',x+w-5);star.setAttribute('y',y+6);star.setAttribute('class','recommend-star');star.textContent='★';g.appendChild(star);
+        const star=document.createElementNS(NS,'text');star.setAttribute('x',x+w-5);star.setAttribute('y',y+7);star.setAttribute('class','recommend-star');star.textContent='★';g.appendChild(star);
       }
-      g.append(r,seatText,nameText);svg.appendChild(g);
+      svg.appendChild(g);
       g.addEventListener('click',()=>{if(!moved)selectSeat(item.seat,true,true)});g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectSeat(item.seat,true,true)}});
     }
     applyClasses();
