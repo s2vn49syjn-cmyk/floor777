@@ -39,8 +39,8 @@ const Floor777 = (() => {
     if (document.readyState === 'complete') register(); else window.addEventListener('load', register, {once:true});
   }
   function setupInstallPrompt() {
-    const nav = document.querySelector('.site-header .nav');
-    if (!nav || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) return;
+    const host = document.querySelector('.site-header .header-inner');
+    if (!host || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) return;
     const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     let installEvent = null;
     let button = null;
@@ -48,10 +48,10 @@ const Floor777 = (() => {
       if (button) return button;
       button = document.createElement('button');
       button.type = 'button';
-      button.className = 'install-link';
-      button.textContent = 'ホーム画面に追加';
+      button.textContent = '＋ ホーム追加';
       button.setAttribute('aria-label', 'FLOOR777をホーム画面に追加');
-      nav.appendChild(button);
+      Object.assign(button.style, {marginLeft:'auto',minHeight:'36px',padding:'0 11px',border:'1px solid #2b4669',borderRadius:'10px',background:'#182a43',color:'#d9e8fb',fontWeight:'800',fontSize:'.78rem',whiteSpace:'nowrap'});
+      host.appendChild(button);
       button.addEventListener('click', async () => {
         if (installEvent) {
           installEvent.prompt();
