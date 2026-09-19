@@ -38,5 +38,36 @@ const Floor777 = (() => {
     const register = () => navigator.serviceWorker.register(`${base}service-worker.js`, {updateViaCache:'none'}).catch(() => {});
     if (document.readyState === 'complete') register(); else window.addEventListener('load', register, {once:true});
   }
+  function setupInstallPrompt() {
+    const nav = document.querySelector('.site-header .nav');
+    if (!nav || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) return;
+    const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    let installEvent = null;
+    let button = null;
+    const ensureButton = () => {
+      if (button) return button;
+      button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'install-link';
+      button.textContent = 'ホーム画面に追加';
+      button.setAttribute('aria-label', 'FLOOR777をホーム画面に追加');
+      nav.appendChild(button);
+      button.addEventListener('click', async () => {
+        if (installEvent) {
+          installEvent.prompt();
+          try { await installEvent.userChoice; } catch {}
+          installEvent = null;
+          button.remove();
+        } else {
+          toast('iPhoneは共有ボタン →「ホーム画面に追加」で、FLOOR777をすぐ開けます。');
+        }
+      });
+      return button;
+    };
+    if (isiOS) ensureButton();
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; ensureButton(); });
+    window.addEventListener('appinstalled', () => { if (button) button.remove(); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupInstallPrompt, {once:true}); else setupInstallPrompt();
   return {storage, getFavorites, isFavorite, toggleFavorite, addRecent, getRecent, formatDate, escapeHTML, safeURL, fetchJSON, share, toast, registerSW};
 })();
