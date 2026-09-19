@@ -168,13 +168,20 @@ async function initHallPage(){
       const seatText=document.createElementNS(NS,'text');seatText.setAttribute('x',x+w/2);seatText.setAttribute('y',y+10);seatText.setAttribute('class','seat-number');
       const diffValue=mapDisplay==='diff3'?(hasNumber(rec?.periods?.['3']?.diff_sum)?rec.periods['3'].diff_sum:null):mapDisplay==='diff7'?(hasNumber(rec?.periods?.['7']?.diff_sum)?rec.periods['7'].diff_sum:null):rec?.latest?.diff;
       const isDiffMode=['diff','diff3','diff7'].includes(mapDisplay);
-      seatText.textContent=isDiffMode?mapValue(diffValue,'diff'):mapDisplay==='spins'?mapValue(rec?.latest?.spins,'spins'):item.seat;
-      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+27);nameText.setAttribute('class','seat-machine');nameText.textContent=shortName(item.machine).slice(0,7);nameText.style.display=showNames?'':'none';
+      const showValue=isDiffMode||mapDisplay==='spins';
+      g.classList.toggle('with-value',showValue);
+      seatText.textContent=item.seat;seatText.setAttribute('y',y+(showValue?8:10));
+      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:27));nameText.setAttribute('class','seat-machine');nameText.textContent=shortName(item.machine).slice(0,7);nameText.style.display=showNames||showValue?'':'none';
       if(isDiffMode&&hasNumber(diffValue)){
         const d=Number(diffValue);
         g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
       }
       g.append(r,seatText,nameText);
+      if(showValue){
+        const valueText=document.createElementNS(NS,'text');valueText.setAttribute('x',x+w/2);valueText.setAttribute('y',y+34);valueText.setAttribute('class','seat-value');
+        valueText.textContent=isDiffMode?mapValue(diffValue,'diff'):mapValue(rec?.latest?.spins,'spins');
+        g.appendChild(valueText);g.setAttribute('aria-label',`${item.seat}番台 ${item.machine} ${isDiffMode?'差枚':'回転数'} ${valueText.textContent}`);
+      }
       if(showRecommendations&&recommendedSeats.has(Number(item.seat))){
         g.classList.add('recommended');
         const star=document.createElementNS(NS,'text');star.setAttribute('x',x+w-5);star.setAttribute('y',y+7);star.setAttribute('class','recommend-star');star.textContent='★';g.appendChild(star);
@@ -309,11 +316,11 @@ async function initHallPage(){
   updatePhoneOrientationUI();
 
   const namesBtn=document.getElementById('namesBtn');
-  const updateNamesLabel=()=>{namesBtn.classList.toggle('active',showNames);namesBtn.textContent=showNames?'機種名 ON':'機種名 OFF'};updateNamesLabel();
+  const updateNamesLabel=()=>{const combined=mapDisplay!=='seat';namesBtn.disabled=combined;namesBtn.classList.toggle('active',showNames||combined);namesBtn.textContent=combined?'機種名 ON（固定）':showNames?'機種名 ON':'機種名 OFF';namesBtn.title=combined?'差枚・回転数表示では台番号と機種名も表示します':'機種名の表示切替'};updateNamesLabel();
   namesBtn.addEventListener('click',()=>{showNames=!showNames;Floor777.storage.set(`floor777-show-names-${hall.id}`,showNames?'1':'0');svg.querySelectorAll('.seat-machine').forEach(x=>x.style.display=showNames?'':'none');updateNamesLabel()});
 
   const mapValueButtons=[...document.querySelectorAll('[data-map-value]')];
-  function updateMapValueButtons(){mapValueButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.mapValue===mapDisplay))}
+  function updateMapValueButtons(){updateNamesLabel();mapValueButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.mapValue===mapDisplay))}
   mapValueButtons.forEach(btn=>btn.addEventListener('click',()=>{mapDisplay=btn.dataset.mapValue;Floor777.storage.set(`floor777-map-display-${hall.id}`,mapDisplay);updateMapValueButtons();renderMap();setView(view)}));updateMapValueButtons();
   const recommendBtn=document.getElementById('recommendBtn');
   const recommendInfo=document.getElementById('recommendInfo');

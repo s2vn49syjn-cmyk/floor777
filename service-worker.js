@@ -1,4 +1,4 @@
-const CACHE='floor777-review-20260919-1';
+const CACHE='floor777-map-ads-20260919-1';
 const CORE=['./','./index.html','./halls/','./halls/hyper-arrow-mihara/','./assets/styles.css','./assets/common.js','./assets/home.js','./assets/app.js','./assets/shortlist.js','./assets/ads.js','./assets/site-config.js','./data/halls.json','./data/hyper-arrow-mihara.json','./data/positions-mihara.json','./offline.html'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('floor777-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

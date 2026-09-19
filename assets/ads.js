@@ -1,8 +1,8 @@
 (() => {
   const cfg = window.FLOOR777_CONFIG || {};
-  const slots = document.querySelectorAll('[data-ad-slot]');
+  const slots = [...document.querySelectorAll('[data-ad-slot]')].filter(el=>!el.closest('.original-detail'));
+  slots.forEach(el => { el.hidden = false; el.classList.add('ad-placeholder'); el.setAttribute('aria-label','広告掲載スペース'); if (el.previousElementSibling?.classList.contains('ad-label')) el.previousElementSibling.hidden = false; });
   if (!cfg.adsenseClient || (!cfg.enableAutoAds && !cfg.adsenseSlot)) {
-    slots.forEach(el => { el.hidden = true; if (el.previousElementSibling?.classList.contains('ad-label')) el.previousElementSibling.hidden = true; });
     return;
   }
 

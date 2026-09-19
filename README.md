@@ -37,4 +37,4 @@ npm test
 
 ## 広告
 
-`assets/site-config.js` のAdSense設定が空なら広告の空き枠を表示しません。広告を利用するときに実際のIDを設定してください。
+上部と本文下部に広告スペースを表示します。`assets/site-config.js` のAdSense設定が空なら「広告スペース」の仮枠を表示し、実際のIDを設定すると広告を読み込みます。

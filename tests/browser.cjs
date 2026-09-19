@@ -39,7 +39,7 @@ const appURL='http://floor777.test/floor777/halls/hyper-arrow-mihara/';
  // A present difference remains usable when only spins are absent.
  stats.seats['561'].periods['3']={days:3,complete:false,diff_sum:-99999,avg_spins:null};stats.seats['562'].latest.diff=null;stats.seats['562'].history=stats.seats['562'].history.map(x=>({...x,diff:null}));
  await open();await page.locator('[data-screen=recommend]').click();assert.equal(await page.locator('.recommended-row').first().getAttribute('data-recommend-seat'),'561');
- await page.locator('[data-screen=map]').click();await page.locator('[data-map-value=diff]').click();assert.equal(await page.locator('.seat[data-seat="562"] .seat-number').textContent(),'—');assert(!(await page.locator('.seat[data-seat="562"]').getAttribute('class')).includes('diff-zero'));
+ await page.locator('[data-screen=map]').click();await page.locator('[data-map-value=diff]').click();assert.equal(await page.locator('.seat[data-seat="562"] .seat-value').textContent(),'—');assert(!(await page.locator('.seat[data-seat="562"]').getAttribute('class')).includes('diff-zero'));
  await page.locator('[data-search-mode=seat]').click();await page.locator('#machineSearch').fill('562');await page.locator('#searchBtn').click();await page.locator('.seat[data-seat="562"]').click();assert.equal(await page.locator('.chart-point').count(),0);assert.match(await page.locator('#detailDiffChart').innerText(),/データがありません/);await page.locator('[data-close-detail]').click();
  await page.locator('[data-search-mode=machine]').click();assert(!(await page.locator('#detailData').isVisible()));assert(!new URL(page.url()).searchParams.has('seat'));
  // Null orientation must not be treated as a real heading; valid heading rotates the map.
