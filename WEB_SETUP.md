@@ -24,4 +24,4 @@ Pages設定は既に済んでいるため、通常は設定変更不要です。
 FLOOR777を再読み込みすると、台をタップした詳細欄に差枚・G数・3日/7日データが表示されます。
 
 公開URL:
-https://s2vn49syjn-cmyk.github.io/floor777/
+https://floor777.com/

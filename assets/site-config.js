@@ -6,7 +6,7 @@
  */
 window.FLOOR777_CONFIG = {
   siteName: "FLOOR777",
-  siteUrl: "https://s2vn49syjn-cmyk.github.io/floor777/",
+  siteUrl: "https://floor777.com/",
   adsenseClient: "",
   adsenseSlot: "",
   enableAutoAds: false
