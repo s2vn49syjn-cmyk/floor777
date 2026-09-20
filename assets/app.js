@@ -71,7 +71,7 @@ async function initHallPage(){
     seats=seats.map(x=>{const st=stats.seats[String(x.seat)];return st?.machine?{...x,machine:st.machine}:x});
   }
   const bySeat=new Map(seats.map(x=>[Number(x.seat),x]));
-  const machineCount=new Map(); seats.forEach(x=>machineCount.set(x.machine,(machineCount.get(x.machine)||0)+1));
+  const machineCount=new Map(); seats.forEach(x=>{const name=String(x.machine||'').trim();if(name && name!=='機種名未設定' && name!=='機種不明')machineCount.set(name,(machineCount.get(name)||0)+1)});
   const machineNames=[...machineCount.keys()].sort((a,b)=>a.localeCompare(b,'ja'));
   const svg=document.getElementById('floorMap');
   const resultBox=document.getElementById('resultSummary');
@@ -132,12 +132,12 @@ async function initHallPage(){
   document.getElementById('detailMapBtn').onclick=()=>{detailDialog.close();switchScreen('map');focusSeats([selected]);document.querySelector('.map-card').scrollIntoView({behavior:'smooth',block:'start'})};
   Floor777.addRecent(hall.id);
   document.getElementById('hallUpdated').textContent=Floor777.formatDate(hall.layout_updated_at || hall.updated_at);
-  const mu=document.getElementById('machineUpdated'); if(mu) mu.textContent=Floor777.formatDate(hall.machine_updated_at || hall.updated_at);
+  const mu=document.getElementById('machineUpdated'); if(mu) mu.textContent=Floor777.formatDate(hall.machine_updated_at);
   document.getElementById('seatCount').textContent=Number(hall.seat_count).toLocaleString('ja-JP');
   document.getElementById('machineCount').textContent=machineNames.length.toLocaleString('ja-JP');
   document.getElementById('sourceName').textContent=hall.source.name;
   document.getElementById('sourceLink').href=hall.source.url;
-  document.getElementById('sourceDate').textContent=Floor777.formatDate(stats?.latest_date || hall.machine_updated_at || hall.updated_at);
+  document.getElementById('sourceDate').textContent=Floor777.formatDate(stats?.latest_date || hall.machine_updated_at);
   const statsBadge=document.getElementById('statsBadge');
   if(stats?.latest_date){statsBadge.textContent=`台データ ${Floor777.formatDate(stats.latest_date)}`;statsBadge.classList.add('live');const mu2=document.getElementById('machineUpdated');if(mu2)mu2.textContent=Floor777.formatDate(stats.latest_date);if(stats.source?.name)document.getElementById('sourceName').textContent=stats.source.name;if(stats.source?.url)document.getElementById('sourceLink').href=stats.report_urls?.[stats.latest_date]||stats.source.url}
   else{statsBadge.textContent='台データ同期前';statsBadge.classList.add('warn')}
