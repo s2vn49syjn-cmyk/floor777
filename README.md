@@ -1,5 +1,9 @@
 # FLOOR777
 
+## 店舗の追加
+
+[店舗追加エディター](https://floor777.com/tools/hall-editor.html)で、マップ画像を下敷きに台番号を配置して設定JSONを保存できます。[追加手順](tools/HALL_TEMPLATE.md)を参照してください。生成コマンドは `node tools/build-hall.mjs 店舗設定.json` です。
+
 GitHub Pagesで公開する、店舗の島図・台データ・狙い台管理サイトです。現在はHYPER ARROW美原店の551台を掲載しています。
 
 ## 画面

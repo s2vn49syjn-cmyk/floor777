@@ -57,7 +57,7 @@ async function initHallPage(){
     Floor777.fetchJSON(`${base}data/${hallFile}`), Floor777.fetchJSON(`${base}data/${posFile}`)
   ]);
   if(!Array.isArray(hall.seats)||!hall.seats.length)throw Error('No hall seats');
-  const positions=compactPositions(rawPositions);
+  const positions=hall.preserve_layout?rawPositions:compactPositions(rawPositions);
   if(!Object.keys(positions).length)throw Error('No map positions');
   let stats=null;
   const liveStatsUrl=new URL(`${base}data/live/${hall.id}-stats.json`,location.href).href;
