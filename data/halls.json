@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-18",
+  "updated_at": "2026-09-20",
   "halls": [
     {
       "id": "hyper-arrow-mihara",
@@ -18,6 +18,24 @@
         "向き切替"
       ],
       "machine_updated_at": "2026-09-15"
+    },
+    {
+      "id": "super-cosmo-sakai",
+      "name": "SUPER COSMO PREMIUM堺店",
+      "prefecture": "大阪府",
+      "city": "堺市",
+      "category": "スロット",
+      "seat_count": 504,
+      "updated_at": "2026-09-20",
+      "path": "halls/super-cosmo-sakai/",
+      "status": "published",
+      "features": [
+        "機種名検索",
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
     }
   ]
 }
