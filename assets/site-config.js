@@ -7,7 +7,7 @@
 window.FLOOR777_CONFIG = {
   siteName: "FLOOR777",
   siteUrl: "https://floor777.com/",
-  adsenseClient: "",
+  adsenseClient: "ca-pub-1300656900931615",
   adsenseSlot: "",
   enableAutoAds: false
 };
