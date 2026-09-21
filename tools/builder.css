@@ -3,3 +3,6 @@
 #candidatePreview{width:100%;height:280px;background:#0b1118;border-radius:8px;border:1px solid var(--line)}#candidatePreview .candidate{cursor:pointer}#candidatePreview .off{opacity:.15}#candidatePreview text{fill:white;paint-order:stroke;stroke:#111;stroke-width:3px;font-size:16px;font-weight:700;pointer-events:none}
 
 .field-only{display:none}.field .field-only{display:flex}
+
+@media(min-width:721px){main{height:calc(100dvh - 140px);min-height:0}.workspace,.inspector,.library{height:100%;min-height:0}.library,.inspector{overflow-y:auto}.workspace #stage{height:auto;flex:1;min-height:180px}}
+.inspector .export-actions button,.library>button{white-space:normal;overflow-wrap:anywhere}

@@ -32,7 +32,7 @@ function render(){
  $('islands').replaceChildren(frag);$('islandSelect').replaceChildren(...project.islands.map((i,k)=>{const o=document.createElement('option');o.value=i.key;o.textContent=`${k+1}. ${i.name} (${i.count}台)${i.numbers.length===i.count?' ✓':''}`;return o;}));if(selected)$('islandSelect').value=selected;
  $('undo').disabled=!history.length;$('redo').disabled=!future.length;$('deleteIsland').disabled=!island();renderInspector();applyView();
 }
-function renderInspector(){const i=island();$('islandForm').hidden=!i;$('noIsland').hidden=!!i;if(!i)return;for(const k of ['shape','count','size','x','y','angle','pitch','radius','sweep','machine'])$(k).value=i[k];$('islandName').value=i.name;$('confirmed').checked=i.confirmed;$('fieldConfirmed').checked=i.confirmed;$('numberCount').value=i.count;
+function renderInspector(){const i=island();$('islandForm').hidden=!i;$('noIsland').hidden=!!i;if(!i)return;for(const k of ['shape','count','size','x','y','angle','pitch','radius','sweep','machine'])$(k).value=typeof i[k]==='number'?Math.round(i[k]*100)/100:i[k];$('islandName').value=i.name;$('confirmed').checked=i.confirmed;$('fieldConfirmed').checked=i.confirmed;$('numberCount').value=i.count;
  $('count').disabled=i.shape==='custom';for(const k of ['angle','pitch','radius','sweep'])$(k).disabled=i.shape==='custom';$('shape').querySelector('[value=custom]').disabled=i.shape!=='custom';
  $('numberCount').title='変更時は島の全長を保って台を再配置します';
 }

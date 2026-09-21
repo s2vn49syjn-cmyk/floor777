@@ -13,7 +13,7 @@ export function detectIslands({data,width,height},scale=1,{saturation=45,minArea
   let lo=Infinity,hi=-Infinity,rad=0,rad2=0;const angles=[];
   for(let k=0;k<tail;k++){const x=queue[k]%width-cx,y=Math.floor(queue[k]/width)-cy,t=x*Math.cos(theta)+y*Math.sin(theta),r=Math.hypot(x,y);lo=Math.min(lo,t);hi=Math.max(hi,t);rad+=r;rad2+=r*r;angles.push((Math.atan2(y,x)+Math.PI*2)%(Math.PI*2));}
   rad/=tail;const cv=Math.sqrt(Math.max(0,rad2/tail-rad*rad))/Math.max(1,rad),size=Math.max(10,Math.min(32,Math.sqrt(minor)*1.4))*scale;
-  const base={x:(cx+lo*Math.cos(theta))*scale,y:(cy+lo*Math.sin(theta))*scale,shape:'line',angle:theta*180/Math.PI,size,pitch:size*1.3,radius:rad*scale,sweep:120};
+  const base={x:(cx+lo*Math.cos(theta))*scale-size/2,y:(cy+lo*Math.sin(theta))*scale-size/2,shape:'line',angle:theta*180/Math.PI,size,pitch:size*1.3,radius:rad*scale,sweep:120};
   // Fit a circle around the colored component to recognize open arcs too.
   // Centered least-squares circle: 2*a*dx + 2*b*dy + c = dx²+dy².
   let xxx=0,yyy=0,xxy=0,xyy=0;
