@@ -1,0 +1,27 @@
+name: Island builder checks
+on:
+  push:
+    branches: ['codex/island-builder-*']
+  pull_request:
+    paths: ['tools/**', 'tests/builder-*', '.github/workflows/builder-checks.yml']
+permissions:
+  contents: read
+jobs:
+  builder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/builder-model.mjs
+      - run: node tests/hall-template.mjs
+      - run: node tests/builder-browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: builder-screenshots
+          path: test-results/

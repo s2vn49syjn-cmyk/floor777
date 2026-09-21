@@ -1,4 +1,11 @@
+import {validate, points} from './builder-model.mjs';
 export function expandLayout(d) {
+  if(d.version===2){
+    const check=validate(d);if(check.errors.length)throw Error(check.errors.join('\n'));
+    const positions={},seats=[];
+    for(const i of d.islands)points(i).forEach((p,k)=>{positions[i.numbers[k]]=p;seats.push({seat:i.numbers[k],machine:i.machine||'機種確認中'});});
+    return {positions,seats};
+  }
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(d.id || '')) throw Error('店舗IDは半角英数字とハイフンで入力してください');
   for (const k of ['name','prefecture','city']) if (typeof d[k] !== 'string' || !d[k].trim()) throw Error(`${k}が未入力です`);
   const u = new URL(d.minrepo_url);
