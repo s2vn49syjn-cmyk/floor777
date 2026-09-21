@@ -1,1 +1,59 @@
-{"updated_at":"2026-09-20","halls":[{"id":"hyper-arrow-mihara","name":"HYPER ARROW美原店","prefecture":"大阪府","city":"堺市美原区","category":"スロット","seat_count":551,"updated_at":"2026-09-18","path":"halls/hyper-arrow-mihara/","status":"published","features":["機種名検索","台番号検索","島図","向き切替"],"machine_updated_at":"2026-09-15"},{"id":"super-cosmo-sakai","name":"SUPER COSMO PREMIUM堺店","prefecture":"大阪府","city":"堺市","category":"スロット","seat_count":504,"updated_at":"2026-09-20","path":"halls/super-cosmo-sakai/","status":"published","features":["機種名検索","台番号検索","島図","向き切替"],"machine_updated_at":null},{"id":"kikuya-sakai-honten","name":"キクヤ堺本店","prefecture":"大阪府","city":"堺市","category":"スロット","seat_count":826,"updated_at":"2026-09-20","path":"halls/kikuya-sakai-honten/","status":"published","features":["機種名検索","台番号検索","島図","向き切替"],"machine_updated_at":null}]}
+{
+  "updated_at": "2026-09-20",
+  "halls": [
+    {
+      "id": "hyper-arrow-mihara",
+      "name": "HYPER ARROW美原店",
+      "prefecture": "大阪府",
+      "city": "堺市美原区",
+      "category": "スロット",
+      "seat_count": 551,
+      "updated_at": "2026-09-18",
+      "path": "halls/hyper-arrow-mihara/",
+      "status": "published",
+      "features": [
+        "機種名検索",
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": "2026-09-15"
+    },
+    {
+      "id": "super-cosmo-sakai",
+      "name": "SUPER COSMO PREMIUM堺店",
+      "prefecture": "大阪府",
+      "city": "堺市",
+      "category": "スロット",
+      "seat_count": 504,
+      "updated_at": "2026-09-20",
+      "path": "halls/super-cosmo-sakai/",
+      "status": "published",
+      "features": [
+        "機種名検索",
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "kikuya-sakai-honten",
+      "name": "キクヤ堺本店",
+      "prefecture": "大阪府",
+      "city": "堺市",
+      "category": "スロット",
+      "seat_count": 826,
+      "updated_at": "2026-09-20",
+      "path": "halls/kikuya-sakai-honten/",
+      "status": "published",
+      "features": [
+        "機種名検索",
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    }
+  ]
+}

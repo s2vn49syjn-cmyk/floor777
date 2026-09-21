@@ -24,4 +24,3 @@
     count.textContent = '読込失敗'; list.innerHTML = '<div class="empty-state">店舗一覧を読み込めませんでした。<button class="btn secondary" id="retryHalls">再読み込み</button></div>'; document.getElementById('retryHalls').onclick = () => location.reload();
   }
 })();
-
