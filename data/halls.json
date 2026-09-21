@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-20",
+  "updated_at": "2026-09-21",
   "halls": [
     {
       "id": "hyper-arrow-mihara",
@@ -36,6 +36,24 @@
         "向き切替"
       ],
       "machine_updated_at": null
+    },
+    {
+      "id": "kikuya-sakai-honten",
+      "name": "キクヤ堺本店",
+      "prefecture": "大阪府",
+      "city": "堺市",
+      "category": "スロット",
+      "seat_count": 826,
+      "updated_at": "2026-09-20",
+      "path": "halls/kikuya-sakai-honten/",
+      "status": "published",
+      "features": [
+        "機種名検索",
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": "2026-09-20"
     }
   ]
 }

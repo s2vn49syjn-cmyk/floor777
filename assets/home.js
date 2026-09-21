@@ -6,6 +6,7 @@
   try {
     const data = await Floor777.fetchJSON(`${base}data/halls.json`);
     const halls = data.halls.filter(h => h.status === 'published');
+    for (const [id,value] of [['publishedHallTotal',halls.length],['publishedSeatTotal',halls.reduce((sum,h)=>sum+Number(h.seat_count||0),0)]]) { const el=document.getElementById(id); if(el) el.textContent=value.toLocaleString('ja-JP'); }
     const norm = s => String(s).normalize('NFKC').toLowerCase().replace(/\s+/g,'');
     function card(h) {
       return `<a class="card hall-card" href="${esc(Floor777.safeURL(base+h.path))}"><div class="hall-card-top"><span class="tag">${esc(h.prefecture)}・${esc(h.city)}</span><span class="favorite-badge" aria-label="${Floor777.isFavorite(h.id)?'お気に入り':'通常'}">${Floor777.isFavorite(h.id)?'★':'☆'}</span></div><h3>${esc(h.name)}</h3><div class="hall-meta"><span>${esc(h.category)} ${Number(h.seat_count).toLocaleString('ja-JP')}台</span><span>島図更新 ${Floor777.formatDate(h.updated_at)}</span></div><div class="feature-row">${(h.features||[]).map(x=>`<span>${esc(x)}</span>`).join('')}</div><div class="card-link"><span>島図を見る</span><span aria-hidden="true">→</span></div></a>`;
