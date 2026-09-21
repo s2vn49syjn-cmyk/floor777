@@ -3,9 +3,13 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 const root=path.resolve(__dirname,'..'),id='kikuya-sakai-honten';
 const positions=JSON.parse(fs.readFileSync(path.join(root,`data/positions-${id}.json`)));
 const hall=JSON.parse(fs.readFileSync(path.join(root,`data/${id}.json`)));
+const stats=JSON.parse(fs.readFileSync(path.join(root,`data/live/${id}-stats.json`)));
+const published=JSON.parse(fs.readFileSync(path.join(root,'data/halls.json'))).halls.filter(h=>h.status==='published');
+const totalSeats=published.reduce((sum,h)=>sum+h.seat_count,0).toLocaleString('ja-JP');
 const numbers=Object.keys(positions).map(Number).sort((a,b)=>a-b);
 assert.equal(numbers.length,826);
 assert.deepEqual(hall.seats.map(s=>s.seat).sort((a,b)=>a-b),numbers);
+assert.deepEqual(Object.keys(stats.seats).map(Number).sort((a,b)=>a-b),numbers);
 assert(!numbers.some(n=>n>=621&&n<=661));
 for(const n of [729,738,791,800,1275])assert(numbers.includes(n));
 const cells=Object.values(positions);
@@ -25,6 +29,11 @@ for(let i=0;i<cells.length;i++)for(let j=i+1;j<cells.length;j++){
   });
   await page.goto(`http://floor777.test/halls/${id}/`);await page.waitForSelector('.seat');
   assert.equal(await page.locator('.seat').count(),826);
+  assert.match(await page.locator('#statsBadge').innerText(),/台データ/);
+  assert(Number(await page.locator('#machineCount').innerText())>0);
+  await page.locator('#machineSearch').fill(stats.seats['729'].machine);
+  await page.locator('#searchBtn').click();
+  assert(!/0台|見つかりません/.test(await page.locator('#resultText').innerText()));
   await page.locator('[data-search-mode=seat]').click();
   for(const n of ['729','738','1275']){
    await page.locator('#machineSearch').fill(n);await page.locator('#searchBtn').click();
@@ -34,10 +43,10 @@ for(let i=0;i<cells.length;i++)for(let j=i+1;j<cells.length;j++){
   assert.match(await page.locator('#resultText').innerText(),/0台|見つかりません/);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.goto('http://floor777.test/');await page.waitForSelector('.hall-card');
-  assert.equal(await page.locator('#publishedHallTotal').innerText(),'3');
-  assert.equal(await page.locator('#publishedSeatTotal').innerText(),'1,881');
+  assert.equal(await page.locator('#publishedHallTotal').innerText(),published.length.toLocaleString('ja-JP'));
+  assert.equal(await page.locator('#publishedSeatTotal').innerText(),totalSeats);
   await page.locator('#hallSearch').fill('キクヤ');assert.equal(await page.locator('#hallList .hall-card').count(),1);
-  assert.equal(await page.locator('#publishedSeatTotal').innerText(),'1,881');
+  assert.equal(await page.locator('#publishedSeatTotal').innerText(),totalSeats);
   assert.deepEqual(errors,[]);
   console.log('PASS: Kikuya map, exclusions, restored seats, search, mobile layout and dynamic home totals');
  }finally{await browser.close()}
