@@ -1,4 +1,4 @@
-import {newProject,makeIsland,points,moveIsland,assign,validate,importProject,fromLegacy,exportFiles,copy,uid} from './builder-model.mjs';
+import {newProject,makeIsland,points,moveIsland,resizeIsland,assign,validate,importProject,fromLegacy,exportFiles,copy,uid} from './builder-model.mjs';
 import {openDB,saveProject,listProjects,deleteProject} from './builder-store.mjs';
 import {zipFiles} from './builder-zip.mjs';
 const $=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
@@ -32,9 +32,9 @@ function render(){
  $('islands').replaceChildren(frag);$('islandSelect').replaceChildren(...project.islands.map((i,k)=>{const o=document.createElement('option');o.value=i.key;o.textContent=`${k+1}. ${i.name} (${i.count}台)${i.numbers.length===i.count?' ✓':''}`;return o;}));if(selected)$('islandSelect').value=selected;
  $('undo').disabled=!history.length;$('redo').disabled=!future.length;$('deleteIsland').disabled=!island();renderInspector();applyView();
 }
-function renderInspector(){const i=island();$('islandForm').hidden=!i;$('noIsland').hidden=!!i;if(!i)return;for(const k of ['shape','count','size','x','y','angle','pitch','radius','sweep','machine'])$(k).value=i[k];$('islandName').value=i.name;$('confirmed').checked=i.confirmed;$('numberCount').value=i.count;
+function renderInspector(){const i=island();$('islandForm').hidden=!i;$('noIsland').hidden=!!i;if(!i)return;for(const k of ['shape','count','size','x','y','angle','pitch','radius','sweep','machine'])$(k).value=i[k];$('islandName').value=i.name;$('confirmed').checked=i.confirmed;$('fieldConfirmed').checked=i.confirmed;$('numberCount').value=i.count;
  $('count').disabled=i.shape==='custom';for(const k of ['angle','pitch','radius','sweep'])$(k).disabled=i.shape==='custom';$('shape').querySelector('[value=custom]').disabled=i.shape!=='custom';
- $('numberCount').title='台数を変更する場合は作成モードで変更';
+ $('numberCount').title='変更時は島の全長を保って台を再配置します';
 }
 function select(key,focus=false){selected=key;$('skipNumbers').value='';$('explicitNumbers').value='';$('reverse').value='forward';$('startNumber').value=island()?.numbers[0]||'';render();if(focus)focusIsland();}
 function applyView(){$('map').setAttribute('viewBox',`${view.x} ${view.y} ${view.w} ${view.h}`);$('zoomLabel').textContent=Math.round(project.width/view.w*100)+'%';}
@@ -72,7 +72,8 @@ $('deleteIsland').onclick=()=>{const i=island();if(!i||!confirm(`${i.name}を削
 $('islandSelect').onchange=e=>select(e.target.value,mode==='field');
 function adjacent(d){const idx=project.islands.findIndex(i=>i.key===selected);if(project.islands.length)select(project.islands[(idx+d+project.islands.length)%project.islands.length].key,mode==='field');}
 $('prevIsland').onclick=()=>adjacent(-1);$('nextIsland').onclick=()=>adjacent(1);$('nextMissing').onclick=nextMissing;
-function assignNumbers(next=false){const test=copy(project);const nums=assign(test,selected,{start:Number($('startNumber').value),count:Number($('numberCount').value),reverse:$('reverse').value==='reverse',skip:$('skipNumbers').value,explicit:$('explicitNumbers').value});snapshot();project=test;changed();toast(`${nums.length}台の番号を入力しました`);if(next){nextMissing();$('startNumber').value=Math.max(...nums)+1;}}
+$('fieldConfirmed').onchange=()=>{if(!island())return;snapshot();island().confirmed=$('fieldConfirmed').checked;changed();};
+function assignNumbers(next=false){const test=copy(project),target=test.islands.find(i=>i.key===selected),count=Number($('numberCount').value);if(!target)throw Error('島を選んでください');if(count!==target.count){if(!Number.isInteger(count)||count<1||count>1000||test.islands.filter(i=>i!==target).reduce((n,i)=>n+i.count,0)+count>3000)throw Error('台数は1〜1000、1店舗3000台までです');if(!confirm(`この島を${target.count}台から${count}台に変更して再配置します。配置の確認が必要です。続けますか？`))return;resizeIsland(target,count);}const nums=assign(test,selected,{start:Number($('startNumber').value),count:Number($('numberCount').value),reverse:$('reverse').value==='reverse',skip:$('skipNumbers').value,explicit:$('explicitNumbers').value});snapshot();project=test;changed();toast(`${nums.length}台の番号を入力しました`);if(next){nextMissing();$('startNumber').value=Math.max(...nums)+1;}}
 $('assign').onclick=guard(()=>assignNumbers());$('assignNext').onclick=guard(()=>assignNumbers(true));
 $('loadNumbers').onclick=()=>{$('explicitNumbers').value=island()?.numbers.map(n=>n??'').join(',')||'';$('reverse').value='forward';};
 $('clearNumbers').onclick=()=>{if(!island()||!confirm('この島の台番号を消しますか？'))return;snapshot();island().numbers=[];$('startNumber').value='';$('explicitNumbers').value='';changed();};
@@ -106,9 +107,10 @@ function endPointer(e){pointers.delete(e.pointerId);if(gesture?.moved){changed()
 $('map').addEventListener('pointerup',endPointer);$('map').addEventListener('pointercancel',endPointer);
 $('map').addEventListener('wheel',e=>{e.preventDefault();const p=point(e);zoom(e.deltaY>0?1.12:.89,p.x,p.y);},{passive:false});
 $('detect').onclick=guard(async()=>{
- if(!project.image)throw Error('先に島図画像を読み込んでください');$('detect').disabled=true;$('detect').textContent='検出中…';
+ if(!project.image)throw Error('先に島図画像を読み込んでください');const detectionKey=project.key;$('detect').disabled=true;$('detect').textContent='検出中…';
  try{const img=new Image();img.src=project.image;await img.decode();const w=Math.min(900,img.width),h=Math.round(img.height*w/img.width),c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0,w,h);const data=ctx.getImageData(0,0,w,h);worker=new Worker(new URL('./builder-worker.mjs',import.meta.url),{type:'module'});
  const result=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('検出が時間切れになりました。画像を小さくして試してください')),20000);worker.onmessage=e=>{clearTimeout(timer);e.data.error?reject(Error(e.data.error)):resolve(e.data.islands);};worker.onerror=()=>{clearTimeout(timer);reject(Error('検出処理を起動できませんでした'));};worker.postMessage({image:data,scale:project.width/w});});
+ if(project.key!==detectionKey)throw Error('検出中に店舗が切り替わりました。現在の店舗で検出し直してください');
  candidates=result.map(c=>{const sy=(project.height/h)/(project.width/w);if(Math.abs(sy-1)<.01)return c;const ps=points(makeIsland(c)).map(p=>[p[0],p[1]*sy,p[2],p[3]*sy]);return {...c,shape:'custom',points:ps,y:c.y*sy};});if(!candidates.length){toast('色から島を見つけられませんでした。直線・曲線・円形ボタンで追加できます',true);return;}
  $('candidateSummary').textContent=`${candidates.length}候補。追加後も既存の島は残ります。`;$('candidateList').replaceChildren(...candidates.map((c,j)=>{const l=document.createElement('label');l.className='candidate-row';const box=document.createElement('input');box.type='checkbox';box.checked=true;box.dataset.index=j;const s=document.createElement('span');s.textContent=`候補 ${j+1}：${c.shape==='circle'?'円形':c.shape==='arc'?'曲線':c.shape==='custom'?'個別座標':'直線・斜め'} / 推定${c.count}台 / 位置 ${Math.round(c.x)}, ${Math.round(c.y)}`;l.append(box,s);return l;}));const preview=$('candidatePreview');preview.setAttribute('viewBox',`0 0 ${project.width} ${project.height}`);preview.replaceChildren(node('image',{href:project.image,width:project.width,height:project.height,opacity:.5}));
  candidates.forEach((c,j)=>{const ps=points(makeIsland(c)),g=node('g',{class:'candidate'});for(const p of ps)g.append(node('rect',{x:p[0],y:p[1],width:p[2],height:p[3],fill:'#ff8c2066',stroke:'#ffb466','stroke-width':2}));g.append(node('text',{x:ps[0][0],y:ps[0][1]-5},j+1));const box=$('candidateList').querySelector(`[data-index="${j}"]`);box.onchange=()=>g.classList.toggle('off',!box.checked);g.onclick=()=>{box.checked=!box.checked;box.onchange();};preview.append(g);});

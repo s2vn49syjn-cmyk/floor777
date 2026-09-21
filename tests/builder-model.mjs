@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {newProject,makeIsland,points,assign,validate,importProject,exportFiles,fromLegacy,copy} from '../tools/builder-model.mjs';
+import {newProject,makeIsland,points,resizeIsland,assign,validate,importProject,exportFiles,fromLegacy,copy} from '../tools/builder-model.mjs';
 import {zipFiles} from '../tools/builder-zip.mjs';
 import {detectIslands} from '../tools/builder-detect.mjs';
 const p=newProject();Object.assign(p,{id:'test-hall',name:'テスト店舗',city:'堺市'});
@@ -21,6 +21,7 @@ const edge=copy(p);edge.islands[0].x=-1;assert(validate(edge).errors.some(e=>e.i
 const circle=makeIsland({shape:'circle',count:4,x:300,y:300,radius:100,angle:0});assert.deepEqual(points(circle)[0],[388,288,24,24]);assert(Math.abs(points(circle)[3][1]-188)<.01);
 const arc=makeIsland({shape:'arc',count:3,x:300,y:300,radius:100,angle:0,sweep:180});assert.equal(points(arc)[2][0],188);
 const custom=makeIsland({shape:'custom',count:2,points:[[100,100,24,24],[131,122,24,24]],numbers:[]});assert.deepEqual(points(custom),custom.points);
+const resized=copy(a);resizeIsland(resized,3);assert.equal(resized.count,3);assert.equal(resized.numbers.length,0);assert.equal(resized.confirmed,false);assert.equal(points(resized)[2][0],points(a)[4][0]);
 const old=fromLegacy({id:'old',name:'旧店舗',prefecture:'大阪府',city:'堺市',minrepo_url:'',layout_date:'2026-09-20',rows:[{numbers:[10,11],x:200,y:300,direction:'left'}]});assert.deepEqual(points(old.islands[0])[1],[152,300,44,44]);
 const bad=copy(p);bad.minrepo_url='https://min-repo.com.evil.example/tag/a';assert(validate(bad).errors.some(e=>e.includes('URL')));
 const w=200,h=200,data=new Uint8ClampedArray(w*h*4);for(let y=20;y<180;y++)for(let x=30;x<45;x++){const k=(y*w+x)*4;data.set([20,120,220,255],k);}assert(detectIslands({width:w,height:h,data}).length>=1);

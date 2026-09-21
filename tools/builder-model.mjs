@@ -13,6 +13,17 @@ export function points(island){
  });
 }
 export function moveIsland(island,dx,dy){island.x+=dx;island.y+=dy;if(island.shape==='custom')island.points=island.points.map(p=>[p[0]+dx,p[1]+dy,p[2],p[3]]);}
+export function resizeIsland(island,count){
+ if(!Number.isInteger(count)||count<1||count>1000)throw Error('台数は1〜1000で入力してください');
+ if(count===island.count)return;
+ if(island.shape==='line'&&island.count>1&&count>1)island.pitch*=((island.count-1)/(count-1));
+ if(island.shape==='custom'){
+  const ps=points(island),lengths=[0];for(let k=1;k<ps.length;k++)lengths.push(lengths[k-1]+Math.hypot(ps[k][0]-ps[k-1][0],ps[k][1]-ps[k-1][1]));
+  const total=lengths.at(-1);
+  island.points=Array.from({length:count},(_,k)=>{if(!total)return [ps[0][0]+k*island.pitch,ps[0][1],ps[0][2],ps[0][3]];const d=total*k/Math.max(1,count-1);let j=1;while(j<ps.length-1&&lengths[j]<d)j++;const f=(d-lengths[j-1])/(lengths[j]-lengths[j-1]||1),a=ps[j-1],b=ps[j];return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2],a[3]];});
+ }
+ island.count=count;island.numbers=[];island.confirmed=false;
+}
 export function parseList(value){
  const out=[];
  for(const part of String(value).normalize('NFKC').split(/[\s,、]+/).filter(Boolean)){
