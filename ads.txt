@@ -1,1 +1,1 @@
-# AdSense審査・承認後に、Google AdSenseが指定するads.txt行へ置き換えてください。
+google.com, pub-1300656900931615, DIRECT, f08c47fec0942fa0
