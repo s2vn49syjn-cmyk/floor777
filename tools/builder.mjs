@@ -16,7 +16,7 @@ function save(){
 }
 function changed(){render();void save();}
 function renderProjects(){const frag=document.createDocumentFragment();for(const p of [...projects].sort((a,b)=>b.updated_at.localeCompare(a.updated_at))){const b=document.createElement('button');b.className='project-card'+(p.key===project.key?' active':'');const title=document.createElement('strong'),small=document.createElement('small');title.textContent=p.name;small.textContent=`${p.islands.length}島 · ${p.islands.some(i=>i.estimatedCount&&!i.confirmed)?'仮':''}${p.islands.reduce((n,i)=>n+i.count,0)}台`;b.append(title,small);b.onclick=guard(async()=>{await saving;load(p);document.body.classList.remove('show-library');});frag.append(b);}$('projects').replaceChildren(frag);}
-function load(p){project=copy(p);selected=project.islands[0]?.key||null;history=[];future=[];renderMeta();fit();render();renderProjects();}
+function load(p){project=copy(p);selected=project.islands[0]?.key||null;history=[];future=[];$('uniformSeatSize').value='';renderMeta();fit();render();renderProjects();}
 function renderMeta(){for(const k of ['name','id','prefecture','city','minrepo_url','layout_date','width','height'])$(k).value=project[k];}
 function render(){
  $('projectTitle').textContent=project.name;
@@ -64,7 +64,7 @@ for(const [id,clockwise] of [['rotateLeft',false],['rotateRight',true]])$(id).on
 $('batchImages').onclick=()=>$('batchFiles').click();
 $('batchFolder').onclick=()=>$('folderFiles').click();
 $('cancelBatch').onclick=()=>batchController?.abort();
-$('unifySeatSize').onclick=()=>{snapshot();const count=project.islands.filter(i=>i.shape==='custom'&&i.estimatedCount&&!i.confirmed&&!i.numbers.length).length;const size=unifyGeneratedSeatSize(project.islands,project.width,project.height);if(!size){history.pop();toast('未確認の自動生成島がありません');return;}changed();toast(`${count}島の台サイズを${Math.round(size*10)/10}に揃えました`);};
+$('unifySeatSize').onclick=()=>{snapshot();const count=project.islands.filter(i=>i.shape==='custom'&&i.estimatedCount&&!i.confirmed&&!i.numbers.length).length;const entered=$('uniformSeatSize').value.trim(),requested=entered?Number(entered):undefined;if(entered&&(!Number.isFinite(requested)||requested<4||requested>300)){history.pop();throw Error('台サイズは4〜300で入力してください');}const size=unifyGeneratedSeatSize(project.islands,project.width,project.height,requested);if(!size){history.pop();toast('未確認の自動生成島がありません');return;}$('uniformSeatSize').value=Math.round(size*10)/10;changed();toast(`${count}島の台サイズを${Math.round(size*10)/10}に揃えました`);};
 async function batchInput(e){
  const files=[...e.target.files];e.target.value='';if(!files.length)return;
  await saving;batchController=new AbortController();$('batchStatus').hidden=false;$('cancelBatch').hidden=false;
