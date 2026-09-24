@@ -1,4 +1,4 @@
-import {newProject,makeIsland} from './builder-model.mjs';
+import {newProject,makeIsland,unifyGeneratedSeatSize} from './builder-model.mjs';
 
 export async function readMapImage(file){
  if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>20000000)throw Error('20MB以下のPNG・JPEG・WebPを選んでください');
@@ -36,7 +36,9 @@ export async function generateRows(project,{signal}={}){
   });
   const sx=project.width/w,sy=project.height/h;
   if(rows.reduce((n,r)=>n+r.count,0)>3000)throw Error('候補が3000台を超えました。画像を個別に開き、生成範囲を絞ってください');
-  return rows.map((r,i)=>makeIsland({...r,name:`自動生成 ${i+1}`,x:r.x*sx,y:r.y*sy,size:r.size*Math.min(sx,sy),pitch:r.pitch*Math.min(sx,sy),points:r.points.map(([x,y,a,b])=>[x*sx,y*sy,a*sx,b*sy]),numbers:[],confirmed:false}));
+  const islands=rows.map((r,i)=>makeIsland({...r,name:`自動生成 ${i+1}`,x:r.x*sx,y:r.y*sy,size:r.size*Math.min(sx,sy),pitch:r.pitch*Math.min(sx,sy),points:r.points.map(([x,y,a,b])=>[x*sx,y*sy,a*sx,b*sy]),numbers:[],confirmed:false}));
+  unifyGeneratedSeatSize(islands,project.width,project.height);
+  return islands;
  }finally{worker.terminate()}
 }
 
