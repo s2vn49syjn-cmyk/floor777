@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const {spawn}=require('node:child_process');
 const path=require('node:path');
 (async()=>{
- const root=path.resolve(__dirname,'..');const server=spawn('python3',['-m','http.server','8777','--bind','127.0.0.1'],{cwd:root,stdio:'ignore'});let browser,page;
+ const root=path.resolve(__dirname,'..');const server=spawn(process.env.PYTHON_PATH||'python3',['-m','http.server','8777','--bind','127.0.0.1'],{cwd:root,stdio:'ignore'});let browser,page;
  const url='http://127.0.0.1:8777/tools/hall-editor.html';
  try{
   for(let i=0;i<40;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
@@ -28,7 +28,7 @@ const path=require('node:path');
   await fill('startNumber',201);await page.locator('#reverse').selectOption('reverse');await page.locator('#assign').click();await saved();
   assert.deepEqual((await page.locator('.seat-label').allTextContents()).slice(5),['203','202','201']);
   await page.locator('#check').click();assert.equal(await page.locator('#reportExport').isDisabled(),false);await page.locator('#closeReport').click();
-  const dl=page.waitForEvent('download');await page.locator('#export').click();const download=await dl;assert(download.suggestedFilename().endsWith('.zip'));await download.saveAs('/tmp/builder-browser.zip');
+  const dl=page.waitForEvent('download');await page.locator('#export').click();const download=await dl;assert(download.suggestedFilename().endsWith('.zip'));await download.saveAs(path.join(require('node:os').tmpdir(),'builder-browser.zip'));
   // Reload the entire app without network. Geometry and numbering must survive.
   await page.waitForFunction(()=>document.querySelector('#offlineState').textContent.includes('利用できます'));
   await page.reload();await saved();await context.setOffline(true);await page.reload();await saved();assert.equal(await page.locator('.seat').count(),8);
