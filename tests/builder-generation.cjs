@@ -30,6 +30,13 @@ const {spawn}=require('node:child_process');
   await page.waitForFunction(()=>document.querySelector('#saveState').textContent.includes('自動保存済み'));
   await page.reload();await page.waitForFunction(()=>document.querySelector('#saveState').textContent.includes('自動保存済み'));
   assert.equal(await page.locator('#count').inputValue(),String(first+2));
+  const oldWidth=await page.locator('#width').inputValue(),oldHeight=await page.locator('#height').inputValue(),oldSeat=await page.locator('.seat').first().evaluate(e=>[Number(e.getAttribute('x')),Number(e.getAttribute('y')),Number(e.getAttribute('width'))]);
+  await page.locator('#rotateRight').click();await page.waitForFunction(h=>document.querySelector('#width').value===h,oldHeight);
+  assert.equal(await page.locator('#height').inputValue(),oldWidth);
+  const rotatedSeat=await page.locator('.seat').first().evaluate(e=>[Number(e.getAttribute('x')),Number(e.getAttribute('y'))]);
+  assert(Math.abs(rotatedSeat[0]-(Number(oldHeight)-oldSeat[1]-oldSeat[2]))<.01);assert(Math.abs(rotatedSeat[1]-oldSeat[0])<.01);
+  await page.locator('#rotateLeft').click();await page.waitForFunction(w=>document.querySelector('#width').value===w,oldWidth);
+  assert.equal(await page.locator('#height').inputValue(),oldHeight);
   // Region selection is stored, undoable, and copied through JSON import.
   await page.locator('#selectRegion').click();const b=await page.locator('#map').boundingBox();
   await page.mouse.move(b.x+b.width*.3,b.y+b.height*.3);await page.mouse.down();await page.mouse.move(b.x+b.width*.6,b.y+b.height*.7);await page.mouse.up();

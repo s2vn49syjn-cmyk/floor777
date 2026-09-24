@@ -15,6 +15,17 @@ export async function readMapImage(file){
  }finally{image.close()}
 }
 
+export async function rotateMapImage(source,width,height,clockwise=true){
+ const image=new Image();image.src=source;await image.decode();
+ const canvas=document.createElement('canvas');canvas.width=height;canvas.height=width;
+ const ctx=canvas.getContext('2d');ctx.translate(clockwise?height:0,clockwise?0:width);ctx.rotate(clockwise?Math.PI/2:-Math.PI/2);
+ ctx.drawImage(image,0,0,width,height);
+ let encoded=canvas.toDataURL('image/png');
+ if(encoded.length>16000000)encoded=canvas.toDataURL('image/jpeg',.92);
+ if(encoded.length>16000000)throw Error('回転後の画像が大きすぎます。元画像を小さくしてください');
+ return encoded;
+}
+
 export async function generateRows(project,{signal}={}){
  const image=new Image();image.src=project.image;await image.decode();
  if(signal?.aborted)throw new DOMException('中止しました','AbortError');
