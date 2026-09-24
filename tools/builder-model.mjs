@@ -18,9 +18,9 @@ export function resizeIsland(island,count){
  if(count===island.count)return;
  if(island.shape==='line'&&island.count>1&&count>1)island.pitch*=((island.count-1)/(count-1));
  if(island.shape==='custom'){
-  const ps=points(island),lengths=[0];for(let k=1;k<ps.length;k++)lengths.push(lengths[k-1]+Math.hypot(ps[k][0]-ps[k-1][0],ps[k][1]-ps[k-1][1]));
+  const ps=points(island);if(island.closed&&ps.length>1)ps.push([...ps[0]]);const lengths=[0];for(let k=1;k<ps.length;k++)lengths.push(lengths[k-1]+Math.hypot(ps[k][0]-ps[k-1][0],ps[k][1]-ps[k-1][1]));
   const total=lengths.at(-1);
-  island.points=Array.from({length:count},(_,k)=>{if(!total)return [ps[0][0]+k*island.pitch,ps[0][1],ps[0][2],ps[0][3]];const d=total*k/Math.max(1,count-1);let j=1;while(j<ps.length-1&&lengths[j]<d)j++;const f=(d-lengths[j-1])/(lengths[j]-lengths[j-1]||1),a=ps[j-1],b=ps[j];return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2],a[3]];});
+  island.points=Array.from({length:count},(_,k)=>{if(!total)return [ps[0][0]+k*island.pitch,ps[0][1],ps[0][2],ps[0][3]];const d=total*k/Math.max(1,island.closed?count:count-1);let j=1;while(j<ps.length-1&&lengths[j]<d)j++;const f=(d-lengths[j-1])/(lengths[j]-lengths[j-1]||1),a=ps[j-1],b=ps[j];return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2],a[3]];});
  }
  island.count=count;island.numbers=[];island.confirmed=false;
 }
@@ -68,6 +68,7 @@ export function importProject(d){
  if(!d||typeof d!=='object'||d.version!==VERSION||!Array.isArray(d.islands)||d.islands.length>1000)throw Error('FLOOR777ビルダーのプロジェクトJSONではありません');
  const p=newProject();for(const k of ['id','name','prefecture','city','minrepo_url','layout_date']){if(typeof d[k]!=='string'||d[k].length>2000)throw Error('店舗情報が不正です');p[k]=d[k];}
  for(const k of ['width','height']){if(!Number.isFinite(d[k])||d[k]<100||d[k]>20000)throw Error('キャンバスサイズが不正です');p[k]=d[k];}
+ if(d.detectionRegion){const r=d.detectionRegion;if(!['x','y','width','height'].every(k=>Number.isFinite(r[k]))||r.x<0||r.y<0||r.width<=0||r.height<=0||r.x+r.width>p.width||r.y+r.height>p.height)throw Error('生成範囲が不正です');p.detectionRegion={x:r.x,y:r.y,width:r.width,height:r.height};}
  if(d.image!==null&&d.image!==undefined){if(typeof d.image!=='string'||!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(d.image)||d.image.length>16000000)throw Error('画像形式が不正です');p.image=d.image;}
  let total=0;const keys=new Set();
  p.islands=d.islands.map(src=>{

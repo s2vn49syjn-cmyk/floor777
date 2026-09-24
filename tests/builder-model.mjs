@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {newProject,makeIsland,points,resizeIsland,assign,validate,importProject,exportFiles,fromLegacy,copy} from '../tools/builder-model.mjs';
 import {zipFiles} from '../tools/builder-zip.mjs';
 import {detectIslands} from '../tools/builder-detect.mjs';
@@ -25,6 +27,6 @@ const resized=copy(a);resizeIsland(resized,3);assert.equal(resized.count,3);asse
 const old=fromLegacy({id:'old',name:'旧店舗',prefecture:'大阪府',city:'堺市',minrepo_url:'',layout_date:'2026-09-20',rows:[{numbers:[10,11],x:200,y:300,direction:'left'}]});assert.deepEqual(points(old.islands[0])[1],[152,300,44,44]);
 const bad=copy(p);bad.minrepo_url='https://min-repo.com.evil.example/tag/a';assert(validate(bad).errors.some(e=>e.includes('URL')));
 const w=200,h=200,data=new Uint8ClampedArray(w*h*4);for(let y=20;y<180;y++)for(let x=30;x<45;x++){const k=(y*w+x)*4;data.set([20,120,220,255],k);}assert(detectIslands({width:w,height:h,data}).length>=1);
-fs.writeFileSync('/tmp/builder-export.zip',Buffer.from(await zipFiles(files).arrayBuffer()));
-fs.writeFileSync('/tmp/builder-project.json',JSON.stringify(p));
+fs.writeFileSync(path.join(os.tmpdir(),'builder-export.zip'),Buffer.from(await zipFiles(files).arrayBuffer()));
+fs.writeFileSync(path.join(os.tmpdir(),'builder-project.json'),JSON.stringify(p));
 console.log('PASS: 25+ geometry, assignment, duplicates, validation, import, detection and export assertions');
