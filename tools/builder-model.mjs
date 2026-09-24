@@ -28,6 +28,21 @@ export function points(island){
  });
 }
 export function moveIsland(island,dx,dy){island.x+=dx;island.y+=dy;if(island.shape==='custom')island.points=island.points.map(p=>[p[0]+dx,p[1]+dy,p[2],p[3]]);}
+export function rotateProjectLayout(project,clockwise=true){
+ const w=project.width,h=project.height,turn=clockwise?90:-90;
+ const rect=([x,y,a,b])=>clockwise?[h-y-b,x,b,a]:[y,w-x-a,b,a];
+ for(const i of project.islands){
+  if(i.shape==='custom'){
+   i.points=i.points.map(rect);[i.x,i.y]=i.points[0];
+  }else if(i.shape==='line'){
+   [i.x,i.y]=rect([i.x,i.y,i.size,i.size]);i.angle=(i.angle+turn+360)%360;
+  }else{
+   [i.x,i.y]=clockwise?[h-i.y,i.x]:[i.y,w-i.x];i.angle=(i.angle+turn+360)%360;
+  }
+ }
+ if(project.detectionRegion){const r=project.detectionRegion;const [x,y,width,height]=rect([r.x,r.y,r.width,r.height]);project.detectionRegion={x,y,width,height};}
+ project.width=h;project.height=w;
+}
 export function resizeIsland(island,count){
  if(!Number.isInteger(count)||count<1||count>1000)throw Error('台数は1〜1000で入力してください');
  if(count===island.count)return;

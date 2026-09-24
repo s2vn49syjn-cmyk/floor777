@@ -1,5 +1,5 @@
-import {readMapImage,generateRows,generateProjects} from './builder-import.mjs';
-import {newProject,makeIsland,points,moveIsland,resizeIsland,assign,validate,importProject,fromLegacy,exportFiles,copy,uid,unifyGeneratedSeatSize} from './builder-model.mjs';
+import {readMapImage,rotateMapImage,generateRows,generateProjects} from './builder-import.mjs';
+import {newProject,makeIsland,points,moveIsland,resizeIsland,assign,validate,importProject,fromLegacy,exportFiles,copy,uid,unifyGeneratedSeatSize,rotateProjectLayout} from './builder-model.mjs';
 import {openDB,saveProject,listProjects,deleteProject} from './builder-store.mjs';
 import {zipFiles} from './builder-zip.mjs';
 const $=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
@@ -60,6 +60,7 @@ $('importFile').onchange=guard(async e=>{const f=e.target.files[0];e.target.valu
 $('imageButton').onclick=()=>$('imageFile').click();
 $('imageFile').onchange=guard(async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const img=await readMapImage(f);snapshot();if(!project.islands.length){project.width=img.width;project.height=img.height;}project.image=img.image;delete project.detectionRegion;renderMeta();changed();fit();toast('画像を保存しました。「画像から自動生成」で配置を作れます');});
 let batchController=null,selectingRegion=false,regionStart=null,candidateProject=null;
+for(const [id,clockwise] of [['rotateLeft',false],['rotateRight',true]])$(id).onclick=guard(async()=>{if(!project.image)throw Error('先に島図画像を読み込んでください');const key=project.key,source=project.image,width=project.width,height=project.height;const rotated=await rotateMapImage(source,width,height,clockwise);if(project.key!==key||project.image!==source||project.width!==width||project.height!==height)throw Error('画像または店舗が変わりました。もう一度回転してください');snapshot();rotateProjectLayout(project,clockwise);project.image=rotated;renderMeta();changed();fit();toast('画像と台の配置を90°回転しました');});
 $('batchImages').onclick=()=>$('batchFiles').click();
 $('batchFolder').onclick=()=>$('folderFiles').click();
 $('cancelBatch').onclick=()=>batchController?.abort();

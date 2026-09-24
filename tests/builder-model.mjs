@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {newProject,makeIsland,points,resizeIsland,assign,validate,importProject,exportFiles,fromLegacy,copy,unifyGeneratedSeatSize} from '../tools/builder-model.mjs';
+import {newProject,makeIsland,points,resizeIsland,assign,validate,importProject,exportFiles,fromLegacy,copy,unifyGeneratedSeatSize,rotateProjectLayout} from '../tools/builder-model.mjs';
 import {zipFiles} from '../tools/builder-zip.mjs';
 import {detectIslands} from '../tools/builder-detect.mjs';
 const p=newProject();Object.assign(p,{id:'test-hall',name:'テスト店舗',city:'堺市'});
@@ -23,6 +23,8 @@ const edge=copy(p);edge.islands[0].x=-1;assert(validate(edge).errors.some(e=>e.i
 const circle=makeIsland({shape:'circle',count:4,x:300,y:300,radius:100,angle:0});assert.deepEqual(points(circle)[0],[388,288,24,24]);assert(Math.abs(points(circle)[3][1]-188)<.01);
 const arc=makeIsland({shape:'arc',count:3,x:300,y:300,radius:100,angle:0,sweep:180});assert.equal(points(arc)[2][0],188);
 const custom=makeIsland({shape:'custom',count:2,points:[[100,100,24,24],[131,122,24,24]],numbers:[]});assert.deepEqual(points(custom),custom.points);
+const turn={width:600,height:400,islands:[makeIsland({shape:'line',count:2,x:30,y:40,angle:0,size:20,pitch:30}),makeIsland({shape:'custom',count:2,x:100,y:120,points:[[100,120,12,12],[100,140,12,12]]})],detectionRegion:{x:20,y:30,width:100,height:80}};
+const before=copy(turn);rotateProjectLayout(turn);assert.deepEqual([turn.width,turn.height],[400,600]);assert.deepEqual(points(turn.islands[0]),[[340,30,20,20],[340,60,20,20]]);assert.deepEqual(turn.islands[1].points,[[268,100,12,12],[248,100,12,12]]);assert.deepEqual(turn.detectionRegion,{x:290,y:20,width:80,height:100});rotateProjectLayout(turn,false);assert.deepEqual(turn,before);
 const generated=[makeIsland({shape:'custom',estimatedCount:true,count:1,size:8,points:[[0,0,8,8]]}),makeIsland({shape:'custom',estimatedCount:true,count:1,size:20,points:[[180,180,20,20]]})];
 unifyGeneratedSeatSize(generated,200,200);assert(generated.every(i=>i.size===8&&i.points[0][2]===8&&i.points[0][3]===8));assert.deepEqual(generated[1].points[0].slice(0,2),[186,186]);
 const resized=copy(a);resizeIsland(resized,3);assert.equal(resized.count,3);assert.equal(resized.numbers.length,0);assert.equal(resized.confirmed,false);assert.equal(points(resized)[2][0],points(a)[4][0]);

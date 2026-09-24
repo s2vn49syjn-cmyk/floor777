@@ -1,4 +1,4 @@
-const CACHE='f777-island-builder-v2-20260924-uniform-1';
+const CACHE='f777-island-builder-v2-20260924-rotate-1';
 const FILES=['hall-editor.html','builder.css','builder.mjs','builder-import.mjs','builder-model.mjs','builder-store.mjs','builder-zip.mjs','builder-detect.mjs','builder-worker.mjs','builder.webmanifest','builder-icon.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES.map(f=>new URL(f,self.registration.scope).href))).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('f777-island-builder-v2-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
