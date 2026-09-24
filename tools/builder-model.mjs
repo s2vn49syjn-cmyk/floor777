@@ -4,6 +4,21 @@ export const uid=()=>globalThis.crypto?.randomUUID?.() || `p-${Date.now()}-${Mat
 export const copy=x=>JSON.parse(JSON.stringify(x));
 export function newProject(){return {version:VERSION,key:uid(),id:'',name:'新しい店舗',prefecture:'大阪府',city:'',minrepo_url:'',layout_date:new Date().toLocaleDateString('sv-SE'),width:1400,height:1000,image:null,islands:[],updated_at:new Date().toISOString()};}
 export function makeIsland(o={}){return {key:uid(),name:'島',shape:'line',x:200,y:200,count:12,size:24,pitch:36,angle:0,radius:150,sweep:120,confirmed:false,numbers:[],machine:'',...o};}
+// Use one seat size per map. Keep each detected seat centered on its original position.
+export function unifyGeneratedSeatSize(islands,width,height){
+ const generated=islands.filter(i=>i.shape==='custom'&&i.estimatedCount&&!i.confirmed&&!i.numbers.length&&i.points?.length);
+ if(!generated.length)return 0;
+ const sizes=generated.map(i=>i.size).sort((a,b)=>a-b);
+ const target=Math.max(4,Math.min(300,sizes[Math.floor((sizes.length-1)*.35)]));
+ for(const i of generated){
+  i.points=i.points.map(([x,y,w,h])=>{
+   const cx=x+w/2,cy=y+h/2;
+   return [Math.max(0,Math.min(width-target,cx-target/2)),Math.max(0,Math.min(height-target,cy-target/2)),target,target];
+  });
+  i.x=i.points[0][0];i.y=i.points[0][1];i.size=target;i.pitch=target*1.32;
+ }
+ return target;
+}
 export function points(island){
  if(island.shape==='custom')return island.points.map(p=>[...p]);
  const {x,y,count,size,pitch,angle,radius,sweep,shape}=island;

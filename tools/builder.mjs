@@ -1,5 +1,5 @@
 import {readMapImage,generateRows,generateProjects} from './builder-import.mjs';
-import {newProject,makeIsland,points,moveIsland,resizeIsland,assign,validate,importProject,fromLegacy,exportFiles,copy,uid} from './builder-model.mjs';
+import {newProject,makeIsland,points,moveIsland,resizeIsland,assign,validate,importProject,fromLegacy,exportFiles,copy,uid,unifyGeneratedSeatSize} from './builder-model.mjs';
 import {openDB,saveProject,listProjects,deleteProject} from './builder-store.mjs';
 import {zipFiles} from './builder-zip.mjs';
 const $=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
@@ -63,6 +63,7 @@ let batchController=null,selectingRegion=false,regionStart=null,candidateProject
 $('batchImages').onclick=()=>$('batchFiles').click();
 $('batchFolder').onclick=()=>$('folderFiles').click();
 $('cancelBatch').onclick=()=>batchController?.abort();
+$('unifySeatSize').onclick=()=>{snapshot();const count=project.islands.filter(i=>i.shape==='custom'&&i.estimatedCount&&!i.confirmed&&!i.numbers.length).length;const size=unifyGeneratedSeatSize(project.islands,project.width,project.height);if(!size){history.pop();toast('未確認の自動生成島がありません');return;}changed();toast(`${count}島の台サイズを${Math.round(size*10)/10}に揃えました`);};
 async function batchInput(e){
  const files=[...e.target.files];e.target.value='';if(!files.length)return;
  await saving;batchController=new AbortController();$('batchStatus').hidden=false;$('cancelBatch').hidden=false;
@@ -137,7 +138,7 @@ $('detect').onclick=guard(async()=>{
  $('candidates').showModal();
  }finally{$('detect').disabled=false;$('detect').textContent='画像から自動生成';}
 });
-$('closeCandidates').onclick=()=>$('candidates').close();$('acceptCandidates').onclick=guard(()=>{const chosen=[...$('candidateList').querySelectorAll('input:checked')].map(x=>candidates[Number(x.dataset.index)]);if(project.key!==candidateProject)throw Error('店舗が変わりました。生成し直してください');if(!chosen.length)throw Error('候補を選んでください');if(project.islands.reduce((n,i)=>n+i.count,0)+chosen.reduce((n,i)=>n+i.count,0)>3000)throw Error('合計3000台を超えます。候補を減らしてください');snapshot();for(const c of chosen){const i=makeIsland({...c,name:`島 ${project.islands.length+1}`});delete i.area;project.islands.push(i);selected=i.key;}changed();$('candidates').close();fit();toast('配置を生成しました。不要な列を削除し、台数を調整してください');});
+$('closeCandidates').onclick=()=>$('candidates').close();$('acceptCandidates').onclick=guard(()=>{const chosen=[...$('candidateList').querySelectorAll('input:checked')].map(x=>candidates[Number(x.dataset.index)]);if(project.key!==candidateProject)throw Error('店舗が変わりました。生成し直してください');if(!chosen.length)throw Error('候補を選んでください');if(project.islands.reduce((n,i)=>n+i.count,0)+chosen.reduce((n,i)=>n+i.count,0)>3000)throw Error('合計3000台を超えます。候補を減らしてください');snapshot();for(const c of chosen){const i=makeIsland({...c,name:`島 ${project.islands.length+1}`});delete i.area;project.islands.push(i);selected=i.key;}unifyGeneratedSeatSize(project.islands,project.width,project.height);changed();$('candidates').close();fit();toast('配置を生成しました。不要な列を削除し、台数を調整してください');});
 function network(){$('network').textContent=navigator.onLine?'オンライン':'オフライン';}window.addEventListener('online',network);window.addEventListener('offline',network);network();
 // Only the builder files are cached by this worker; it does not change site data.
 if('serviceWorker'in navigator){navigator.serviceWorker.register('./builder-sw.js',{scope:'./'}).then(async reg=>{const active=reg.active;if(active)$('offlineState').textContent='✓ この端末でオフライン利用できます';else{const w=reg.installing||reg.waiting;if(w)w.addEventListener('statechange',()=>{if(w.state==='activated')$('offlineState').textContent='✓ この端末でオフライン利用できます';});}}).catch(()=>$('offlineState').textContent='オフライン画面の準備に失敗。通信できる状態で再読み込みしてください');}else $('offlineState').textContent='オフライン起動にはHTTPSで開いてください';
