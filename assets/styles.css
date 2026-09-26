@@ -307,3 +307,29 @@ button:disabled{opacity:.48;cursor:default}
 .ad-wrap.ad-placeholder{min-height:104px;border-color:#4b4247;color:#b3a7ae;background:#121013}
 .ad-wrap.ad-placeholder::before{content:'広告スペース'}
 @media(max-width:620px){.ad-wrap.ad-placeholder{min-height:90px}}
+
+/* White floor map with motion reserved for important seats. */
+.map-card .map-toolbar strong{color:#ffe16b}
+.map-viewport{background:radial-gradient(circle at 50% 20%,#fffdf0 0,#fff 62%)}
+.floor-bg{fill:#fff;stroke:#d3dce6;stroke-width:3}
+.floor-label{fill:#607187}
+.seat rect{fill:#f1f5f9;stroke:#aebed0}
+.seat:hover rect{fill:#e7eef7;stroke:#5e82ad}
+.seat .seat-number,.seat .seat-machine,.seat .seat-value{fill:#17283c!important}
+.seat:is(.diff-p4000,.diff-p3000,.diff-p2000,.diff-positive) :is(.seat-number,.seat-machine,.seat-value){fill:#fff!important}
+.seat.match:not(.selected) rect{fill:#fff2b8!important;stroke:#d89800!important;stroke-width:4!important}
+.seat.match:not(.selected) :is(.seat-number,.seat-machine,.seat-value),.seat.selected :is(.seat-number,.seat-machine,.seat-value){fill:#17283c!important}
+.seat.selected rect,.seat.recommended.selected rect,.seat.recommended.picked.selected rect{fill:#ffd400!important;stroke:#2c3440!important;stroke-width:5!important;filter:none!important}
+.seat.selected{animation:floor-selected-glow 2.3s ease-in-out infinite}
+.seat.picked:not(.selected){animation:floor-pick-blink 1.5s steps(1,end) infinite}
+.seat.picked:not(.selected) rect,.seat.recommended.picked:not(.selected) rect{stroke:#e51a91!important;stroke-width:5!important}
+.seat.recommended:not(.picked):not(.selected) rect{stroke:#e2ac00!important;stroke-width:4!important;filter:none!important}
+.seat.recommended .recommend-star{fill:#b88400!important;stroke:#fff!important;filter:none!important}
+.map-hint{background:#17283ce8;color:#fff;border-color:#405268}
+.recommended-row{animation:floor-row-enter .38s ease-out both}
+.recommended-row:nth-child(2){animation-delay:.04s}.recommended-row:nth-child(3){animation-delay:.08s}.recommended-row:nth-child(4){animation-delay:.12s}
+.recommended-row:hover{transform:translateY(-3px);box-shadow:0 12px 26px #ffd40016}
+@keyframes floor-pick-blink{0%,49%{opacity:1;filter:drop-shadow(0 0 8px #e51a91)}50%,100%{opacity:.72;filter:none}}
+@keyframes floor-selected-glow{50%{filter:drop-shadow(0 0 8px #e2ac00)}}
+@keyframes floor-row-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media print{.seat.picked,.seat.selected,.recommended-row{animation:none!important}.map-viewport{background:#fff!important}}
