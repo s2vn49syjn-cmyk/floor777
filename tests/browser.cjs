@@ -66,6 +66,17 @@ const appURL='http://floor777.test/floor777/halls/hyper-arrow-mihara/';
  await page.locator('[data-close-detail]').click();await page.locator('[data-screen=recommend]').click();
  for(const width of [320,390,768,1024,1440]){await page.setViewportSize({width,height:900});await assertNoOverflow();assert(await page.locator('.recommended-row').evaluateAll(es=>es.every(e=>e.scrollWidth<=e.clientWidth+1)),'recommendations clipped');}
  // A present difference remains usable when only spins are absent.
+ const lossFixture=structuredClone(stats.seats['561']);
+ stats.seats['561'].latest.diff=-2999;stats.seats['561'].periods['3'].diff_sum=-3000;stats.seats['561'].periods['7'].diff_sum=-3001;
+ await open();await page.locator('[data-screen=map]').click();
+ for(const [mode,highlight] of [['diff',false],['diff3',true],['diff7',true],['spins',false],['seat',false]]){
+  await page.locator(`[data-map-value="${mode}"]`).click();
+  assert.equal(await page.locator('.seat[data-seat="561"]').evaluate(el=>el.classList.contains('diff-loss')),highlight);
+  if(highlight){assert.equal(await page.locator('.seat[data-seat="561"] .seat-value').evaluate(el=>getComputedStyle(el).fill),'rgb(187, 0, 27)');assert.equal(await page.locator('.seat[data-seat="561"] rect').evaluate(el=>getComputedStyle(el).fill),'rgb(255, 255, 255)');}
+ }
+ stats.seats['561'].latest.diff=null;await open();await page.locator('[data-map-value=diff]').click();
+ assert.equal(await page.locator('.seat[data-seat="561"]').evaluate(el=>el.classList.contains('diff-loss')),false);
+ stats.seats['561']=lossFixture;
  stats.seats['561'].periods['3']={days:3,complete:false,diff_sum:-99999,avg_spins:null};stats.seats['562'].latest.diff=null;stats.seats['562'].history=stats.seats['562'].history.map(x=>({...x,diff:null}));
  await open();await page.locator('[data-screen=recommend]').click();assert.equal(await page.locator('.recommended-row').first().getAttribute('data-recommend-seat'),'561');
  await page.locator('[data-screen=map]').click();await page.locator('[data-map-value=diff]').click();assert.equal(await page.locator('.seat[data-seat="562"] .seat-value').textContent(),'—');assert(!(await page.locator('.seat[data-seat="562"]').getAttribute('class')).includes('diff-zero'));
