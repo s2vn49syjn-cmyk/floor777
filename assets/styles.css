@@ -333,3 +333,27 @@ button:disabled{opacity:.48;cursor:default}
 @keyframes floor-selected-glow{50%{filter:drop-shadow(0 0 8px #e2ac00)}}
 @keyframes floor-row-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media print{.seat.picked,.seat.selected,.recommended-row{animation:none!important}.map-viewport{background:#fff!important}}
+
+/* Short interaction feedback: favorite burst, dialog entrance and staggered cards. */
+#favoriteBtn{position:relative}
+#favoriteBtn [data-favorite-icon]{display:inline-block;position:relative}
+#favoriteBtn.active [data-favorite-icon]{color:#ffd45c}
+.page-nav button{transition:background .2s,border-color .2s,box-shadow .2s}
+.page-nav button.active{box-shadow:inset 0 -2px 0 #ff637a,0 3px 15px #ff405812}
+.btn:active,.chip:active,.page-nav button:active{transform:scale(.97)}
+@media screen and (prefers-reduced-motion:no-preference){
+ #favoriteBtn.favorite-burst [data-favorite-icon]{animation:floor-favorite-pop .5s cubic-bezier(.2,.8,.3,1)}
+ #favoriteBtn.favorite-burst [data-favorite-icon]::after{content:'';position:absolute;top:50%;left:50%;width:3px;height:3px;border-radius:50%;background:transparent;pointer-events:none;box-shadow:0 -15px #ffd45c,11px -11px #ff637a,15px 0 #ffd45c,11px 11px #ff637a,0 15px #ffd45c,-11px 11px #ff637a,-15px 0 #ffd45c,-11px -11px #ff637a;animation:floor-favorite-sparks .55s ease-out both}
+ .seat-dialog[open]{animation:floor-dialog-enter .24s cubic-bezier(.2,.8,.2,1)}
+ .seat-dialog[open]::backdrop{animation:floor-backdrop-enter .2s ease-out}
+ .recommended-row,.hall-card,.pick-card{animation:floor-row-enter .32s ease-out backwards;animation-delay:0s}
+ :is(.recommended-row,.hall-card,.pick-card):nth-child(2){animation-delay:.035s}
+ :is(.recommended-row,.hall-card,.pick-card):nth-child(3){animation-delay:.07s}
+ :is(.recommended-row,.hall-card,.pick-card):nth-child(4){animation-delay:.105s}
+ :is(.recommended-row,.hall-card,.pick-card):nth-child(5){animation-delay:.14s}
+ :is(.recommended-row,.hall-card,.pick-card):nth-child(n+6){animation-delay:.175s}
+}
+@keyframes floor-favorite-pop{0%{transform:scale(.7) rotate(-15deg)}45%{transform:scale(1.45) rotate(10deg)}75%{transform:scale(.92)}100%{transform:scale(1)}}
+@keyframes floor-favorite-sparks{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.4)}}
+@keyframes floor-dialog-enter{from{opacity:0;transform:translateY(14px) scale(.975)}to{opacity:1;transform:none}}
+@keyframes floor-backdrop-enter{from{opacity:0}to{opacity:1}}

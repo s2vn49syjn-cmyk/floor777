@@ -20,6 +20,15 @@ const appURL='http://floor777.test/floor777/halls/hyper-arrow-mihara/';
  async function open(){await page.goto(appURL);await page.waitForSelector('.seat');}
  async function assertNoOverflow(){assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'page horizontal overflow');}
  await open();await assertNoOverflow();assert.equal(await page.locator('.seat').count(),551);
+ await page.locator('#favoriteBtn').click();assert.equal(await page.locator('#favoriteBtn').getAttribute('aria-pressed'),'true');
+ await page.locator('#favoriteBtn').click();assert.equal(await page.locator('#favoriteBtn').getAttribute('aria-pressed'),'false');
+ // Interrupt transitions repeatedly: only the final panel may stay visible.
+ await page.evaluate(()=>{for(let i=0;i<4;i++)for(const name of ['recommend','picks','map'])document.querySelector(`[data-screen="${name}"]`).click()});
+ assert(await page.locator('[data-panel]').evaluateAll(es=>es.every(el=>el.hidden===(el.dataset.panel!=='map'))));
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.locator('[data-screen=recommend]').click();
+ assert.equal(await page.locator('[data-panel=recommend]').evaluate(el=>el.getAnimations().length),0);
+ await page.locator('[data-screen=map]').click();await page.emulateMedia({reducedMotion:'no-preference'});
  await page.locator('[data-search-mode=seat]').click();await page.locator('#machineSearch').fill('５６１');await page.locator('#searchBtn').click();assert.match(await page.locator('#resultText').textContent(),/1台/);
  await page.locator('.seat[data-seat="561"]').click();assert(await page.locator('#seatDialog').isVisible(),'map tap must open details');
  await page.locator('#detailPickBtn').click();await page.locator('#detailMapBtn').click();assert(!(await page.locator('#seatDialog').isVisible()));

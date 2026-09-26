@@ -128,9 +128,25 @@ async function initHallPage(){
   detailDialog.querySelector('[data-close-detail]').onclick=()=>detailDialog.close();
   detailDialog.addEventListener('click',e=>{if(e.target===detailDialog){const r=detailDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)detailDialog.close()}});
   const pageNav=document.getElementById('pageNav');
+  const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
+  const panelMotion=new Map();
+  let currentScreen=null;
+  const stopPanelMotion=()=>{panelMotion.forEach(animation=>animation.cancel());panelMotion.clear()};
+  motionPreference.addEventListener('change',()=>{if(motionPreference.matches)stopPanelMotion()});
   function switchScreen(name){
-    const valid=['map','recommend','picks'].includes(name)?name:'map';
-    document.querySelectorAll('[data-panel]').forEach(el=>el.hidden=el.dataset.panel!==valid);
+    const screens=['map','recommend','picks'];
+    const valid=screens.includes(name)?name:'map';
+    const animate=currentScreen!==null&&currentScreen!==valid&&!motionPreference.matches;
+    const direction=screens.indexOf(valid)>screens.indexOf(currentScreen)?1:-1;
+    stopPanelMotion();
+    document.querySelectorAll('[data-panel]').forEach(el=>{
+      el.hidden=el.dataset.panel!==valid;
+      if(!el.hidden&&animate&&typeof el.animate==='function')panelMotion.set(el,el.animate([
+        {opacity:.65,transform:`translateX(${direction*10}px)`},
+        {opacity:1,transform:'translateX(0)'}
+      ],{duration:240,easing:'cubic-bezier(.2,.8,.2,1)'}));
+    });
+    currentScreen=valid;
     pageNav.querySelectorAll('[data-screen]').forEach(btn=>{const active=btn.dataset.screen===valid;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});
     const url=new URL(location.href);url.searchParams.set('view',valid);history.replaceState(null,'',url);
   }
@@ -151,7 +167,7 @@ async function initHallPage(){
 
   const favoriteBtn=document.getElementById('favoriteBtn');
   const updateFavorite=()=>{const fav=Floor777.isFavorite(hall.id);favoriteBtn.classList.toggle('active',fav);favoriteBtn.setAttribute('aria-pressed',String(fav));favoriteBtn.querySelector('[data-favorite-icon]').textContent=fav?'★':'☆';favoriteBtn.querySelector('[data-favorite-label]').textContent=fav?'お気に入り済み':'お気に入り'};
-  favoriteBtn.addEventListener('click',()=>{const state=Floor777.toggleFavorite(hall.id);updateFavorite();Floor777.toast(state?'お気に入りに追加しました':'お気に入りから外しました')});updateFavorite();
+  favoriteBtn.addEventListener('click',()=>{const state=Floor777.toggleFavorite(hall.id);updateFavorite();favoriteBtn.classList.toggle('favorite-burst',state);Floor777.toast(state?'お気に入りに追加しました':'お気に入りから外しました')});updateFavorite();
   document.getElementById('shareBtn').addEventListener('click',async()=>{const ok=await Floor777.share({title:`${hall.name} 島図 | FLOOR777`,text:`${hall.name}の島図`,url:location.href});if(ok)Floor777.toast(navigator.share?'共有しました':'URLをコピーしました')});
 
   const NS='http://www.w3.org/2000/svg';
