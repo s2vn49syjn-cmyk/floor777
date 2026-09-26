@@ -357,3 +357,8 @@ button:disabled{opacity:.48;cursor:default}
 @keyframes floor-favorite-sparks{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.4)}}
 @keyframes floor-dialog-enter{from{opacity:0;transform:translateY(14px) scale(.975)}to{opacity:1;transform:none}}
 @keyframes floor-backdrop-enter{from{opacity:0}to{opacity:1}}
+
+/* Large negative differences stay readable alongside search and shortlist outlines. */
+.seat.diff-loss:not(.selected):not(.match) rect{fill:#fff!important}
+.seat.diff-loss.diff-negative .seat-value{fill:#bb001b!important;font-weight:900}
+.diff-legend .closs{background:#fff;border:2px solid #bb001b}
