@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-21",
+  "updated_at": "2026-09-26",
   "halls": [
     {
       "id": "hyper-arrow-mihara",
@@ -64,7 +64,7 @@
       "seat_count": 262,
       "updated_at": "2026-09-25",
       "path": "halls/123-sakai-inter/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -81,7 +81,7 @@
       "seat_count": 437,
       "updated_at": "2026-09-26",
       "path": "halls/maruhan-megacity-sakai/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -98,7 +98,7 @@
       "seat_count": 354,
       "updated_at": "2026-09-25",
       "path": "halls/123-senboku/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -115,7 +115,7 @@
       "seat_count": 135,
       "updated_at": "2026-09-26",
       "path": "halls/hyper-arrow-senboku/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -132,7 +132,7 @@
       "seat_count": 179,
       "updated_at": "2026-09-26",
       "path": "halls/maruhan-komyoike/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -149,7 +149,7 @@
       "seat_count": 205,
       "updated_at": "2026-09-26",
       "path": "halls/sherra-part3/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -166,7 +166,7 @@
       "seat_count": 153,
       "updated_at": "2026-09-25",
       "path": "halls/harimaya-nakamozu/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -183,7 +183,7 @@
       "seat_count": 356,
       "updated_at": "2026-09-26",
       "path": "halls/hyper-arrow-fukai/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -200,7 +200,7 @@
       "seat_count": 150,
       "updated_at": "2026-09-26",
       "path": "halls/sherra/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -217,7 +217,7 @@
       "seat_count": 157,
       "updated_at": "2026-09-26",
       "path": "halls/monroe/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -234,7 +234,7 @@
       "seat_count": 427,
       "updated_at": "2026-09-26",
       "path": "halls/maruhan-orisano/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
@@ -251,7 +251,7 @@
       "seat_count": 903,
       "updated_at": "2026-09-26",
       "path": "halls/rakuen-plus/",
-      "status": "draft",
+      "status": "published",
       "features": [
         "台番号検索",
         "島図",
