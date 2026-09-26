@@ -35,6 +35,20 @@ const appURL='http://floor777.test/floor777/halls/hyper-arrow-mihara/';
  await page.locator('.recommended-section [data-recommend-days="7"]').click();assert.equal(await page.locator('.recommended-row').count(),0);await page.locator('.recommended-section [data-recommend-days="3"]').click();assert.equal(await page.locator('.recommended-row').count(),10);
  const expected=Object.entries(stats.seats).filter(([,r])=>typeof r.periods['3'].diff_sum==='number'&&r.periods['3'].diff_sum<0).sort((a,b)=>a[1].periods['3'].diff_sum-b[1].periods['3'].diff_sum||+a[0]-+b[0]).slice(0,10).map(([n])=>n);
  assert.deepEqual(await page.locator('.recommended-row').evaluateAll(es=>es.map(e=>e.dataset.recommendSeat)),expected);
+ await page.locator('.recommended-section [data-recommend-mode="positive"]').click();
+ const positive=Object.entries(stats.seats).filter(([,r])=>typeof r.periods['3'].diff_sum==='number'&&r.periods['3'].diff_sum>0).sort((a,b)=>b[1].periods['3'].diff_sum-a[1].periods['3'].diff_sum||+a[0]-+b[0]).slice(0,10).map(([n])=>n);
+ assert.deepEqual(await page.locator('.recommended-row').evaluateAll(es=>es.map(e=>e.dataset.recommendSeat)),positive);
+ await page.locator('.recommended-section [data-recommend-mode="spins"]').click();
+ const highSpins=Object.entries(stats.seats).filter(([,r])=>typeof r.periods['3'].avg_spins==='number'&&r.periods['3'].avg_spins>0).sort((a,b)=>b[1].periods['3'].avg_spins-a[1].periods['3'].avg_spins||+a[0]-+b[0]).slice(0,10).map(([n])=>n);
+ assert.deepEqual(await page.locator('.recommended-row').evaluateAll(es=>es.map(e=>e.dataset.recommendSeat)),highSpins);
+ assert.match(await page.locator('.recommended-row').first().innerText(),/平均G数/);
+ await page.locator('.recommended-section [data-recommend-mode="negative"]').click();
+ await page.locator('[data-screen=map]').click();await page.locator('.seat[data-seat="561"]').click();
+ const graphTitles=await page.locator('#detailDiffChart .chart-point title').allTextContents();
+ const running=stats.seats['561'].history.slice(0,7).reverse().reduce((result,row)=>{result.total+=row.diff;result.labels.push(result.total);return result},{total:0,labels:[]}).labels;
+ assert.deepEqual(graphTitles.map(s=>Number(s.match(/累計 ([+-]?[\d,]+)枚/)[1].replaceAll(',',''))),running);
+ assert.equal(running.at(-1),realStats.seats['561'].periods['7'].diff_sum);
+ await page.locator('[data-close-detail]').click();await page.locator('[data-screen=recommend]').click();
  for(const width of [320,390,768,1024,1440]){await page.setViewportSize({width,height:900});await assertNoOverflow();assert(await page.locator('.recommended-row').evaluateAll(es=>es.every(e=>e.scrollWidth<=e.clientWidth+1)),'recommendations clipped');}
  // A present difference remains usable when only spins are absent.
  stats.seats['561'].periods['3']={days:3,complete:false,diff_sum:-99999,avg_spins:null};stats.seats['562'].latest.diff=null;stats.seats['562'].history=stats.seats['562'].history.map(x=>({...x,diff:null}));
