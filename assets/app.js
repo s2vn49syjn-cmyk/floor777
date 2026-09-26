@@ -71,6 +71,7 @@ async function initHallPage(){
     seats=seats.map(x=>{const st=stats.seats[String(x.seat)];return st?.machine?{...x,machine:st.machine}:x});
   }
   const bySeat=new Map(seats.map(x=>[Number(x.seat),x]));
+  const compactDraft=hall.layout_status==='draft-unverified';
   const machineCount=new Map(); seats.forEach(x=>{const name=String(x.machine||'').trim();if(name && name!=='機種名未設定' && name!=='機種不明')machineCount.set(name,(machineCount.get(name)||0)+1)});
   const machineNames=[...machineCount.keys()].sort((a,b)=>a.localeCompare(b,'ja'));
   const svg=document.getElementById('floorMap');
@@ -91,7 +92,7 @@ async function initHallPage(){
   let mode='machine',matches=[],selected=null,selectedIndex=-1;
   let sensorRotation=0;
   let flipped=Floor777.storage.get(`floor777-orientation-${hall.id}`)==='180';
-  let showNames=Floor777.storage.get(`floor777-show-names-${hall.id}`)!=='0';
+  let showNames=(!compactDraft||machineNames.length>0)&&Floor777.storage.get(`floor777-show-names-${hall.id}`)!=='0';
   let mapDisplay=Floor777.storage.get(`floor777-map-display-${hall.id}`)||'seat';
   if(!['seat','diff','diff3','diff7','spins'].includes(mapDisplay))mapDisplay='seat';
   let showRecommendations=Floor777.storage.get(`floor777-recommend-${hall.id}`)==='1';
@@ -171,7 +172,12 @@ async function initHallPage(){
       const showValue=isDiffMode||mapDisplay==='spins';
       g.classList.toggle('with-value',showValue);
       seatText.textContent=item.seat;seatText.setAttribute('y',y+(showValue?8:10));
-      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:27));nameText.setAttribute('class','seat-machine');nameText.textContent=shortName(item.machine).slice(0,7);nameText.style.display=showNames||showValue?'':'none';
+      if(compactDraft&&!showValue){
+        const digits=String(item.seat).length;
+        seatText.style.fontSize=`${Math.max(4,Math.min(11,h*0.72,(w-1)/(digits*0.62)))}px`;
+        seatText.setAttribute('y',y+h/2);
+      }
+      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:27));nameText.setAttribute('class','seat-machine');nameText.textContent=compactDraft&&['機種名未設定','機種不明',''].includes(String(item.machine||'').trim())?'':shortName(item.machine).slice(0,7);nameText.style.display=showNames||showValue?'':'none';
       if(isDiffMode&&hasNumber(diffValue)){
         const d=Number(diffValue);
         g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
@@ -548,3 +554,4 @@ async function initHallPage(){
   const params=new URLSearchParams(location.search);if(params.get('mode')==='seat'){mode='seat';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='seat'));input.placeholder='例：821'}if(params.get('q')){input.value=params.get('q');runSearch(true)}if(params.get('seat'))selectSeat(Number(params.get('seat')),initialParams.get('view')==='map'||!initialParams.get('view'),false,false);
 }
 initHallPage().catch(err=>{console.error(err);const el=document.getElementById('loadError');if(el)el.hidden=false});
+
