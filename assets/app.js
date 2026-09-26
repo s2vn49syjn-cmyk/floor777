@@ -122,6 +122,11 @@ async function initHallPage(){
   let recommendedSeats=new Set(recommendedRows.map(x=>x.seat));
 
   let shortlistUI=null;
+  const negativeLegend=document.querySelector('.diff-legend .cminus')?.parentElement;
+  if(negativeLegend){
+    negativeLegend.innerHTML='<i class="cminus"></i>−1〜−2,999';
+    negativeLegend.insertAdjacentHTML('afterend','<span><i class="closs"></i>−3,000以下（赤字）</span>');
+  }
   const detailDialog=document.getElementById('seatDialog');
   detailDialog.append(document.querySelector('.detail-card'));
   document.getElementById('detailDiffChart').previousElementSibling.textContent='直近7営業日の累計差枚';
@@ -202,6 +207,7 @@ async function initHallPage(){
       if(isDiffMode&&hasNumber(diffValue)){
         const d=Number(diffValue);
         g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
+        g.classList.toggle('diff-loss',d<=-3000);
       }
       g.append(r,seatText,nameText);
       if(showValue){
