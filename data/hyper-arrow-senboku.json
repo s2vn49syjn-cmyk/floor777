@@ -1,0 +1,561 @@
+{
+  "id": "hyper-arrow-senboku",
+  "name": "HYPER ARROW泉北店",
+  "prefecture": "大阪府",
+  "city": "堺市南区",
+  "floor": "1000円/46枚スロット（みんレポ対象）",
+  "seat_count": 135,
+  "updated_at": "2026-09-26",
+  "layout_updated_at": "2026-09-26",
+  "preserve_layout": true,
+  "source": {
+    "name": "みんレポ",
+    "url": "https://min-repo.com/tag/hyper-arrow-%E6%B3%89%E5%8C%97%E5%BA%97/",
+    "note": "DMMぱちタウンの公開図で46枚貸し135台が縦6島、5円貸し12台が別区画と確認。みんレポ2026-09-18全台表で373〜507番の135番号を確認。図に島別台数と個別台番はないため、各島への台数配分・台番対応・席位置は推定。5円貸しは対象外。機種名はFloor777自動取得に委ねる。",
+    "floor_map_url": "https://p-town.dmm.com/shops/osaka/7638#gallery-pc-floormaps-3"
+  },
+  "layout_status": "draft-unverified",
+  "seats": [
+    {
+      "seat": 373,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 374,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 375,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 376,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 377,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 378,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 379,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 380,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 381,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 382,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 383,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 384,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 385,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 386,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 387,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 388,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 389,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 390,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 391,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 392,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 393,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 394,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 395,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 396,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 397,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 398,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 399,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 400,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 401,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 402,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 403,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 404,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 405,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 406,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 407,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 408,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 409,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 410,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 411,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 412,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 413,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 414,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 415,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 416,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 417,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 418,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 419,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 420,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 421,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 422,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 423,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 424,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 425,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 426,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 427,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 428,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 429,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 430,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 431,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 432,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 433,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 434,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 435,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 436,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 437,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 438,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 439,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 440,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 441,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 442,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 443,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 444,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 445,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 446,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 447,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 448,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 449,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 450,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 451,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 452,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 453,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 454,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 455,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 456,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 457,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 458,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 459,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 460,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 461,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 462,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 463,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 464,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 465,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 466,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 467,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 468,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 469,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 470,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 471,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 472,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 473,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 474,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 475,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 476,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 477,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 478,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 479,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 480,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 481,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 482,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 483,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 484,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 485,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 486,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 487,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 488,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 489,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 490,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 491,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 492,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 493,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 494,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 495,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 496,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 497,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 498,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 499,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 500,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 501,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 502,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 503,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 504,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 505,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 506,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 507,
+      "machine": "機種名未設定"
+    }
+  ]
+}
+
