@@ -71,6 +71,7 @@ async function initHallPage(){
     seats=seats.map(x=>{const st=stats.seats[String(x.seat)];return st?.machine?{...x,machine:st.machine}:x});
   }
   const bySeat=new Map(seats.map(x=>[Number(x.seat),x]));
+  const compactDraft=hall.layout_status==='draft-unverified';
   const machineCount=new Map(); seats.forEach(x=>{const name=String(x.machine||'').trim();if(name && name!=='機種名未設定' && name!=='機種不明')machineCount.set(name,(machineCount.get(name)||0)+1)});
   const machineNames=[...machineCount.keys()].sort((a,b)=>a.localeCompare(b,'ja'));
   const svg=document.getElementById('floorMap');
@@ -91,26 +92,30 @@ async function initHallPage(){
   let mode='machine',matches=[],selected=null,selectedIndex=-1;
   let sensorRotation=0;
   let flipped=Floor777.storage.get(`floor777-orientation-${hall.id}`)==='180';
-  let showNames=Floor777.storage.get(`floor777-show-names-${hall.id}`)!=='0';
+  let showNames=(!compactDraft||machineNames.length>0)&&Floor777.storage.get(`floor777-show-names-${hall.id}`)!=='0';
   let mapDisplay=Floor777.storage.get(`floor777-map-display-${hall.id}`)||'seat';
   if(!['seat','diff','diff3','diff7','spins'].includes(mapDisplay))mapDisplay='seat';
   let showRecommendations=Floor777.storage.get(`floor777-recommend-${hall.id}`)==='1';
   const recommendationRule=hall.recommendation||{method:'negative_top10',days:1,limit:10,label:'マイナス差枚上位10台'};
   let recommendationDays=Number(Floor777.storage.get(`floor777-recommend-days-${hall.id}`)||recommendationRule.days||1);
   if(![1,3,7].includes(recommendationDays))recommendationDays=1;
+  const recommendationModes={negative:'マイナス順',positive:'プラス順',spins:'高稼働順'};
+  let recommendationMode=Floor777.storage.get(`floor777-recommend-mode-${hall.id}`)||'negative';
+  if(!recommendationModes[recommendationMode])recommendationMode='negative';
   function recommendationMetric(rec,days=recommendationDays){
-    if(days===1)return rec?.latest?.diff;
+    if(days===1)return recommendationMode==='spins'?rec?.latest?.spins:rec?.latest?.diff;
     const p=rec?.periods?.[String(days)];
-    return hasNumber(p?.diff_sum)?p.diff_sum:null;
+    const value=recommendationMode==='spins'?p?.avg_spins:p?.diff_sum;
+    return hasNumber(value)?value:null;
   }
   function recommendationPeriodLabel(days=recommendationDays){
-    return days===1?'最新日の差枚':`直近${days}営業日の合計差枚`;
+    return days===1?`最新日の${recommendationMode==='spins'?'G数':'差枚'}`:`直近${days}営業日の${recommendationMode==='spins'?'平均G数':'合計差枚'}`;
   }
   function buildRecommendedRows(){
     return Object.entries(stats?.seats||{})
       .map(([seat,rec])=>({seat:Number(seat),value:recommendationMetric(rec),rec}))
-      .filter(x=>bySeat.has(x.seat)&&hasNumber(x.value)&&x.value<0)
-      .sort((a,b)=>a.value-b.value||a.seat-b.seat)
+      .filter(x=>bySeat.has(x.seat)&&hasNumber(x.value)&&(recommendationMode==='negative'?x.value<0:x.value>0))
+      .sort((a,b)=>(recommendationMode==='negative'?a.value-b.value:b.value-a.value)||a.seat-b.seat)
       .slice(0,Number(recommendationRule.limit||10));
   }
   let recommendedRows=buildRecommendedRows();
@@ -119,6 +124,7 @@ async function initHallPage(){
   let shortlistUI=null;
   const detailDialog=document.getElementById('seatDialog');
   detailDialog.append(document.querySelector('.detail-card'));
+  document.getElementById('detailDiffChart').previousElementSibling.textContent='直近7営業日の累計差枚';
   detailDialog.querySelector('[data-close-detail]').onclick=()=>detailDialog.close();
   detailDialog.addEventListener('click',e=>{if(e.target===detailDialog){const r=detailDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)detailDialog.close()}});
   const pageNav=document.getElementById('pageNav');
@@ -171,7 +177,12 @@ async function initHallPage(){
       const showValue=isDiffMode||mapDisplay==='spins';
       g.classList.toggle('with-value',showValue);
       seatText.textContent=item.seat;seatText.setAttribute('y',y+(showValue?8:10));
-      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:27));nameText.setAttribute('class','seat-machine');nameText.textContent=shortName(item.machine).slice(0,7);nameText.style.display=showNames||showValue?'':'none';
+      if(compactDraft&&!showValue){
+        const digits=String(item.seat).length;
+        seatText.style.fontSize=`${Math.max(4,Math.min(11,h*0.72,(w-1)/(digits*0.62)))}px`;
+        seatText.setAttribute('y',y+h/2);
+      }
+      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:27));nameText.setAttribute('class','seat-machine');nameText.textContent=compactDraft&&['機種名未設定','機種不明',''].includes(String(item.machine||'').trim())?'':shortName(item.machine).slice(0,7);nameText.style.display=showNames||showValue?'':'none';
       if(isDiffMode&&hasNumber(diffValue)){
         const d=Number(diffValue);
         g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
@@ -325,22 +336,27 @@ async function initHallPage(){
   const recommendBtn=document.getElementById('recommendBtn');
   const recommendInfo=document.getElementById('recommendInfo');
   const recommendDayButtons=[...document.querySelectorAll('[data-recommend-days]')];
+  for(const periodControl of document.querySelectorAll('.recommend-period-switch')){
+    const choices=document.createElement('div');choices.className='recommend-mode-switch';choices.setAttribute('role','group');choices.setAttribute('aria-label','おすすめ台の並び替え');
+    choices.innerHTML='<span>表示条件</span>'+Object.entries(recommendationModes).map(([key,label])=>`<button type="button" data-recommend-mode="${key}">${label}</button>`).join('');
+    periodControl.before(choices);
+  }
+  const recommendModeButtons=[...document.querySelectorAll('[data-recommend-mode]')];
   function updateRecommendUI(){
     if(!recommendBtn)return;
     recommendBtn.disabled=!stats;
     recommendBtn.classList.toggle('active',showRecommendations);
     recommendBtn.textContent=showRecommendations?'★ おすすめ ON':'☆ おすすめ OFF';
     recommendDayButtons.forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.recommendDays)===recommendationDays));
-    const completeCount=recommendationDays===1
-      ? Object.keys(stats?.seats||{}).length
-      : Object.values(stats?.seats||{}).filter(rec=>hasNumber(rec?.periods?.[String(recommendationDays)]?.diff_sum)).length;
+    recommendModeButtons.forEach(btn=>{const active=btn.dataset.recommendMode===recommendationMode;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});
+    const completeCount=Object.values(stats?.seats||{}).filter(rec=>hasNumber(recommendationMetric(rec))).length;
     if(recommendInfo){
       if(!stats)recommendInfo.textContent='台データ同期後に利用できます';
       else if(recommendationDays>1&&completeCount===0)recommendInfo.textContent=`${recommendationDays}日分のデータが揃うと表示されます`;
-      else recommendInfo.textContent=`${recommendationPeriodLabel()}マイナス上位：${recommendedSeats.size}台`;
+      else recommendInfo.textContent=`${recommendationModes[recommendationMode]}：${recommendedSeats.size}台`;
     }
     const ruleText=document.getElementById('recommendedRuleText');
-    if(ruleText)ruleText.textContent=`${recommendationPeriodLabel()}がマイナスの台から凹み順に最大${Number(recommendationRule.limit||10)}台。対象日：${(stats?.dates||[]).slice(0,recommendationDays).map(shortDate).join(' / ')||'未取得'}（回転数不問）`;
+    if(ruleText)ruleText.textContent=`${recommendationPeriodLabel()}を${recommendationModes[recommendationMode]}で最大${Number(recommendationRule.limit||10)}台。対象日：${(stats?.dates||[]).slice(0,recommendationDays).map(shortDate).join(' / ')||'未取得'}。過去データの並び替えです。`;
   }
   function setRecommendationDays(days){
     const next=Number(days);if(![1,3,7].includes(next)||next===recommendationDays)return;
@@ -354,6 +370,13 @@ async function initHallPage(){
     setView(view);
   }
   recommendDayButtons.forEach(btn=>btn.addEventListener('click',()=>setRecommendationDays(btn.dataset.recommendDays)));
+  recommendModeButtons.forEach(btn=>btn.addEventListener('click',()=>{
+    if(btn.dataset.recommendMode===recommendationMode)return;
+    recommendationMode=btn.dataset.recommendMode;
+    Floor777.storage.set(`floor777-recommend-mode-${hall.id}`,recommendationMode);
+    recommendedRows=buildRecommendedRows();recommendedSeats=new Set(recommendedRows.map(x=>x.seat));
+    updateRecommendUI();renderRecommendedList();renderMap();setView(view);
+  }));
   recommendBtn?.addEventListener('click',()=>{showRecommendations=!showRecommendations;Floor777.storage.set(`floor777-recommend-${hall.id}`,showRecommendations?'1':'0');updateRecommendUI();renderMap();setView(view)});
   updateRecommendUI();
 
@@ -420,35 +443,30 @@ async function initHallPage(){
   function updateURL(){const url=new URL(location.href);url.searchParams.delete('mode');url.searchParams.delete('q');url.searchParams.delete('seat');const q=input.value.trim();if(q){url.searchParams.set('mode',mode);url.searchParams.set('q',q)}if(selected)url.searchParams.set('seat',selected);history.replaceState(null,'',url)}
   function renderDiffChart(rec){
     const host=document.getElementById('detailDiffChart');if(!host)return;
-    const rows=(rec?.history||[]).slice(0,7).filter(r=>r&&r.date).reverse();
-    const finite=rows.filter(r=>hasNumber(r.diff));
-    if(!finite.length){host.innerHTML='<div class="chart-empty">差枚データがありません。</div>';return}
+    const recent=(rec?.history||[]).filter(r=>r&&r.date).sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,7).reverse();
+    const rows=recent.filter(r=>hasNumber(r.diff));
+    if(!rows.length){host.innerHTML='<div class="chart-empty">差枚データがありません。</div>';return}
+    let total=0;
+    const cumulative=rows.map(r=>({date:r.date,value:total+=r.diff}));
     const W=360,H=184,L=34,R=10,T=14,B=34,plotW=W-L-R,plotH=H-T-B;
-    const values=finite.map(r=>Number(r.diff));
+    const values=cumulative.map(r=>r.value);
     const rawMin=Math.min(0,...values),rawMax=Math.max(0,...values);
     const span=Math.max(1000,rawMax-rawMin);
     const pad=span*.12;
     const min=rawMin-pad,max=rawMax+pad;
-    const x=i=>L+(rows.length<=1?plotW/2:(i/(rows.length-1))*plotW);
+    const x=i=>L+((i+1)/rows.length)*plotW;
     const y=v=>T+((max-v)/(max-min))*plotH;
     const zeroY=y(0);
-    const pathParts=[];let started=false;
-    rows.forEach((r,i)=>{
-      const v=r.diff;
-      if(!hasNumber(v)){started=false;return}
-      pathParts.push(`${started?'L':'M'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`);started=true;
-    });
-    const pointSvg=rows.map((r,i)=>{
-      const v=r.diff;if(!hasNumber(v))return '';
+    const pathParts=[`M ${L} ${zeroY.toFixed(1)}`,...cumulative.map((r,i)=>`L ${x(i).toFixed(1)} ${y(r.value).toFixed(1)}`)];
+    const pointSvg=cumulative.map((r,i)=>{
+      const v=r.value;
       const cls=v>0?'chart-point plus':v<0?'chart-point minus':'chart-point zero';
-      return `<g><circle class="${cls}" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="4.2"><title>${escapeHtml(shortDate(r.date))} ${fmtNumber(v,true,'枚')}</title></circle></g>`;
+      return `<g><circle class="${cls}" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="4.2"><title>${escapeHtml(shortDate(r.date))} 累計 ${fmtNumber(v,true,'枚')}</title></circle></g>`;
     }).join('');
-    const dateSvg=rows.map((r,i)=>{
-      const show=rows.length<=7;
-      return show?`<text class="chart-x-label" x="${x(i).toFixed(1)}" y="${H-10}" text-anchor="middle">${escapeHtml(shortDate(r.date))}</text>`:'';
-    }).join('');
+    const dateSvg=cumulative.map((r,i)=>`<text class="chart-x-label" x="${x(i).toFixed(1)}" y="${H-10}" text-anchor="middle">${escapeHtml(shortDate(r.date))}</text>`).join('');
     const fmtAxis=v=>Math.abs(v)>=1000?`${v<0?'-':''}${Math.round(Math.abs(v)/100)/10}k`:`${Math.round(v)}`;
-    host.innerHTML=`<svg class="diff-line-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="直近1週間の差枚グラフ">
+    const incomplete=rows.length<7||recent.length!==rows.length;
+    host.innerHTML=`${incomplete?`<div class="chart-period-note">取得済み${rows.length}日分の累計（7営業日分は未取得）</div>`:''}<svg class="diff-line-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${incomplete?'取得済み日':'直近7営業日'}の累計差枚グラフ">
       <line class="chart-grid" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/>
       <line class="chart-grid" x1="${L}" y1="${T}" x2="${W-R}" y2="${T}"/>
       <line class="chart-grid" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/>
@@ -514,14 +532,14 @@ async function initHallPage(){
       const selectedValue=periodMetric(rec);
       return `<button class="recommended-row" type="button" data-recommend-seat="${row.seat}">
         <span class="recommend-rank">${index+1}</span>
-        <span class="recommend-main"><strong>${row.seat}番台</strong><small>${escapeHtml(shortName(machine))}</small><span class="recommend-basis">${escapeHtml(recommendationPeriodLabel())} ${fmtNumber(selectedValue,true,'枚')}</span></span>
+        <span class="recommend-main"><strong>${row.seat}番台</strong><small>${escapeHtml(shortName(machine))}</small><span class="recommend-basis">${escapeHtml(recommendationPeriodLabel())} ${fmtNumber(selectedValue,recommendationMode!=='spins',recommendationMode==='spins'?'G':'枚')}</span></span>
         <span class="recommend-metrics">
-          <span class="recommend-metric ${recommendationDays===1?'selected-period':''}"><em>最新日</em><b class="${diffClass(latestDiff)}">${fmtNumber(latestDiff,true,'枚')}</b><small>${fmtNumber(latestSpins,false,'G')}</small></span>
-          <span class="recommend-metric ${recommendationDays===3?'selected-period':''}"><em>3日合計</em><b class="${diffClass(d3)}">${fmtNumber(d3,true,'枚')}</b></span>
-          <span class="recommend-metric ${recommendationDays===7?'selected-period':''}"><em>7日合計</em><b class="${diffClass(d7)}">${fmtNumber(d7,true,'枚')}</b></span>
+          <span class="recommend-metric ${recommendationDays===1?'selected-period':''}"><em>最新日</em><b class="${recommendationMode==='spins'?'':diffClass(latestDiff)}">${recommendationMode==='spins'?fmtNumber(latestSpins,false,'G'):fmtNumber(latestDiff,true,'枚')}</b></span>
+          <span class="recommend-metric ${recommendationDays===3?'selected-period':''}"><em>3日${recommendationMode==='spins'?'平均G':'合計'}</em><b class="${recommendationMode==='spins'?'':diffClass(d3)}">${recommendationMode==='spins'?fmtNumber(rec.periods?.['3']?.avg_spins,false,'G'):fmtNumber(d3,true,'枚')}</b></span>
+          <span class="recommend-metric ${recommendationDays===7?'selected-period':''}"><em>7日${recommendationMode==='spins'?'平均G':'合計'}</em><b class="${recommendationMode==='spins'?'':diffClass(d7)}">${recommendationMode==='spins'?fmtNumber(rec.periods?.['7']?.avg_spins,false,'G'):fmtNumber(d7,true,'枚')}</b></span>
         </span>
       </button>`;
-    }).join(''):`<div class="empty-state compact">${!stats?'台データを読み込めません。島図と狙い台登録は利用できます。':recommendationDays>1?`${recommendationDays}日分のデータが揃った台がないか、マイナス差枚の台がありません。`:'マイナス差枚のおすすめ候補がありません。'}</div>`;
+    }).join(''):`<div class="empty-state compact">${!stats?'台データを読み込めません。島図と狙い台登録は利用できます。':recommendationDays>1?`${recommendationDays}日分のデータが揃った台、または${recommendationModes[recommendationMode]}に該当する台がありません。`:`${recommendationModes[recommendationMode]}に該当する台がありません。`}</div>`;
     recommendedList.querySelectorAll('[data-recommend-seat]').forEach(btn=>btn.addEventListener('click',()=>{
       const seat=Number(btn.dataset.recommendSeat);
       showRecommendations=true;
