@@ -54,6 +54,211 @@
         "向き切替"
       ],
       "machine_updated_at": "2026-09-20"
+    },
+    {
+      "id": "123-sakai-inter",
+      "name": "123堺インター店",
+      "prefecture": "大阪府",
+      "city": "堺市西区",
+      "category": "スロット",
+      "seat_count": 262,
+      "updated_at": "2026-09-25",
+      "path": "halls/123-sakai-inter/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "maruhan-megacity-sakai",
+      "name": "マルハンメガシティ堺",
+      "prefecture": "大阪府",
+      "city": "堺市西区",
+      "category": "スロット",
+      "seat_count": 437,
+      "updated_at": "2026-09-26",
+      "path": "halls/maruhan-megacity-sakai/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "123-senboku",
+      "name": "123泉北店",
+      "prefecture": "大阪府",
+      "city": "堺市南区",
+      "category": "スロット",
+      "seat_count": 354,
+      "updated_at": "2026-09-25",
+      "path": "halls/123-senboku/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "hyper-arrow-senboku",
+      "name": "HYPER ARROW泉北店",
+      "prefecture": "大阪府",
+      "city": "堺市南区",
+      "category": "スロット",
+      "seat_count": 135,
+      "updated_at": "2026-09-26",
+      "path": "halls/hyper-arrow-senboku/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "maruhan-komyoike",
+      "name": "マルハン光明池店",
+      "prefecture": "大阪府",
+      "city": "堺市南区",
+      "category": "スロット",
+      "seat_count": 179,
+      "updated_at": "2026-09-26",
+      "path": "halls/maruhan-komyoike/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "sherra-part3",
+      "name": "シェラパート3",
+      "prefecture": "大阪府",
+      "city": "堺市北区",
+      "category": "スロット",
+      "seat_count": 205,
+      "updated_at": "2026-09-26",
+      "path": "halls/sherra-part3/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "harimaya-nakamozu",
+      "name": "はりまや中もず店",
+      "prefecture": "大阪府",
+      "city": "堺市北区",
+      "category": "スロット",
+      "seat_count": 153,
+      "updated_at": "2026-09-25",
+      "path": "halls/harimaya-nakamozu/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "hyper-arrow-fukai",
+      "name": "HYPER ARROW深井店",
+      "prefecture": "大阪府",
+      "city": "堺市中区",
+      "category": "スロット",
+      "seat_count": 356,
+      "updated_at": "2026-09-26",
+      "path": "halls/hyper-arrow-fukai/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "sherra",
+      "name": "sherra",
+      "prefecture": "大阪府",
+      "city": "堺市中区",
+      "category": "スロット",
+      "seat_count": 150,
+      "updated_at": "2026-09-26",
+      "path": "halls/sherra/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "monroe",
+      "name": "モンロー",
+      "prefecture": "大阪府",
+      "city": "堺市堺区",
+      "category": "スロット",
+      "seat_count": 157,
+      "updated_at": "2026-09-26",
+      "path": "halls/monroe/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "maruhan-orisano",
+      "name": "マルハン堺遠里小野店",
+      "prefecture": "大阪府",
+      "city": "堺市堺区",
+      "category": "スロット",
+      "seat_count": 427,
+      "updated_at": "2026-09-26",
+      "path": "halls/maruhan-orisano/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
+    },
+    {
+      "id": "rakuen-plus",
+      "name": "ラクエンプラス",
+      "prefecture": "大阪府",
+      "city": "堺市西区",
+      "category": "スロット",
+      "seat_count": 903,
+      "updated_at": "2026-09-26",
+      "path": "halls/rakuen-plus/",
+      "status": "draft",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
     }
   ]
 }
+
