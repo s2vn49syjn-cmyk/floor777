@@ -2,7 +2,7 @@
   "name": "floor777",
   "private": true,
   "scripts": {
-    "test": "node tests/cache.cjs && node tests/browser.cjs"
+    "test": "node tests/layout-v3.mjs && node tests/cache.cjs && node tests/browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
