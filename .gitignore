@@ -2,3 +2,7 @@ node_modules/
 test-results/
 playwright-report/
 hall-output/
+
+.env
+.env.*
+!.env.example

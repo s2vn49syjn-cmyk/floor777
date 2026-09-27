@@ -1,0 +1,263 @@
+{
+  "id": "arrow-toga",
+  "name": "ARROW栂店",
+  "prefecture": "大阪府",
+  "city": "堺市南区",
+  "floor": "みんレポ掲載スロット",
+  "seat_count": 61,
+  "updated_at": "2026-09-25",
+  "layout_updated_at": "2026-09-25",
+  "preserve_layout": true,
+  "source": {
+    "name": "P-WORLD・みんレポ",
+    "url": "https://min-repo.com/tag/ARROW%E6%A0%82%E5%BA%97/",
+    "note": "P-WORLDはスロット総82台。みんレポ2026-08-18全台表で確認できる台番号は501〜540、562〜582の61台。残る21台のレート・番号・掲載対象は未確認。公式の台番付きフロア図も見つからないため、番号帯ごとの座席配置は検索用の推定概略図。機種名はFloor777自動取得に委ねる。"
+  },
+  "layout_status": "draft-unverified",
+  "seats": [
+    {
+      "seat": 501,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 502,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 503,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 504,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 505,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 506,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 507,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 508,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 509,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 510,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 511,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 512,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 513,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 514,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 515,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 516,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 517,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 518,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 519,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 520,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 521,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 522,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 523,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 524,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 525,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 526,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 527,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 528,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 529,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 530,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 531,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 532,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 533,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 534,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 535,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 536,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 537,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 538,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 539,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 540,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 562,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 563,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 564,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 565,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 566,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 567,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 568,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 569,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 570,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 571,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 572,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 573,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 574,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 575,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 576,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 577,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 578,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 579,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 580,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 581,
+      "machine": "機種名未設定"
+    },
+    {
+      "seat": 582,
+      "machine": "機種名未設定"
+    }
+  ]
+}
