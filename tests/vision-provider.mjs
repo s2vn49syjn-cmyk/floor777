@@ -61,6 +61,11 @@ try {
   assert.equal(payload.store, false); assert.equal(payload.text.format.type, 'json_schema');
   assert.equal(payload.text.format.schema.title, 'FLOOR777 vision observation v1');
   assert(payload.input[0].content.some(item => item.type === 'input_image' && item.image_url.startsWith('data:image/png;base64,')));
+  const promptText = payload.input[0].content.filter(item => item.type === 'input_text').map(item => item.text).join('\n');
+  assert(promptText.includes('floor=slot-floor'));
+  assert(promptText.includes('category=slot'));
+  assert(promptText.includes('rentalType=46枚'));
+  assert(payload.instructions.includes('copy category and rentalType exactly'));
   assert(!JSON.stringify(payload).includes('https://example.org/provenance-only'));
   assert(!JSON.stringify(provider.getLastAudit()).includes('test-only'));
   const noRights = structuredClone(bundle); noRights.sources[0].usageReviewed = false;
