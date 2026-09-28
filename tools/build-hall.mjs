@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {expandLayout} from './hall-model.mjs';
+import {renderHallPage} from './hall-page.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const args=process.argv.slice(2), input=args[0], outIndex=args.indexOf('--out');
 if(!input){console.error('Usage: node tools/build-hall.mjs draft.json [--out NEW_DIRECTORY]');process.exit(1);}
@@ -10,14 +11,12 @@ try {
  const {positions,seats}=expandLayout(d);
  const out=path.resolve(outIndex<0?path.join(root,'hall-output',d.id):args[outIndex+1]||'');
  if(fs.existsSync(out))throw Error('出力先が既に存在します。既存データを守るため新しいフォルダを指定してください');
- const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const hall={id:d.id,name:d.name,prefecture:d.prefecture,city:d.city,floor:'スロット',seat_count:seats.length,updated_at:d.layout_date,layout_updated_at:d.layout_date,preserve_layout:true,source:{name:d.minrepo_url?'みんレポ':'FLOOR777島図ビルダー',url:d.minrepo_url||'',note:'台番号配置は提供資料から作成。機種確認中の台は収集結果との照合が必要。'},seats};
- let html=fs.readFileSync(path.join(root,'halls/hyper-arrow-mihara/index.html'),'utf8');
- // Keep the maintained Mihara page as the common shell, including its current assets.
- html=html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g,'');
- html=html.replaceAll('HYPER ARROW美原店',esc(d.name)).replaceAll('hyper-arrow-mihara',d.id).replaceAll('positions-mihara.json',`positions-${d.id}.json`).replaceAll('大阪府',esc(d.prefecture)).replaceAll('堺市美原区',esc(d.city)).replaceAll('2026/09/18',esc(d.layout_date));
- // Generated files are previews until checked and explicitly registered for publication.
- html=html.replace('</head>','<meta name="robots" content="noindex,nofollow"></head>');
+ const html=renderHallPage(hall,{
+   positionFile:`positions-${d.id}.json`,
+   sourceNote:'<div class="status-note"><span class="status-dot"></span><span>機種名・台データは <a class="source-link" id="sourceLink" rel="noopener noreferrer" target="_blank"><span id="sourceName">参照元</span></a> から取得します（最終データ <span id="sourceDate">—</span>）。配置・台番号は公開前に確認してください。</span></div>',
+   robotsMeta:'<meta name="robots" content="noindex,nofollow"/>'
+ });
  const registration={id:d.id,name:d.name,prefecture:d.prefecture,city:d.city,category:'スロット',seat_count:seats.length,updated_at:d.layout_date,path:`halls/${d.id}/`,status:'draft',features:['機種名検索','台番号検索','島図','向き切替']};
  const collector={[d.id]:{name:d.name,collector:'minrepo',tag_url:d.minrepo_url,source_name:'みんレポ',source_url:d.minrepo_url,expected_machine_count:seats.length,backfill_reports:6,public_days:14,public_filename:`${d.id}-stats.json`}};
  const write=(p,text)=>{const target=path.join(out,p);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,text);};
