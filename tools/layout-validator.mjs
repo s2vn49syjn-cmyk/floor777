@@ -34,6 +34,11 @@ export function validateLayout(layout, {referenceNumbers = null} = {}) {
   if (!optionalText(layout.storeName)) schema('Invalid storeName');
   if (!Array.isArray(layout.floors) || !layout.floors.length) schema('At least one floor is required');
   if (!confidence(layout.confidence)) schema('Invalid store confidence');
+    if (layout.review !== undefined && (!object(layout.review) ||
+      !(layout.review.originalSourceType === null || typeof layout.review.originalSourceType === 'string') ||
+    typeof layout.review.humanModified !== 'boolean' ||
+      !(layout.review.modifiedAt === null || typeof layout.review.modifiedAt === 'string') ||
+    (layout.review.humanModified && !layout.review.modifiedAt))) schema('Invalid review metadata');
   if (!(layout.generation === null || (object(layout.generation) &&
     ['source', 'version', 'generatedAt'].every(key => typeof layout.generation[key] === 'string')))) schema('Invalid generation metadata');
   if (!object(layout.verification) || !STATUSES.has(layout.verification.status) || !Array.isArray(layout.verification.notes) ||

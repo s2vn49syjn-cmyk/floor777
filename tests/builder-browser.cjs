@@ -15,6 +15,7 @@ const path=require('node:path');
   async function fill(id,value){await page.locator('#'+id).fill(String(value));await page.locator('#'+id).blur();}
   async function saved(){await page.waitForFunction(()=>document.querySelector('#saveState').textContent.includes('自動保存済み'));}
   await fill('name','検証用店舗');await fill('id','builder-test');await fill('city','堺市');
+  await page.locator('.add-tools').evaluate(element=>element.closest('details').open=true);
   await page.locator('[data-add=line]').click();await fill('count',5);await page.locator('#confirmed').check();await page.locator('#applyGeometry').click();await saved();
   assert.equal(await page.locator('.seat').count(),5);
   await page.locator('#fieldMode').click();await fill('startNumber',101);await page.locator('#numberDetails').evaluate(e=>e.open=true);await fill('skipNumbers',104);await page.locator('#assign').click();await saved();

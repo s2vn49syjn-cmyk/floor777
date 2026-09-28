@@ -20,6 +20,7 @@ const {spawn}=require('node:child_process');
   const projects=await page.evaluate(async()=>{const m=await import('./builder-store.mjs');return (await m.listProjects()).filter(p=>p.image);});
   assert.equal(projects.length,process.env.MAP_INPUT_DIR?files.length:1);
   for(const p of projects){assert(p.islands.length>0);assert(p.islands.every(i=>!i.confirmed&&!i.numbers.length));assert(p.islands.flatMap(i=>i.points).every(q=>q.every(Number.isFinite)));assert.equal(new Set(p.islands.flatMap(i=>i.points.map(q=>q[2]))).size,1);assert(p.islands.flatMap(i=>i.points).every(q=>q[2]===q[3]));}
+  await page.locator('.batch-tools').evaluate(element=>element.closest('details').open=true);
   await page.locator('#uniformSeatSize').fill('18');await page.locator('#unifySeatSize').click();
   assert.equal(await page.locator('.seat').evaluateAll(nodes=>new Set(nodes.map(n=>Number(n.getAttribute('width')))).size),1);
   assert.equal(Number(await page.locator('.seat').first().getAttribute('width')),18);

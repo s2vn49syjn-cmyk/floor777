@@ -13,9 +13,19 @@
     "verification": {"$ref": "#/$defs/verification"},
     "provenance": {"$ref": "#/$defs/provenance"},
     "generation": {"$ref": "#/$defs/generation"},
-    "confidence": {"$ref": "#/$defs/confidence"}
+    "confidence": {"$ref": "#/$defs/confidence"},
+    "review": {"$ref": "#/$defs/review"}
   },
   "$defs": {
+    "review": {
+      "type": "object", "additionalProperties": false,
+      "required": ["originalSourceType", "humanModified", "modifiedAt"],
+      "properties": {
+        "originalSourceType": {"type": ["string", "null"]},
+        "humanModified": {"type": "boolean"},
+        "modifiedAt": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
     "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9:-]*$"},
     "confidence": {
       "type": ["object", "null"], "additionalProperties": false,

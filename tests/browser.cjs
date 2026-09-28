@@ -16,6 +16,10 @@ const appURL='http://floor777.test/floor777/halls/hyper-arrow-mihara/';
   const file=path.join(root,decodeURIComponent(u.pathname.replace(/^\/floor777\//,''))+(u.pathname.endsWith('/')?'index.html':''));
   try{return await route.fulfill({path:file})}catch{return route.fulfill({status:404,body:'Not found'})}
  });
+ // The hall also names the production stats URL as a fallback. Keep this
+ // fixture self-contained so the unavailable-stats case cannot use live data.
+ await context.route('https://floor777.com/data/live/**',route=>
+  noStats?route.fulfill({status:503,body:'unavailable'}):route.fulfill({json:stats}));
  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
  async function open(){await page.goto(appURL);await page.waitForSelector('.seat');}
  async function assertNoOverflow(){assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'page horizontal overflow');}

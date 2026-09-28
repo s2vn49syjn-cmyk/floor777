@@ -4,7 +4,9 @@
   "scripts": {
     "test": "node tests/layout-migrate.mjs && node tests/shared-floor-ui.mjs && node tests/hall-template.mjs && node tests/cache.cjs && node tests/browser.cjs && node tests/shared-floor-browser.cjs",
     "build:halls": "node tools/render-hall-pages.mjs --write",
-    "check:halls": "node tools/render-hall-pages.mjs --check"
+    "check:halls": "node tools/render-hall-pages.mjs --check",
+    "test:review": "node tests/review-model.mjs && node tests/review-browser.cjs",
+    "review:open": "node tools/start-review-editor.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
