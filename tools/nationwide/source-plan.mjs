@@ -1,11 +1,16 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {loadMaster} from './master.mjs';
 import {sourcePackStatuses} from './populate.mjs';
 import {createSourceTemplate} from './source-pack.mjs';
 
+const catalogPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'source-candidates.json');
+const loadCatalog = async () => fs.readFile(catalogPath, 'utf8').then(JSON.parse, () => ({halls: {}}));
+
 export async function sourceAcquisitionPlan(root, {hallIds = null, prefecture = null, limit = Infinity,
   createTemplates = false} = {}) {
-  const master = await loadMaster(root);
+  const [master, catalog] = await Promise.all([loadMaster(root), loadCatalog()]);
   if (hallIds?.some(id => !master.stores[id])) throw Error('Unknown selected hallId');
   if ((!Number.isInteger(limit) && limit !== Infinity) || limit < 1) throw Error('limit must be positive');
 
@@ -32,6 +37,7 @@ export async function sourceAcquisitionPlan(root, {hallIds = null, prefecture = 
       targetDirectory: directory,
       manifestPath: `${directory}/manifest.json`,
       template,
+      candidateSources: catalog.halls?.[row.hallId] ?? [],
       searchQueries: [
         `${row.hallName} フロアマップ`,
         `${row.hallName} P-WORLD フロアマップ`,
