@@ -19,15 +19,20 @@ const publicFiles = ['data/halls.json', 'tests/fixtures/layout-golden.json',
 const snapshots = await Promise.all(publicFiles.map(file => fs.readFile(path.join(repo, file))));
 // Check the shipped seed, independently of private local population runs.
 const seedRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'floor777-source-seed-'));
-let realRows;
+let realRows, realPlan;
 try {
   await fs.cp(path.join(repo, 'data'), path.join(seedRoot, 'data'), {recursive: true});
   await fs.cp(path.join(repo, 'halls'), path.join(seedRoot, 'halls'), {recursive: true});
   realRows = await sourcePackStatuses(seedRoot);
+  realPlan = await sourceAcquisitionPlan(seedRoot);
 } finally {await fs.rm(seedRoot, {recursive: true, force: true});}
 assert.equal(realRows.length, 19);
 assert.equal(realRows.filter(row => row.currentPublicStatus === 'published').length, 3);
 assert.equal(realRows.filter(row => row.sourceStatus === 'source_needed').length, 19);
+assert.equal(realPlan.selected, 16);
+const kitanoda = realPlan.results.find(item => item.hallId === '123-kitanoda');
+assert(kitanoda.candidateSources.some(source => source.pageUrl.includes('/osaka/kitanoda123.htm')));
+assert(kitanoda.candidateSources.every(source => source.status === 'unreviewed_candidate'));
 const root = await fs.mkdtemp(path.join(os.tmpdir(), 'floor777-source-pack-'));
 const packDir = id => path.join(root, 'work/nationwide/sources', id);
 const manifestFile = id => path.join(packDir(id), 'manifest.json');
