@@ -79,7 +79,16 @@ const skipId = skipped.addIsland('legacy-slot', {count: 5});
 skipped.assignSequential(skipId, {start: 801, count: 5, exclude: [804]});
 assert.deepEqual(findIsland(skipped.layout, skipId).island.machines.map(machine => machine.number), [801, 802, 803, 805, 806]);
 assert.throws(() => skipped.assignSequential(skipId, {start: 801, count: 5, end: 802}));
-const unresolved = {machines: [], geometry: {x: 100, y: 120, width: 300, height: 80}};
+const unresolved = {id: 'unresolved-island', shape: 'line', machineCount: 4, machines: [],
+  confidence: null, geometry: {x: 100, y: 120, width: 300, height: 80}};
 assert.deepEqual((await import('../tools/builder-model.mjs')).islandBounds(unresolved),
   {x: 100, y: 120, width: 300, height: 80});
+const unresolvedLayout = copy(layout);
+unresolvedLayout.floors[0].islands = [unresolved];
+unresolvedLayout.verification.notes = [];
+const unresolvedSession = new ReviewSession(unresolvedLayout);
+unresolvedSession.setMachineCount('unresolved-island', 4);
+assert.equal(unresolvedSession.layout.floors[0].islands[0].machines.length, 4);
+assert.equal(unresolvedSession.layout.floors[0].islands[0].machineCount, 4);
+assert(unresolvedSession.layout.verification.notes.some(note => note.includes('仮配置')));
 console.log('PASS: v3 review geometry, count/add/delete, number direction/skip/reverse/clear, diagnostics, undo/redo, provenance and explicit verification');
