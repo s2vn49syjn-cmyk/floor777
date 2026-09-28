@@ -10,6 +10,7 @@ import {processSourcePacks, sourcePackStatuses} from '../tools/nationwide/popula
 import {handoffCandidates, populationDashboard, reviewQueue} from '../tools/nationwide/report.mjs';
 import {importHumanReview} from '../tools/nationwide/pipeline.mjs';
 import {validateRolloutDraft} from '../tools/nationwide/validate.mjs';
+import {autoPopulateAll} from '../tools/nationwide/auto.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicFiles = ['data/halls.json', 'tests/fixtures/layout-golden.json',
@@ -77,12 +78,18 @@ try {
   assert.equal(batch.counts.validated, 1);
   assert.equal(batch.counts.blocked, 1);
   assert.equal(batch.counts.source_needed, 1);
+  const automated = await autoPopulateAll(root, {hallIds: ['good-hall', 'bad-hall', 'empty-hall'], dryRun: false});
+  assert.equal(automated.selected, 3);
+  assert.equal(automated.summary.prepared, 1);
+  assert.equal(automated.reviewQueue.length, 1);
+  assert.equal(automated.reviewQueue[0].hallId, 'good-hall');
+  assert.match(automated.reviewQueue[0].reviewEditorUrl, /draft=/);
   await createSourceTemplate(root, 'empty-hall');
   await fs.writeFile(manifestFile('empty-hall'), '{broken-json');
   assert.equal((await inspectSourcePack(root, 'empty-hall')).status, 'blocked');
   assert.equal((await sourcePackStatuses(root)).length, 3); // one malformed pack must not hide other halls
   const record = (await loadMaster(root)).stores['good-hall'];
-  assert.equal(record.layoutProgress, 'validated');
+  assert.equal(record.layoutProgress, 'needs_review');
   assert.equal((await reviewQueue(root)).length, 1);
   assert.equal((await handoffCandidates(root)).length, 0);
   const resumed = await processSourcePacks(root, {hallIds: ['good-hall'], dryRun: false});
