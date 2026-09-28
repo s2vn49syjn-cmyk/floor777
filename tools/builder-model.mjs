@@ -72,6 +72,22 @@ function sampledPositions(positions, count, closed) {
   });
 }
 
+function placeholderPositionsFromGeometry(island, count) {
+  const bounds = islandBounds(island), geometry = island.geometry ?? {};
+  const size = Math.max(6, Math.min(28, finite(geometry.size) ? geometry.size :
+    Math.min(Math.max(bounds.width, 1), Math.max(bounds.height, 1)) / 5));
+  const horizontal = bounds.width >= bounds.height;
+  const span = Math.max(size, (horizontal ? bounds.width : bounds.height) - size);
+  const startX = horizontal ? bounds.x + size / 2 : bounds.x + bounds.width / 2;
+  const startY = horizontal ? bounds.y + bounds.height / 2 : bounds.y + size / 2;
+  return Array.from({length: count}, (_, index) => {
+    const ratio = count === 1 ? 0.5 : index / (count - 1);
+    const cx = horizontal ? bounds.x + size / 2 + span * ratio : startX;
+    const cy = horizontal ? startY : bounds.y + size / 2 + span * ratio;
+    return [cx - size / 2, cy - size / 2, size, size];
+  });
+}
+
 export function orderedMachines(island, {direction = 'left-right', side = 'all', ids = null} = {}) {
   if (!['left-right', 'right-left', 'top-bottom', 'bottom-top'].includes(direction)) throw Error('Invalid numbering direction');
   if (!['all', 'left', 'right', 'top', 'bottom'].includes(side)) throw Error('Invalid island side');
@@ -191,13 +207,20 @@ export class ReviewSession {
     if (!Number.isInteger(count) || count < 1 || count > 1000) throw Error('Count must be 1–1000');
     return this.change(layout => {
       const {island} = findIsland(layout, id);
-      if (island.machineCount === count) return;
-      const positions = sampledPositions(island.machines.map(machine => machine.position), count, island.shape === 'circle');
+      if (island.machineCount === count && island.machines.length === count) return;
       const previous = island.machines;
+      const positions = previous.length
+        ? sampledPositions(previous.map(machine => machine.position), count, island.shape === 'circle')
+        : placeholderPositionsFromGeometry(island, count);
       island.machines = positions.map((position, index) => previous[index]
         ? {...previous[index], position} : {id: uid('machine'), number: null, machineName: null, position, confidence: null});
       island.machineCount = count;
+      island.geometry ??= {x: positions[0][0], y: positions[0][1]};
       island.geometry.points = positions.map(p => [...p]);
+      if (!previous.length) {
+        const note = `${island.id}: 台枠は島形状と推定台数から仮配置しました。資料と照合してください`;
+        if (!layout.verification.notes.includes(note)) layout.verification.notes.push(note);
+      }
     });
   }
   assignSequential(id, {start, count = null, end = null, direction = 'left-right', side = 'all', ids = null, exclude = []} = {}) {
