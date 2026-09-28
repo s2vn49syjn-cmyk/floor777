@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://floor777.com/schemas/layout-v3.json",
+  "title": "FLOOR777 common floor layout",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "storeId", "floors", "verification", "provenance", "generation", "confidence"],
+  "properties": {
+    "schemaVersion": {"const": 3},
+    "storeId": {"$ref": "#/$defs/id"},
+    "storeName": {"type": ["string", "null"]},
+    "floors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/floor"}},
+    "verification": {"$ref": "#/$defs/verification"},
+    "provenance": {"$ref": "#/$defs/provenance"},
+    "generation": {"$ref": "#/$defs/generation"},
+    "confidence": {"$ref": "#/$defs/confidence"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9:-]*$"},
+    "confidence": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "properties": {
+        "overall": {"type": "number", "minimum": 0, "maximum": 1},
+        "geometry": {"type": "number", "minimum": 0, "maximum": 1},
+        "count": {"type": "number", "minimum": 0, "maximum": 1},
+        "number": {"type": "number", "minimum": 0, "maximum": 1},
+        "position": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "generation": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["source", "version", "generatedAt"],
+      "properties": {
+        "source": {"type": "string"},
+        "version": {"type": "string"},
+        "generatedAt": {"type": "string", "format": "date-time"}
+      }
+    },
+    "position": {"type": "array", "prefixItems": [{"type": "number"}, {"type": "number"}, {"type": "number", "exclusiveMinimum": 0}, {"type": "number", "exclusiveMinimum": 0}], "minItems": 4, "maxItems": 4},
+    "geometry": {
+      "type": ["object", "null"],
+      "required": ["x", "y"],
+      "additionalProperties": false,
+      "properties": {
+        "x": {"type": "number"},
+        "y": {"type": "number"},
+        "width": {"type": "number", "exclusiveMinimum": 0},
+        "height": {"type": "number", "exclusiveMinimum": 0},
+        "rotation": {"type": "number"},
+        "side": {"type": ["string", "null"]},
+        "size": {"type": "number", "exclusiveMinimum": 0},
+        "pitch": {"type": "number", "exclusiveMinimum": 0},
+        "radius": {"type": "number", "exclusiveMinimum": 0},
+        "sweep": {"type": "number"},
+        "points": {"type": "array", "items": {"$ref": "#/$defs/position"}}
+      }
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "notes", "lastVerifiedAt"],
+      "properties": {
+        "status": {"enum": ["unknown", "generated", "needs_review", "validated", "human_corrected", "verified"]},
+        "notes": {"type": "array", "items": {"type": "string"}},
+        "lastVerifiedAt": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sourceType", "sourceUrl", "observedAt", "retrievedAt", "sourceHash"],
+      "properties": {
+        "sourceType": {"type": ["string", "null"]},
+        "sourceUrl": {"type": ["string", "null"]},
+        "observedAt": {"type": ["string", "null"]},
+        "retrievedAt": {"type": ["string", "null"], "format": "date-time"},
+        "sourceHash": {"type": ["string", "null"]}
+      }
+    },
+    "machine": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "number", "machineName", "position", "confidence"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "number": {"type": ["integer", "null"], "minimum": 1},
+        "machineName": {"type": ["string", "null"]},
+        "position": {"$ref": "#/$defs/position"},
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "island": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "shape", "geometry", "machineCount", "machines", "confidence"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "shape": {"enum": ["unknown", "line", "arc", "circle", "custom"]},
+        "geometry": {"$ref": "#/$defs/geometry"},
+        "machineCount": {"type": "integer", "minimum": 0},
+        "machines": {"type": "array", "items": {"$ref": "#/$defs/machine"}},
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "floor": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "width", "height", "coordinateBasis", "islands", "unassignedMachines", "confidence"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "label": {"type": ["string", "null"]},
+        "width": {"type": "number", "exclusiveMinimum": 0},
+        "height": {"type": "number", "exclusiveMinimum": 0},
+        "coordinateBasis": {"enum": ["source-map", "legacy-position-extents", "unknown"]},
+        "islands": {"type": "array", "items": {"$ref": "#/$defs/island"}},
+        "unassignedMachines": {"type": "array", "items": {"$ref": "#/$defs/machine"}},
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    }
+  }
+}

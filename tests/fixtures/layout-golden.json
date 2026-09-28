@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "fingerprintMethod": "sha256 of JSON.stringify(sorted numbers) and JSON.stringify([number, position] rows in the same order)",
+  "golden": [
+    {
+      "storeId": "hyper-arrow-mihara",
+      "seatCount": 551,
+      "numbersHash": "6b3670f416232438b9d2e2ce04dee3e871bbe44bee71045bc6d32db56306f674",
+      "coordinatesHash": "564c9006ac88fc3d7beddfc98a30af4095fefaf2b6cd8fedfdff774c24194fff",
+      "islandStructure": null,
+      "verificationRecord": {
+        "confirmedBy": "user",
+        "confirmedOn": "2026-09-28",
+        "method": "Compared with current reference materials",
+        "confirmedFields": ["seatCount", "numberSet", "seatPositionMapping", "islandPlacement"],
+        "note": "The user confirmed the current layout. Island boundaries are not encoded in the legacy public JSON, so this fixture cannot fingerprint their structure yet."
+      }
+    },
+    {
+      "storeId": "super-cosmo-sakai",
+      "seatCount": 504,
+      "numbersHash": "b0d5ea7956e307a96383b369021852c6e4c40009464736df841f3f1c0afeb512",
+      "coordinatesHash": "af545aeb17c1c430c0f7c6318ce984b0862abc910ba31cf7a69c3d1c65d0f774",
+      "islandStructure": null,
+      "verificationRecord": {
+        "confirmedBy": "user",
+        "confirmedOn": "2026-09-28",
+        "method": "Compared with current reference materials after the published 1011/1101 and 819/918 position corrections",
+        "confirmedFields": ["seatCount", "numberSet", "seatPositionMapping", "islandPlacement"],
+        "note": "The coordinate fingerprint includes the corrected published positions. Island boundaries are not encoded in the legacy public JSON."
+      }
+    },
+    {
+      "storeId": "kikuya-sakai-honten",
+      "seatCount": 826,
+      "numbersHash": "46aa3b966562ea8429a0ab269066566d4e5a003aefb896a5bb56d0a98c651a6c",
+      "coordinatesHash": "bed8c0ec7647ab673785391b5f618df2c82b189b82de874096798603e0364957",
+      "islandStructure": null,
+      "verificationRecord": {
+        "confirmedBy": "user",
+        "confirmedOn": "2026-09-28",
+        "method": "Compared with current reference materials, including the user-provided numbered floor document",
+        "confirmedFields": ["seatCount", "numberSet", "seatPositionMapping", "islandPlacement"],
+        "note": "The earlier STATUS.md recorded a pending physical check; the user's later confirmation supersedes that earlier status. Island boundaries are not encoded in the legacy public JSON."
+      }
+    }
+  ],
+  "candidates": []
+}
