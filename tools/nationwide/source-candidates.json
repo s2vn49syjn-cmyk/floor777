@@ -1,0 +1,124 @@
+{
+  "formatVersion": 1,
+  "updatedAt": "2026-09-29",
+  "note": "Candidate landing pages only. These do not constitute source-usage approval and must not bypass Source Pack usage review.",
+  "halls": {
+    "123-kitanoda": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/kitanoda123.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "123-sakai-inter": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/123-sakai.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "123-senboku": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/senboku.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "arrow-toga": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/toga-arrow.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "harimaya-nakamozu": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/harimaya-nakamozu.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "hyper-arrow-fukai": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/hyper-arrow.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "hyper-arrow-senboku": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/arrow-senboku.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "maruhan-harayamadai": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/maruhan-harayamadai.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "maruhan-komyoike": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/maruhan-koumyoike.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "maruhan-megacity-sakai": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/maruhan-sakai.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "maruhan-orisano": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/maruhan-oriono.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "monroe": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/monroe.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "rakuen-plus": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/rakuenplus.htm",
+        "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "p-world-smart-floor",
+        "pageUrl": "https://www.p-world.co.jp/hall/floor_maps/59fe32fcff64",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "sherra": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/sherra.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "sherra-part3": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/sierra3.htm",
+        "status": "unreviewed_candidate"
+      }
+    ],
+    "verde": [
+      {
+        "sourceType": "p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/verde.htm",
+        "status": "unreviewed_candidate"
+      }
+    ]
+  }
+}
