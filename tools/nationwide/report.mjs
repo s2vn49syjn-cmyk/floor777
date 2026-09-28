@@ -40,7 +40,8 @@ export async function reviewQueue(root, {prefecture = null} = {}) {
     if (prefecture && record.prefecture !== prefecture || !record.generation?.layoutPath ||
       record.layoutProgress === 'human_verified' || record.published) continue;
     let layout;
-    const draftPath = record.review?.unresolvedCount ? record.review.reviewedPath : record.generation.layoutPath;
+    const draftPath = record.review?.unresolvedCount ? record.review.reviewedPath :
+      record.generation.preparedReview?.layoutPath ?? record.generation.layoutPath;
     try {layout = JSON.parse(await fs.readFile(draftPath, 'utf8'));} catch {continue;}
     rows.push({hallId: record.hallId, name: record.name, prefecture: record.prefecture,
       sources: record.sources.map(source => ({sourceId: source.sourceId, sourceType: source.sourceType,
@@ -51,7 +52,7 @@ export async function reviewQueue(root, {prefecture = null} = {}) {
         {missing: record.validation.existingDiff.missingNumbers, added: record.validation.existingDiff.addedNumbers} : null,
       layoutDiff: record.validation?.existingDiff ?? null,
       draftPath,
-      reviewEditorUrl: 'http://127.0.0.1:8781/tools/layout-review.html'});
+      reviewEditorUrl: `http://127.0.0.1:8781${record.generation.preparedReview?.reviewPath ?? `/tools/layout-review.html?store=${record.hallId}`}`});
   }
   return rows.sort((a, b) => a.hallId.localeCompare(b.hallId));
 }

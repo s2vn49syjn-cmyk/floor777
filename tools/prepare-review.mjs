@@ -2,13 +2,16 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
-import {loadMaster, hallIdPattern} from './nationwide/master.mjs';
+import {loadMaster, saveMaster, transition, hallIdPattern} from './nationwide/master.mjs';
+import {evidenceManifest} from './nationwide/evidence.mjs';
+import {buildEvidenceBundle, stable} from './generate-layout/source-intake.mjs';
+import {validateRolloutDraft} from './nationwide/validate.mjs';
 import {materializePlaceholders} from './generate-layout/placeholders.mjs';
 import {validateLayout} from './layout-validator.mjs';
 import {processSourcePacks} from './nationwide/populate.mjs';
 import {createOpenAIProvider} from './generate-layout/providers/openai.mjs';
 
-export async function prepareReview(root, hallIds) {
+export async function prepareReview(root, hallIds, {register = false} = {}) {
   const master = await loadMaster(root), results = [];
   for (const hallId of hallIds) {
     try {
@@ -25,19 +28,41 @@ export async function prepareReview(root, hallIds) {
         throw Error('Cached draft identity or schema mismatch');
       const {layout, generated, skipped} = materializePlaceholders(source);
       const validation = validateLayout(layout);
+      let rolloutValidation = null;
+      if (register) {
+        // A cached draft can enter the review queue only against unchanged,
+        // rights-reviewed evidence. This performs no provider/network call.
+        const bundle = await buildEvidenceBundle(await evidenceManifest(root, record), {baseDir: root});
+        const hashes = bundle.sources.map(s => ({sourceId: s.sourceId, contentHash: s.contentHash}));
+        const canonical = values => stable([...values].sort((a, b) => a.sourceId.localeCompare(b.sourceId)));
+        if (!record.generation.audit?.sourceHashes?.length ||
+            canonical(hashes) !== canonical(record.generation.audit.sourceHashes)) throw Error('Cached draft evidence has changed; regeneration is required');
+        rolloutValidation = await validateRolloutDraft(root, record, layout, record.generation.audit);
+      }
       const revision = createHash('sha256').update(JSON.stringify(layout)).digest('hex').slice(0, 16);
       const draft = `${hallId}-${revision}`, directory = path.join(root, 'work/review-drafts');
       await fs.mkdir(directory, {recursive: true});
       const layoutPath = path.join(directory, `${draft}.json`);
-      await fs.writeFile(layoutPath, `${JSON.stringify(layout, null, 2)}\n`, {flag: 'wx'}).catch(error => {
+      const serialized = `${JSON.stringify(layout, null, 2)}\n`;
+      await fs.writeFile(layoutPath, serialized, {flag: 'wx'}).catch(async error => {
         if (error.code !== 'EEXIST') throw error;
+        if (await fs.readFile(layoutPath, 'utf8') !== serialized) throw Error('Prepared draft has been modified; refusing to overwrite');
       });
       const remainingBlockers = (record.validation?.blockedReasons ?? []).filter(reason =>
         reason !== 'machine_count_mismatch' || validation.diagnostics.some(d => d.code === reason));
-      const report = {hallId, status: !validation.valid || remainingBlockers.length ? 'blocked' : 'needs_review', layoutPath, generated, skipped, validation, remainingBlockers,
+      const blocked = rolloutValidation ? rolloutValidation.status === 'blocked' : !validation.valid || remainingBlockers.length;
+      const report = {hallId, status: blocked ? 'blocked' : 'needs_review', layoutPath, generated, skipped, validation,
+        remainingBlockers: rolloutValidation?.blockedReasons ?? remainingBlockers, rolloutValidation,
         reviewPath: `/tools/layout-review.html?store=${hallId}&draft=${draft}`,
         sourceLayoutPath: record.generation.layoutPath, apiCalls: 0, humanVerificationRequired: true};
       await fs.writeFile(path.join(directory, `${draft}.report.json`), `${JSON.stringify(report, null, 2)}\n`);
+      if (register) {
+        record.generation.preparedReview = {layoutPath, reviewPath: report.reviewPath};
+        record.validation = rolloutValidation;
+        if (record.layoutProgress !== report.status) transition(record, report.status, 'Cached AI draft prepared; human verification still required');
+        record.lastUpdatedAt = new Date().toISOString();
+        await saveMaster(root, master);
+      }
       results.push(report);
     } catch (error) {results.push({hallId, status: 'failed', reason: error.message});}
   }
@@ -61,7 +86,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       hallIds.splice(0, hallIds.length, ...hallIds.filter(id => !failed.some(r => r.hallId === id)));
       if (failed.length) process.exitCode = 1;
     }
-    const results = await prepareReview(root, hallIds);
+    const results = await prepareReview(root, hallIds, {register: true});
     console.log(JSON.stringify({results}, null, 2));
     if (results.some(r => ['failed', 'blocked'].includes(r.status))) process.exitCode = 1;
   } catch (error) {console.error(error.message); process.exitCode = 1;}

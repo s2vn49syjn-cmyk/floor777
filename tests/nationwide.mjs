@@ -10,6 +10,8 @@ import {generateNationwide, importHumanReview, prepareGoal6Handoff} from '../too
 import {validateRolloutDraft} from '../tools/nationwide/validate.mjs';
 import {queueRows, progressStats} from '../tools/nationwide/queue.mjs';
 import {runPromotionAction} from '../tools/publish-workflow/index.mjs';
+import {prepareReview} from '../tools/prepare-review.mjs';
+import {reviewQueue} from '../tools/nationwide/report.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = file => fs.readFile(file, 'utf8').then(JSON.parse);
@@ -113,6 +115,43 @@ try {
   const changedExisting = await validateRolloutDraft(root, current, reviewed, current.generation.audit, {reviewed: true});
   assert(changedExisting.blockedReasons.includes('existing_number_set_mismatch'));
   assert(changedExisting.existingDiff.missingNumbers.includes(999));
+  // Upgrade a legacy empty-frame cache into a reviewable draft without an API call.
+  const upgradeMaster = await loadMaster(root), upgrade = upgradeMaster.stores['uncertain-hall'];
+  const legacy = await read(upgrade.generation.layoutPath);
+  legacy.floors[0].islands[0].machines = [];
+  await fs.writeFile(upgrade.generation.layoutPath, JSON.stringify(legacy));
+  transition(upgrade, 'blocked', 'Legacy empty-frame count mismatch');
+  await saveMaster(root, upgradeMaster);
+  const [prepared] = await prepareReview(root, ['uncertain-hall'], {register: true});
+  assert.equal(prepared.status, 'needs_review');
+  const upgraded = (await loadMaster(root)).stores['uncertain-hall'];
+  assert.equal(upgraded.layoutProgress, 'needs_review');
+  assert.equal(upgraded.review, null);
+  assert.equal(upgraded.generation.layoutPath, upgrade.generation.layoutPath);
+  assert.deepEqual(await read(upgrade.generation.layoutPath), legacy);
+  assert.equal(upgraded.validation.machineCount, 2);
+  assert((await reviewQueue(root)).find(r => r.hallId === 'uncertain-hall').reviewEditorUrl.includes('&draft='));
+  await assert.rejects(() => prepareGoal6Handoff(root, {hallId: 'uncertain-hall'}), /Human verification/);
+  const preparedLayout = await read(prepared.layoutPath);
+  assert(preparedLayout.floors[0].islands[0].machines.every(m => m.number === null));
+  assert.equal(preparedLayout.review.humanModified, false);
+  const immutable = await fs.readFile(prepared.layoutPath, 'utf8');
+  await fs.writeFile(prepared.layoutPath, '{}');
+  assert.match((await prepareReview(root, ['uncertain-hall'], {register: true}))[0].reason, /modified/);
+  await fs.writeFile(prepared.layoutPath, immutable);
+  const changedMaster = await loadMaster(root);
+  changedMaster.stores['uncertain-hall'].sources[0].category = 'pachinko';
+  await saveMaster(root, changedMaster);
+  assert.match((await prepareReview(root, ['uncertain-hall'], {register: true}))[0].reason, /evidence has changed/);
+  changedMaster.stores['uncertain-hall'] = upgraded;
+  await saveMaster(root, changedMaster);
+  preparedLayout.review = {originalSourceType: 'ai', humanModified: true, modifiedAt: new Date().toISOString()};
+  preparedLayout.verification.status = 'human_corrected';
+  const partialPath = path.join(root, 'partial-review.json');
+  await fs.writeFile(partialPath, JSON.stringify(preparedLayout));
+  assert.equal((await importHumanReview(root, {hallId: 'uncertain-hall', reviewedPath: partialPath,
+    reviewedBy: 'test-human', reviewedAt: new Date().toISOString(), reviewNotes: 'Still unresolved', unresolvedCount: 2})).status, 'needs_review');
+  assert.match((await prepareReview(root, ['uncertain-hall'], {register: true}))[0].reason, /Human review already exists/);
   console.log('PASS: 19-store seed, duplicate/transition guard, local source policy, batch isolation, resume/cache/force, warning/multi-floor gates, human review, Goal 6 dry-run handoff');
 } finally {await fs.rm(root, {recursive: true, force: true});}
 for (let i = 0; i < tracked.length; i++) assert.deepEqual(await fs.readFile(path.join(repo, tracked[i])), originals[i]);
