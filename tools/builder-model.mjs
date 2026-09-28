@@ -22,7 +22,26 @@ export function findIsland(layout, islandId) {
 
 export function islandBounds(island) {
   const positions = island.machines.map(machine => machine.position);
-  if (!positions.length) return {x: island.geometry?.x ?? 0, y: island.geometry?.y ?? 0, width: 0, height: 0};
+  const geometry = island.geometry ?? {};
+  if (!positions.length) {
+    const points = Array.isArray(geometry.points) ? geometry.points : [];
+    if (points.length) {
+      const x = Math.min(...points.map(p => p[0])), y = Math.min(...points.map(p => p[1]));
+      return {x, y, width: Math.max(...points.map(p => p[0] + p[2])) - x,
+        height: Math.max(...points.map(p => p[1] + p[3])) - y};
+    }
+    if (finite(geometry.width) && finite(geometry.height)) {
+      return {x: geometry.x ?? 0, y: geometry.y ?? 0, width: geometry.width, height: geometry.height};
+    }
+    if (finite(geometry.radius)) {
+      const size = finite(geometry.size) ? geometry.size : 0;
+      return {x: (geometry.x ?? 0) - geometry.radius - size / 2,
+        y: (geometry.y ?? 0) - geometry.radius - size / 2,
+        width: geometry.radius * 2 + size, height: geometry.radius * 2 + size};
+    }
+    const size = finite(geometry.size) ? geometry.size : 20;
+    return {x: (geometry.x ?? 0) - size / 2, y: (geometry.y ?? 0) - size / 2, width: size, height: size};
+  }
   const x = Math.min(...positions.map(p => p[0])), y = Math.min(...positions.map(p => p[1]));
   return {x, y, width: Math.max(...positions.map(p => p[0] + p[2])) - x,
     height: Math.max(...positions.map(p => p[1] + p[3])) - y};
