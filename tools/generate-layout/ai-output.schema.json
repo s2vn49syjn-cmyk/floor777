@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FLOOR777 vision observation v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "storeId", "floors", "modelConfidence"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "storeId": {"$ref": "#/$defs/id"},
+    "modelConfidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "floors": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"$ref": "#/$defs/floor"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9:-]*$"},
+    "score": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "position": {"type": "array", "minItems": 4, "maxItems": 4,
+      "prefixItems": [{"type": "number"}, {"type": "number"},
+        {"type": "number", "exclusiveMinimum": 0}, {"type": "number", "exclusiveMinimum": 0}]},
+    "geometry": {"type": ["object", "null"], "additionalProperties": false,
+      "required": ["x", "y"], "properties": {
+        "x": {"type": "number"}, "y": {"type": "number"},
+        "width": {"type": "number", "exclusiveMinimum": 0}, "height": {"type": "number", "exclusiveMinimum": 0},
+        "rotation": {"type": "number"}, "size": {"type": "number", "exclusiveMinimum": 0},
+        "pitch": {"type": "number", "exclusiveMinimum": 0}, "radius": {"type": "number", "exclusiveMinimum": 0},
+        "sweep": {"type": "number"}, "side": {"type": ["string", "null"]},
+        "points": {"type": "array", "items": {"$ref": "#/$defs/position"}}
+      }
+    },
+    "slot": {"type": "object", "additionalProperties": false,
+      "required": ["id", "position", "visibleNumber", "modelConfidence"], "properties": {
+        "id": {"$ref": "#/$defs/id"}, "position": {"$ref": "#/$defs/position"},
+        "visibleNumber": {"type": ["integer", "null"], "minimum": 1},
+        "modelConfidence": {"$ref": "#/$defs/score"}
+      }
+    },
+    "island": {"type": "object", "additionalProperties": false,
+      "required": ["id", "shape", "geometry", "estimatedMachineCount", "machineSlots", "modelConfidence", "sourceIds", "uncertainty"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "shape": {"enum": ["unknown", "line", "arc", "circle", "custom"]},
+        "geometry": {"$ref": "#/$defs/geometry"},
+        "estimatedMachineCount": {"type": "integer", "minimum": 0, "maximum": 5000},
+        "machineSlots": {"type": "array", "maxItems": 5000, "items": {"$ref": "#/$defs/slot"}},
+        "modelConfidence": {"$ref": "#/$defs/score"},
+        "sourceIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "uncertainty": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "floor": {"type": "object", "additionalProperties": false,
+      "required": ["id", "width", "height", "category", "rentalType", "islands", "modelConfidence"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "width": {"type": "number", "exclusiveMinimum": 0},
+        "height": {"type": "number", "exclusiveMinimum": 0},
+        "category": {"enum": ["slot", "pachinko"]}, "rentalType": {"type": "string"},
+        "islands": {"type": "array", "maxItems": 5000, "items": {"$ref": "#/$defs/island"}},
+        "modelConfidence": {"$ref": "#/$defs/score"}
+      }
+    }
+  }
+}
