@@ -20,24 +20,36 @@ const summary = report => ({valid: report.valid, machineCount: report.machineCou
 export async function generateStore(manifest, {baseDir = process.cwd(), draftRoot = defaultDraftRoot,
   provider = mockProvider, generatorVersion = GENERATOR_VERSION, force = false} = {}) {
   const bundle = await buildEvidenceBundle(manifest, {baseDir});
+  if (provider.requiresReviewedSources && bundle.sources.some(source => source.usageReviewed !== true)) {
+    throw Error('Explicit source usage review is required before vision generation');
+  }
   const cacheKey = hash(stable({version: generatorVersion, provider: provider.id, model: provider.model,
     storeId: bundle.storeId, storeName: bundle.storeName,
     sources: bundle.sources.map(source => ({hash: source.contentHash, floor: source.floor, category: source.category,
       rentalType: source.rentalType}))}));
   const cached = await loadCached(draftRoot, bundle.storeId, cacheKey);
-  if (cached && !force) return cached;
+  if (cached && cached.status !== 'failed' && !force) return cached;
   const audit = {generatorVersion, provider: provider.id, model: provider.model, generatedAt: new Date().toISOString(),
     sourceHashes: bundle.sources.map(source => ({sourceId: source.sourceId, contentHash: source.contentHash})),
     validationSummary: null, reasons: []};
-  const finish = (status, layout = null) => writeDraft(draftRoot, bundle.storeId, cacheKey, {status, layout, audit});
+  audit.startedAt = audit.generatedAt;
+  let providerWasCalled = false;
+  const finish = (status, layout = null) => {
+    audit.completedAt = new Date().toISOString();
+    audit.providerRun = providerWasCalled ? provider.getLastAudit?.() ?? null : null;
+    audit.responseValidation = audit.providerRun?.responseValidation ??
+      (status === 'generated' || status === 'needs_review' ? 'passed' : 'not_run');
+    return writeDraft(draftRoot, bundle.storeId, cacheKey, {status, layout, audit});
+  };
   if (!bundle.sources.some(source => ['png', 'jpeg', 'pdf'].includes(source.format))) {
     audit.reasons.push('元フロアマップ画像/PDFがありません');
     return finish('insufficient_evidence');
   }
   let observation;
-  try {observation = await generateObservation(bundle, provider);}
+  try {providerWasCalled = true; observation = await generateObservation(bundle, provider);}
   catch (error) {
     audit.reasons.push(error.message);
+    if (provider.id === 'openai') return finish(error.code === 'insufficient_evidence' ? 'insufficient_evidence' : 'failed');
     const invalidObservation = /AI output (schema|storeId|source reference)/.test(error.message);
     return finish(invalidObservation ? 'blocked' : 'insufficient_evidence');
   }
@@ -45,7 +57,15 @@ export async function generateStore(manifest, {baseDir = process.cwd(), draftRoo
   audit.observationSources = observation.floors.flatMap(floor => floor.islands.map(island =>
     ({floorId: floor.id, islandId: island.id, sourceIds: island.sourceIds})));
   audit.reasons.push(...reconciliation.blockers, ...reconciliation.issues);
-  if (reconciliation.blockers.length) return finish('blocked');
+  if (reconciliation.blockers.length) {
+    if (provider.id === 'openai' && observation.floors.length > 1) {
+      const retained = toLayoutV3(bundle, observation, reconciliation, provider, generatorVersion, audit.generatedAt);
+      retained.verification.status = 'needs_review';
+      retained.verification.notes.push(...reconciliation.blockers, 'unsupported_multi_floor');
+      return finish('blocked', retained);
+    }
+    return finish('blocked');
+  }
   const layout = toLayoutV3(bundle, observation, reconciliation, provider, generatorVersion, audit.generatedAt);
   const references = [...new Set([...reconciliation.floors.values()].flatMap(floor => floor.referenceNumbers))];
   const report = validateLayout(layout, {referenceNumbers: references.length ? references : null});

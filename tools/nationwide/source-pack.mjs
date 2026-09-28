@@ -22,7 +22,7 @@ export async function createSourceTemplate(root, hallId, {dryRun = false} = {}) 
     sources: [{sourceId: 'floor-map', sourceType: null, sourceUrl: null,
       observedAt: null, importedAt: null, usageReviewed: false, usageReviewedAt: null,
       usageNote: '', sourceOwner: null, floor: 'slot-floor', category: 'slot', rentalType: null,
-      localFiles: [{path: 'floor-map.png', checksum: null}]}]};
+      pages: null, localFiles: [{path: 'floor-map.png', checksum: null}]}]};
   if (!dryRun) {
     await fs.mkdir(directory, {recursive: true});
     await fs.writeFile(manifestFile, `${JSON.stringify(manifest, null, 2)}\n`, {flag: 'wx'});
@@ -98,6 +98,9 @@ export async function inspectSourcePack(root, hallId, {allowUnreviewed = false, 
     let file = null;
     try {file = await inspectFile(directory, source.localFiles[0], sid, issues, {requireChecksum});}
     catch (error) {issues.push(`${sid}: local file invalid: ${error.message}`);}
+    if (source.pages !== undefined && source.pages !== null &&
+      (!Array.isArray(source.pages) || !source.pages.length || source.pages.some(page => !Number.isSafeInteger(page) || page < 1) ||
+        new Set(source.pages).size !== source.pages.length || file?.format !== 'pdf')) issues.push(`${sid}: invalid PDF pages`);
     if (file) sourceFiles.push({source, ...file});
   }
   if (!sourceFiles.some(item => ['png', 'jpeg', 'pdf'].includes(item.format))) issues.push('floor map evidence missing');

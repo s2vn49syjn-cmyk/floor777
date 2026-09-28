@@ -21,7 +21,8 @@ export async function importSourcePack(root, hallId, {dryRun = true} = {}) {
         current.observedAt !== item.source.observedAt || current.importedAt !== item.source.importedAt ||
         current.sourceType !== item.source.sourceType || current.sourceUrl !== (item.source.sourceUrl ?? null) ||
         current.usageNote !== item.source.usageNote || current.usageReviewedAt !== item.source.usageReviewedAt ||
-        current.sourceOwner !== item.source.sourceOwner) {
+        current.sourceOwner !== item.source.sourceOwner ||
+        JSON.stringify(current.pages ?? null) !== JSON.stringify(item.source.pages ?? null)) {
         return {hallId, status: 'blocked', reasons: [`${item.source.sourceId}: registered source conflicts with Source Pack; use a new sourceId for a new version`]};
       }
     } else pending.push(item);
@@ -59,8 +60,18 @@ export async function processSourcePacks(root, {hallIds = null, prefecture = nul
     try {
       const imported = await importSourcePack(root, record.hallId, {dryRun});
       if (imported.status !== 'source_ready') {results.push(imported); continue;}
-      if (dryRun) {results.push({hallId: record.hallId, status: 'ready', sourceImport: imported,
-        reason: 'would_import_source_pack_and_generate'}); continue;}
+      if (dryRun) {
+        let preflight = null;
+        if (provider?.preflight) {
+          const pack = await inspectSourcePack(root, record.hallId);
+          preflight = await provider.preflight({storeId: record.hallId, sources: pack.sources.map(item => ({
+            sourceId: item.source.sourceId, floor: item.source.floor, format: item.format,
+            localArtifactPath: item.absolute, usageReviewed: item.source.usageReviewed,
+            pages: item.source.pages ?? null}))}, {allowedDirectory: pack.directory});
+        }
+        results.push({hallId: record.hallId, status: 'ready', sourceImport: imported,
+          preflight, reason: 'would_import_source_pack_and_generate'}); continue;
+      }
       const generated = await generateNationwide(root, {storeIds: [record.hallId], dryRun, force,
         ...(provider ? {provider} : {})});
       results.push({hallId: record.hallId, status: generated.results[0].status,

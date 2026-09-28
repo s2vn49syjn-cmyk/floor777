@@ -33,13 +33,18 @@ export async function inspectSource(root, record, source, {baseDir = process.cwd
   const from = path.resolve(baseDir, source.localFile);
   const bytes = await fs.readFile(from);
   const normalized = normalizeArtifact(from, bytes);
+  if (source.pages !== undefined && source.pages !== null &&
+    (normalized.format !== 'pdf' || !Array.isArray(source.pages) || !source.pages.length ||
+      source.pages.some(page => !Number.isSafeInteger(page) || page < 1) || new Set(source.pages).size !== source.pages.length)) {
+    throw Error('PDF pages must be a unique list of positive page numbers');
+  }
   const ext = path.extname(from).toLowerCase();
   const relative = path.join('work', 'nationwide', 'evidence', record.hallId, `${source.sourceId}${ext}`);
   return {from, bytes, record: {sourceId: source.sourceId, sourceType: source.sourceType, sourceUrl: source.sourceUrl ?? null,
     observedAt: source.observedAt, importedAt: source.importedAt, floor: source.floor,
     category: source.category, rentalType: source.rentalType, usageReviewed: source.usageReviewed,
     usageNote: source.usageNote, localFile: relative.replaceAll('\\', '/'), checksum: digest(bytes),
-    format: normalized.format, structuredFacts: source.structuredFacts ?? null}};
+    format: normalized.format, pages: source.pages ?? null, structuredFacts: source.structuredFacts ?? null}};
 }
 
 export async function registerSource(root, record, source, options = {}) {
@@ -83,6 +88,7 @@ export async function evidenceManifest(root, record) {
     sources.push({sourceId: source.sourceId, sourceType: source.sourceType, sourceUrl: source.sourceUrl,
       observedAt: source.observedAt, retrievedAt: source.importedAt, floor: source.floor,
       category: source.category, rentalType: source.rentalType, localArtifactPath: absolute,
+      usageReviewed: source.usageReviewed, pages: source.pages ?? null,
       ...(source.structuredFacts ? {structuredFacts: source.structuredFacts} : {})});
   }
   return {storeId: record.hallId, storeName: record.name, sources};

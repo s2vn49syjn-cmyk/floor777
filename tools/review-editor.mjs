@@ -200,6 +200,15 @@ function renderInspector() {
   $('storeLabel').textContent = ready ? `${state.session.layout.storeName || state.session.layout.storeId} / ${state.session.layout.storeId}` : '店舗を選択してください';
   $('verificationBadge').textContent = ready ? `状態: ${state.session.layout.verification.status}` : '';
   $('sourceBadge').textContent = ready ? `${state.session.layout.review?.humanModified ? '人間修正済み' : '原案のまま'} / ${state.session.layout.provenance?.sourceType || '出典未登録'}` : '';
+  const layout = state.session?.layout, confidence = layout?.confidence, provenance = layout?.provenance;
+  const percent = value => typeof value === 'number' ? `${Math.round(value * 100)}%` : '未判定';
+  $('confidenceSummary').textContent = layout ? `信頼度: 全体 ${percent(confidence?.overall)} / 配置 ${percent(confidence?.position)} / 台番号 ${percent(confidence?.number)}` : '';
+  $('provenanceSummary').textContent = layout ? `出典: ${provenance?.sourceType || '未登録'} / 観測日 ${provenance?.observedAt || '不明'} / hash ${provenance?.sourceHash?.slice(0, 12) || 'なし'}` : '';
+  const notes = layout?.verification?.notes ?? [];
+  $('uncertaintySummary').replaceChildren(...notes.slice(0, 20).map(note => {
+    const item = document.createElement('p'); item.textContent = `要確認: ${note}`; return item;
+  }));
+  if (notes.length > 20) $('uncertaintySummary').append(`${notes.length - 20}件の追加メモがあります`);
 }
 
 function renderDiagnostics() {

@@ -24,23 +24,31 @@ export async function buildEvidenceBundle(manifest, {baseDir = process.cwd()} = 
       !['slot', 'pachinko'].includes(source.category) || !source.rentalType || typeof source.rentalType !== 'string') {
       throw Error(`Invalid source metadata: ${source.sourceId}`);
     }
+    if (source.pages !== undefined && source.pages !== null &&
+      (!Array.isArray(source.pages) || !source.pages.length ||
+        source.pages.some(page => !Number.isSafeInteger(page) || page < 1) || new Set(source.pages).size !== source.pages.length)) {
+      throw Error(`Invalid PDF pages: ${source.sourceId}`);
+    }
     let localArtifactPath = null, format = null, json = null, bytes = null;
     if (source.localArtifactPath) {
       if (typeof source.localArtifactPath !== 'string') throw Error('localArtifactPath must be text');
       localArtifactPath = path.resolve(baseDir, source.localArtifactPath);
       bytes = await fs.readFile(localArtifactPath);
       ({format, json} = normalizeArtifact(localArtifactPath, bytes));
+      if (source.pages && format !== 'pdf') throw Error(`PDF pages specified for non-PDF source: ${source.sourceId}`);
     }
     const inputFacts = source.structuredFacts ?? json?.structuredFacts ?? (json?.seats ? json : {});
     const structuredFacts = normalizedFacts(inputFacts);
     const visionOutput = json?.visionOutput ?? null;
     const contentHash = hash(stable({artifactHash: bytes ? hash(bytes) : null, structuredFacts, visionOutput,
       sourceId: source.sourceId, sourceType: source.sourceType, sourceUrl: source.sourceUrl ?? null,
-      observedAt: source.observedAt, floor: source.floor, category: source.category, rentalType: source.rentalType}));
+      observedAt: source.observedAt, floor: source.floor, category: source.category, rentalType: source.rentalType,
+      pages: source.pages ?? null, usageReviewed: source.usageReviewed ?? null}));
     sources.push({storeId: manifest.storeId, sourceId: source.sourceId, sourceType: source.sourceType,
       sourceUrl: source.sourceUrl ?? null, observedAt: source.observedAt, retrievedAt: source.retrievedAt,
       floor: source.floor, category: source.category, rentalType: source.rentalType, contentHash,
-      localArtifactPath, format, structuredFacts, visionOutput});
+      localArtifactPath, format, structuredFacts, visionOutput,
+      pages: source.pages ?? null, usageReviewed: source.usageReviewed ?? null});
   }
   return {storeId: manifest.storeId, storeName: manifest.storeName ?? null, sources};
 }

@@ -11,6 +11,9 @@
     "test:publish-workflow": "node tests/publish-workflow.mjs",
     "test:nationwide": "node tests/nationwide.mjs",
     "test:source-pack": "node tests/source-pack.mjs",
+    "test:vision-provider": "node tests/vision-provider.mjs",
+    "test:vision-provider-browser": "node tests/vision-provider-browser.cjs",
+    "test:vision-smoke": "node tests/vision-smoke.mjs",
     "nationwide:source-template": "node tools/nationwide.mjs source-template",
     "nationwide:source-check": "node tools/nationwide.mjs source-check",
     "nationwide:source-seal": "node tools/nationwide.mjs source-seal",
@@ -23,5 +26,8 @@
   },
   "devDependencies": {
     "playwright": "1.62.1"
+  },
+  "dependencies": {
+    "pdf-lib": "1.17.1"
   }
 }
