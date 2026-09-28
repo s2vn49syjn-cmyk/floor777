@@ -1,0 +1,2584 @@
+{
+  "schemaVersion": 3,
+  "storeId": "hyper-arrow-senboku",
+  "storeName": "HYPER ARROW泉北店",
+  "floors": [
+    {
+      "id": "legacy-slot",
+      "label": "1000円/46枚スロット（みんレポ対象）",
+      "width": 1100,
+      "height": 1000,
+      "coordinateBasis": "unknown",
+      "islands": [
+        {
+          "id": "dcbbb0d7-45a2-47ba-a567-ced79d531bce",
+          "label": "縦島 1（推定）",
+          "shape": "custom",
+          "geometry": {
+            "x": 95,
+            "y": 125,
+            "points": [
+              [
+                95,
+                125,
+                22,
+                22
+              ],
+              [
+                95,
+                180,
+                22,
+                22
+              ],
+              [
+                95,
+                235,
+                22,
+                22
+              ],
+              [
+                95,
+                290,
+                22,
+                22
+              ],
+              [
+                95,
+                345,
+                22,
+                22
+              ],
+              [
+                95,
+                400,
+                22,
+                22
+              ],
+              [
+                95,
+                455,
+                22,
+                22
+              ],
+              [
+                95,
+                510,
+                22,
+                22
+              ],
+              [
+                95,
+                565,
+                22,
+                22
+              ],
+              [
+                95,
+                620,
+                22,
+                22
+              ],
+              [
+                95,
+                675,
+                22,
+                22
+              ],
+              [
+                95,
+                730,
+                22,
+                22
+              ]
+            ],
+            "rotation": 0,
+            "size": 22,
+            "pitch": 55,
+            "radius": 150,
+            "sweep": 120
+          },
+          "machineCount": 12,
+          "machines": [
+            {
+              "id": "seat:373",
+              "number": 373,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:374",
+              "number": 374,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                180,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:375",
+              "number": 375,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                235,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:376",
+              "number": 376,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                290,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:377",
+              "number": 377,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                345,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:378",
+              "number": 378,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                400,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:379",
+              "number": 379,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                455,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:380",
+              "number": 380,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                510,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:381",
+              "number": 381,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                565,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:382",
+              "number": 382,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                620,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:383",
+              "number": 383,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                675,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:384",
+              "number": 384,
+              "machineName": "機種名未設定",
+              "position": [
+                95,
+                730,
+                22,
+                22
+              ],
+              "confidence": null
+            }
+          ],
+          "confidence": null
+        },
+        {
+          "id": "0979dfb1-e6ef-44d3-8d43-4bd139f07458",
+          "label": "縦島 2（推定）",
+          "shape": "custom",
+          "geometry": {
+            "x": 265,
+            "y": 125,
+            "points": [
+              [
+                265,
+                125,
+                22,
+                22
+              ],
+              [
+                265,
+                172,
+                22,
+                22
+              ],
+              [
+                265,
+                219,
+                22,
+                22
+              ],
+              [
+                265,
+                266,
+                22,
+                22
+              ],
+              [
+                265,
+                313,
+                22,
+                22
+              ],
+              [
+                265,
+                360,
+                22,
+                22
+              ],
+              [
+                265,
+                407,
+                22,
+                22
+              ],
+              [
+                265,
+                454,
+                22,
+                22
+              ],
+              [
+                265,
+                501,
+                22,
+                22
+              ],
+              [
+                265,
+                548,
+                22,
+                22
+              ],
+              [
+                265,
+                595,
+                22,
+                22
+              ],
+              [
+                265,
+                642,
+                22,
+                22
+              ],
+              [
+                265,
+                689,
+                22,
+                22
+              ],
+              [
+                265,
+                736,
+                22,
+                22
+              ],
+              [
+                311,
+                736,
+                22,
+                22
+              ],
+              [
+                311,
+                689,
+                22,
+                22
+              ],
+              [
+                311,
+                642,
+                22,
+                22
+              ],
+              [
+                311,
+                595,
+                22,
+                22
+              ],
+              [
+                311,
+                548,
+                22,
+                22
+              ],
+              [
+                311,
+                501,
+                22,
+                22
+              ],
+              [
+                311,
+                454,
+                22,
+                22
+              ],
+              [
+                311,
+                407,
+                22,
+                22
+              ],
+              [
+                311,
+                360,
+                22,
+                22
+              ],
+              [
+                311,
+                313,
+                22,
+                22
+              ],
+              [
+                311,
+                266,
+                22,
+                22
+              ],
+              [
+                311,
+                219,
+                22,
+                22
+              ],
+              [
+                311,
+                172,
+                22,
+                22
+              ],
+              [
+                311,
+                125,
+                22,
+                22
+              ]
+            ],
+            "rotation": 0,
+            "size": 22,
+            "pitch": 47,
+            "radius": 150,
+            "sweep": 120
+          },
+          "machineCount": 28,
+          "machines": [
+            {
+              "id": "seat:385",
+              "number": 385,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:386",
+              "number": 386,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                172,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:387",
+              "number": 387,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                219,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:388",
+              "number": 388,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                266,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:389",
+              "number": 389,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                313,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:390",
+              "number": 390,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                360,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:391",
+              "number": 391,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                407,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:392",
+              "number": 392,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                454,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:393",
+              "number": 393,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                501,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:394",
+              "number": 394,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                548,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:395",
+              "number": 395,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                595,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:396",
+              "number": 396,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                642,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:397",
+              "number": 397,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                689,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:398",
+              "number": 398,
+              "machineName": "機種名未設定",
+              "position": [
+                265,
+                736,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:399",
+              "number": 399,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                736,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:400",
+              "number": 400,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                689,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:401",
+              "number": 401,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                642,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:402",
+              "number": 402,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                595,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:403",
+              "number": 403,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                548,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:404",
+              "number": 404,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                501,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:405",
+              "number": 405,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                454,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:406",
+              "number": 406,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                407,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:407",
+              "number": 407,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                360,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:408",
+              "number": 408,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                313,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:409",
+              "number": 409,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                266,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:410",
+              "number": 410,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                219,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:411",
+              "number": 411,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                172,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:412",
+              "number": 412,
+              "machineName": "機種名未設定",
+              "position": [
+                311,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            }
+          ],
+          "confidence": null
+        },
+        {
+          "id": "3c86e7c5-4f53-4d50-b7ff-c63ff7b86a8b",
+          "label": "縦島 3（推定）",
+          "shape": "custom",
+          "geometry": {
+            "x": 435,
+            "y": 125,
+            "points": [
+              [
+                435,
+                125,
+                22,
+                22
+              ],
+              [
+                435,
+                172,
+                22,
+                22
+              ],
+              [
+                435,
+                219,
+                22,
+                22
+              ],
+              [
+                435,
+                266,
+                22,
+                22
+              ],
+              [
+                435,
+                313,
+                22,
+                22
+              ],
+              [
+                435,
+                360,
+                22,
+                22
+              ],
+              [
+                435,
+                407,
+                22,
+                22
+              ],
+              [
+                435,
+                454,
+                22,
+                22
+              ],
+              [
+                435,
+                501,
+                22,
+                22
+              ],
+              [
+                435,
+                548,
+                22,
+                22
+              ],
+              [
+                435,
+                595,
+                22,
+                22
+              ],
+              [
+                435,
+                642,
+                22,
+                22
+              ],
+              [
+                435,
+                689,
+                22,
+                22
+              ],
+              [
+                435,
+                736,
+                22,
+                22
+              ],
+              [
+                481,
+                736,
+                22,
+                22
+              ],
+              [
+                481,
+                689,
+                22,
+                22
+              ],
+              [
+                481,
+                642,
+                22,
+                22
+              ],
+              [
+                481,
+                595,
+                22,
+                22
+              ],
+              [
+                481,
+                548,
+                22,
+                22
+              ],
+              [
+                481,
+                501,
+                22,
+                22
+              ],
+              [
+                481,
+                454,
+                22,
+                22
+              ],
+              [
+                481,
+                407,
+                22,
+                22
+              ],
+              [
+                481,
+                360,
+                22,
+                22
+              ],
+              [
+                481,
+                313,
+                22,
+                22
+              ],
+              [
+                481,
+                266,
+                22,
+                22
+              ],
+              [
+                481,
+                219,
+                22,
+                22
+              ],
+              [
+                481,
+                172,
+                22,
+                22
+              ],
+              [
+                481,
+                125,
+                22,
+                22
+              ]
+            ],
+            "rotation": 0,
+            "size": 22,
+            "pitch": 47,
+            "radius": 150,
+            "sweep": 120
+          },
+          "machineCount": 28,
+          "machines": [
+            {
+              "id": "seat:413",
+              "number": 413,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:414",
+              "number": 414,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                172,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:415",
+              "number": 415,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                219,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:416",
+              "number": 416,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                266,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:417",
+              "number": 417,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                313,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:418",
+              "number": 418,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                360,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:419",
+              "number": 419,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                407,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:420",
+              "number": 420,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                454,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:421",
+              "number": 421,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                501,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:422",
+              "number": 422,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                548,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:423",
+              "number": 423,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                595,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:424",
+              "number": 424,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                642,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:425",
+              "number": 425,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                689,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:426",
+              "number": 426,
+              "machineName": "機種名未設定",
+              "position": [
+                435,
+                736,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:427",
+              "number": 427,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                736,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:428",
+              "number": 428,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                689,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:429",
+              "number": 429,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                642,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:430",
+              "number": 430,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                595,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:431",
+              "number": 431,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                548,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:432",
+              "number": 432,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                501,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:433",
+              "number": 433,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                454,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:434",
+              "number": 434,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                407,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:435",
+              "number": 435,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                360,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:436",
+              "number": 436,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                313,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:437",
+              "number": 437,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                266,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:438",
+              "number": 438,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                219,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:439",
+              "number": 439,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                172,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:440",
+              "number": 440,
+              "machineName": "機種名未設定",
+              "position": [
+                481,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            }
+          ],
+          "confidence": null
+        },
+        {
+          "id": "b4bc6f24-5234-4e54-adeb-24fe1bff99db",
+          "label": "縦島 4（推定）",
+          "shape": "custom",
+          "geometry": {
+            "x": 605,
+            "y": 125,
+            "points": [
+              [
+                605,
+                125,
+                22,
+                22
+              ],
+              [
+                605,
+                172,
+                22,
+                22
+              ],
+              [
+                605,
+                219,
+                22,
+                22
+              ],
+              [
+                605,
+                266,
+                22,
+                22
+              ],
+              [
+                605,
+                313,
+                22,
+                22
+              ],
+              [
+                605,
+                360,
+                22,
+                22
+              ],
+              [
+                605,
+                407,
+                22,
+                22
+              ],
+              [
+                605,
+                454,
+                22,
+                22
+              ],
+              [
+                605,
+                501,
+                22,
+                22
+              ],
+              [
+                605,
+                548,
+                22,
+                22
+              ],
+              [
+                605,
+                595,
+                22,
+                22
+              ],
+              [
+                605,
+                642,
+                22,
+                22
+              ],
+              [
+                605,
+                689,
+                22,
+                22
+              ],
+              [
+                605,
+                736,
+                22,
+                22
+              ],
+              [
+                651,
+                736,
+                22,
+                22
+              ],
+              [
+                651,
+                689,
+                22,
+                22
+              ],
+              [
+                651,
+                642,
+                22,
+                22
+              ],
+              [
+                651,
+                595,
+                22,
+                22
+              ],
+              [
+                651,
+                548,
+                22,
+                22
+              ],
+              [
+                651,
+                501,
+                22,
+                22
+              ],
+              [
+                651,
+                454,
+                22,
+                22
+              ],
+              [
+                651,
+                407,
+                22,
+                22
+              ],
+              [
+                651,
+                360,
+                22,
+                22
+              ],
+              [
+                651,
+                313,
+                22,
+                22
+              ],
+              [
+                651,
+                266,
+                22,
+                22
+              ],
+              [
+                651,
+                219,
+                22,
+                22
+              ],
+              [
+                651,
+                172,
+                22,
+                22
+              ],
+              [
+                651,
+                125,
+                22,
+                22
+              ]
+            ],
+            "rotation": 0,
+            "size": 22,
+            "pitch": 47,
+            "radius": 150,
+            "sweep": 120
+          },
+          "machineCount": 28,
+          "machines": [
+            {
+              "id": "seat:441",
+              "number": 441,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:442",
+              "number": 442,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                172,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:443",
+              "number": 443,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                219,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:444",
+              "number": 444,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                266,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:445",
+              "number": 445,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                313,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:446",
+              "number": 446,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                360,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:447",
+              "number": 447,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                407,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:448",
+              "number": 448,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                454,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:449",
+              "number": 449,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                501,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:450",
+              "number": 450,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                548,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:451",
+              "number": 451,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                595,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:452",
+              "number": 452,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                642,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:453",
+              "number": 453,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                689,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:454",
+              "number": 454,
+              "machineName": "機種名未設定",
+              "position": [
+                605,
+                736,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:455",
+              "number": 455,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                736,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:456",
+              "number": 456,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                689,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:457",
+              "number": 457,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                642,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:458",
+              "number": 458,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                595,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:459",
+              "number": 459,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                548,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:460",
+              "number": 460,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                501,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:461",
+              "number": 461,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                454,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:462",
+              "number": 462,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                407,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:463",
+              "number": 463,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                360,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:464",
+              "number": 464,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                313,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:465",
+              "number": 465,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                266,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:466",
+              "number": 466,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                219,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:467",
+              "number": 467,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                172,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:468",
+              "number": 468,
+              "machineName": "機種名未設定",
+              "position": [
+                651,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            }
+          ],
+          "confidence": null
+        },
+        {
+          "id": "f7bb6630-6f38-40a4-86ad-48c061c88a4e",
+          "label": "縦島 5（推定）",
+          "shape": "custom",
+          "geometry": {
+            "x": 775,
+            "y": 125,
+            "points": [
+              [
+                775,
+                125,
+                22,
+                22
+              ],
+              [
+                775,
+                172,
+                22,
+                22
+              ],
+              [
+                775,
+                219,
+                22,
+                22
+              ],
+              [
+                775,
+                266,
+                22,
+                22
+              ],
+              [
+                775,
+                313,
+                22,
+                22
+              ],
+              [
+                775,
+                360,
+                22,
+                22
+              ],
+              [
+                775,
+                407,
+                22,
+                22
+              ],
+              [
+                775,
+                454,
+                22,
+                22
+              ],
+              [
+                775,
+                501,
+                22,
+                22
+              ],
+              [
+                775,
+                548,
+                22,
+                22
+              ],
+              [
+                775,
+                595,
+                22,
+                22
+              ],
+              [
+                775,
+                642,
+                22,
+                22
+              ],
+              [
+                775,
+                689,
+                22,
+                22
+              ],
+              [
+                775,
+                736,
+                22,
+                22
+              ],
+              [
+                821,
+                736,
+                22,
+                22
+              ],
+              [
+                821,
+                689,
+                22,
+                22
+              ],
+              [
+                821,
+                642,
+                22,
+                22
+              ],
+              [
+                821,
+                595,
+                22,
+                22
+              ],
+              [
+                821,
+                548,
+                22,
+                22
+              ],
+              [
+                821,
+                501,
+                22,
+                22
+              ],
+              [
+                821,
+                454,
+                22,
+                22
+              ],
+              [
+                821,
+                407,
+                22,
+                22
+              ],
+              [
+                821,
+                360,
+                22,
+                22
+              ],
+              [
+                821,
+                313,
+                22,
+                22
+              ],
+              [
+                821,
+                266,
+                22,
+                22
+              ],
+              [
+                821,
+                219,
+                22,
+                22
+              ],
+              [
+                821,
+                172,
+                22,
+                22
+              ],
+              [
+                821,
+                125,
+                22,
+                22
+              ]
+            ],
+            "rotation": 0,
+            "size": 22,
+            "pitch": 47,
+            "radius": 150,
+            "sweep": 120
+          },
+          "machineCount": 28,
+          "machines": [
+            {
+              "id": "seat:469",
+              "number": 469,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:470",
+              "number": 470,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                172,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:471",
+              "number": 471,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                219,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:472",
+              "number": 472,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                266,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:473",
+              "number": 473,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                313,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:474",
+              "number": 474,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                360,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:475",
+              "number": 475,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                407,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:476",
+              "number": 476,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                454,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:477",
+              "number": 477,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                501,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:478",
+              "number": 478,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                548,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:479",
+              "number": 479,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                595,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:480",
+              "number": 480,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                642,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:481",
+              "number": 481,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                689,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:482",
+              "number": 482,
+              "machineName": "機種名未設定",
+              "position": [
+                775,
+                736,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:483",
+              "number": 483,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                736,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:484",
+              "number": 484,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                689,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:485",
+              "number": 485,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                642,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:486",
+              "number": 486,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                595,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:487",
+              "number": 487,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                548,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:488",
+              "number": 488,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                501,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:489",
+              "number": 489,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                454,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:490",
+              "number": 490,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                407,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:491",
+              "number": 491,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                360,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:492",
+              "number": 492,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                313,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:493",
+              "number": 493,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                266,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:494",
+              "number": 494,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                219,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:495",
+              "number": 495,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                172,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:496",
+              "number": 496,
+              "machineName": "機種名未設定",
+              "position": [
+                821,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            }
+          ],
+          "confidence": null
+        },
+        {
+          "id": "c28f17c8-997d-42e1-a16e-6d0b082a303a",
+          "label": "縦島 6（推定）",
+          "shape": "custom",
+          "geometry": {
+            "x": 945,
+            "y": 125,
+            "points": [
+              [
+                945,
+                125,
+                22,
+                22
+              ],
+              [
+                945,
+                186,
+                22,
+                22
+              ],
+              [
+                945,
+                247,
+                22,
+                22
+              ],
+              [
+                945,
+                308,
+                22,
+                22
+              ],
+              [
+                945,
+                369,
+                22,
+                22
+              ],
+              [
+                945,
+                430,
+                22,
+                22
+              ],
+              [
+                945,
+                491,
+                22,
+                22
+              ],
+              [
+                945,
+                552,
+                22,
+                22
+              ],
+              [
+                945,
+                613,
+                22,
+                22
+              ],
+              [
+                945,
+                674,
+                22,
+                22
+              ],
+              [
+                945,
+                735,
+                22,
+                22
+              ]
+            ],
+            "rotation": 0,
+            "size": 22,
+            "pitch": 61,
+            "radius": 150,
+            "sweep": 120
+          },
+          "machineCount": 11,
+          "machines": [
+            {
+              "id": "seat:497",
+              "number": 497,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                125,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:498",
+              "number": 498,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                186,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:499",
+              "number": 499,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                247,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:500",
+              "number": 500,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                308,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:501",
+              "number": 501,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                369,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:502",
+              "number": 502,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                430,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:503",
+              "number": 503,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                491,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:504",
+              "number": 504,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                552,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:505",
+              "number": 505,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                613,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:506",
+              "number": 506,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                674,
+                22,
+                22
+              ],
+              "confidence": null
+            },
+            {
+              "id": "seat:507",
+              "number": 507,
+              "machineName": "機種名未設定",
+              "position": [
+                945,
+                735,
+                22,
+                22
+              ],
+              "confidence": null
+            }
+          ],
+          "confidence": null
+        }
+      ],
+      "unassignedMachines": [],
+      "confidence": null
+    }
+  ],
+  "verification": {
+    "status": "needs_review",
+    "notes": [
+      "Imported editable island groups match legacy seat positions; physical island boundaries and numbering order are not verified."
+    ],
+    "lastVerifiedAt": null
+  },
+  "provenance": {
+    "sourceType": "builder-project-v2",
+    "sourceUrl": null,
+    "observedAt": null,
+    "retrievedAt": null,
+    "sourceHash": "ccc576b247f576bbbc0fcb595db2ebd5f3614f60e6d24d4f3ae504a5914e35a2"
+  },
+  "generation": null,
+  "confidence": null
+}
