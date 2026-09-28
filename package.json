@@ -26,7 +26,8 @@
     "review:prepare": "node tools/prepare-review.mjs",
     "test:review-prepare": "node tests/review-prepare.mjs && node tests/review-prepare-browser.mjs",
     "nationwide:auto": "node tools/nationwide.mjs auto",
-    "nationwide:source-plan": "node tools/nationwide.mjs source-plan"
+    "nationwide:source-plan": "node tools/nationwide.mjs source-plan",
+    "nationwide:source-collect": "node tools/nationwide.mjs source-collect"
   },
   "devDependencies": {
     "playwright": "1.62.1"
