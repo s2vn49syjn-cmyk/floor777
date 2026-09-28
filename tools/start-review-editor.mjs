@@ -14,10 +14,11 @@ const server = http.createServer((request, response) => {
   if (!['GET', 'HEAD'].includes(request.method)) {response.writeHead(405).end(); return;}
   try {
     const pathname = decodeURIComponent(new URL(request.url, 'http://127.0.0.1').pathname);
-    if (!/^\/(tools|data|assets)\//.test(pathname) || pathname.split('/').some(segment => segment.startsWith('.'))) {
+    const reviewDraft = /^\/review-drafts\/([a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{16})\.json$/.exec(pathname);
+    if ((!reviewDraft && !/^\/(tools|data|assets)\//.test(pathname)) || pathname.split('/').some(segment => segment.startsWith('.'))) {
       response.writeHead(403).end(); return;
     }
-    let target = path.resolve(root, `.${pathname}`);
+    let target = reviewDraft ? path.join(root, 'work/review-drafts', `${reviewDraft[1]}.json`) : path.resolve(root, `.${pathname}`);
     if (target !== root && !target.startsWith(root + path.sep)) {response.writeHead(403).end(); return;}
     if (fs.statSync(target).isDirectory()) target = path.join(target, 'index.html');
     response.writeHead(200, {'Content-Type': `${types[path.extname(target).toLowerCase()] || 'application/octet-stream'}; charset=utf-8`,

@@ -1,9 +1,9 @@
 name: Island builder checks
 on:
   push:
-    branches: ['codex/island-builder-*', 'feature/ai-layout-generation', 'feature/publish-promotion-workflow', 'feature/nationwide-layout-rollout', 'feature/nationwide-layout-population', 'feature/vision-layout-provider']
+    branches: ['codex/island-builder-*', 'feature/ai-layout-generation', 'feature/publish-promotion-workflow', 'feature/nationwide-layout-rollout', 'feature/nationwide-layout-population', 'feature/vision-layout-provider', 'feature/vision-smoke-pilot']
   pull_request:
-    paths: ['tools/**', 'tests/builder-*', 'tests/ai-layout*', 'tests/publish-workflow.mjs', 'tests/nationwide.mjs', 'tests/source-pack.mjs', 'tests/vision-provider*', '.github/workflows/builder-checks.yml']
+    paths: ['tools/**', 'tests/builder-*', 'tests/review-*', 'tests/ai-layout*', 'tests/publish-workflow.mjs', 'tests/nationwide.mjs', 'tests/source-pack.mjs', 'tests/vision-provider*', '.github/workflows/builder-checks.yml']
 permissions:
   contents: read
 jobs:
@@ -22,6 +22,8 @@ jobs:
       - run: node tests/hall-template.mjs
       - run: node tests/builder-browser.cjs
       - run: node tests/review-model.mjs
+      - run: node tests/review-prepare.mjs
+      - run: node tests/review-prepare-browser.mjs
       - run: node tests/review-browser.cjs
       - run: node tests/ai-layout.mjs
       - run: node tests/ai-layout-browser.cjs

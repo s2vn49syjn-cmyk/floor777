@@ -12,6 +12,9 @@ const sv = (tag, attrs = {}) => {
   return element;
 };
 const validId = id => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id);
+const draftParam = new URL(location.href).searchParams.get('draft');
+const draftFor = id => draftParam && draftParam.startsWith(`${id}-`) && /^[a-z0-9-]+-[a-f0-9]{16}$/.test(draftParam) ? draftParam : null;
+const storageKey = id => draftFor(id) ? `prepared:${draftFor(id)}` : id;
 const message = text => { $('message').textContent = text; };
 const saveState = (stateName, label) => { $('saveState').dataset.state = stateName; $('saveState').textContent = label; };
 const currentFloor = () => state.session?.layout.floors.find(floor => floor.id === state.floorId);
@@ -24,6 +27,11 @@ async function fetchJSON(url) {
   return response.json();
 }
 async function readSource(id) {
+  if (draftFor(id)) {
+    const layout = await fetchJSON(`/review-drafts/${draftFor(id)}.json`);
+    if (layout.schemaVersion !== 3 || layout.storeId !== id) throw Error('Invalid prepared draft');
+    return {layout, referenceNumbers: null};
+  }
   let layout = null, hall = null;
   try { layout = await fetchJSON(`/data/layouts/${id}.json`); } catch {}
   try { hall = await fetchJSON(`/data/${id}.json`); } catch {}
@@ -45,7 +53,7 @@ async function openLayout(id) {
   message('');
   saveState('saving', '読み込み中');
   let record;
-  try { record = await loadDraft(id); }
+  try { record = await loadDraft(storageKey(id)); }
   catch (error) { saveState('failed', '保存領域を開けません'); message(error.message); }
   const source = record ? {layout: record.working, referenceNumbers: record.referenceNumbers} : await readSource(id);
   if (token !== state.openToken) return;
@@ -74,7 +82,7 @@ async function saveNow() {
   clearTimeout(state.saveTimer);
   state.saveTimer = null;
   const revision = state.revision;
-  const record = {id: state.session.layout.storeId, original: copy(state.session.original),
+  const record = {id: storageKey(state.session.layout.storeId), original: copy(state.session.original),
     working: copy(state.session.layout), referenceNumbers: copy(state.session.referenceNumbers),
     savedAt: new Date().toISOString()};
   state.saveQueue = state.saveQueue.catch(() => {}).then(() => saveDraft(record));
@@ -339,7 +347,7 @@ function attachEvents() {
   $('resetDraft').onclick = () => {
     if (!confirm('この端末の作業用下書きを消し、読み込み時の原案に戻しますか？')) return;
     const id = state.session.layout.storeId, original = copy(state.session.original), refs = state.session.referenceNumbers;
-    void deleteDraft(id).then(() => {
+    void deleteDraft(storageKey(id)).then(() => {
       state.session = new ReviewSession(original, {referenceNumbers: refs});
       state.floorId = original.floors[0].id; state.islandId = null; state.selectedMachines.clear();
       state.view = {x: 0, y: 0, w: currentFloor().width, h: currentFloor().height};

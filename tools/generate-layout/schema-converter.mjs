@@ -1,3 +1,5 @@
+import {materializePlaceholders} from './placeholders.mjs';
+
 export function toLayoutV3(bundle, observation, reconciliation, provider, version, now = new Date().toISOString()) {
   // The vision provider observes fractions of the source map. The editor uses
   // fixed logical units, not source-image pixels, so scale only at this edge.
@@ -21,11 +23,11 @@ export function toLayoutV3(bundle, observation, reconciliation, provider, versio
             number: slot.visibleNumber === null ? 0 : referenceNumbers.length ? Number(roster.has(slot.visibleNumber)) : slot.modelConfidence}}))
       }))};
   });
-  return {schemaVersion: 3, storeId: bundle.storeId, storeName: bundle.storeName, floors,
+  return materializePlaceholders({schemaVersion: 3, storeId: bundle.storeId, storeName: bundle.storeName, floors,
     verification: {status: reconciliation.issues.length ? 'needs_review' : 'generated',
       notes: reconciliation.issues, lastVerifiedAt: null},
     generation: {source: 'ai', version, generatedAt: now},
     provenance: {sourceType: primary.sourceType, sourceUrl: primary.sourceUrl,
       observedAt: primary.observedAt, retrievedAt: primary.retrievedAt, sourceHash: primary.contentHash},
-    confidence: null, review: {originalSourceType: 'ai', humanModified: false, modifiedAt: null}};
+    confidence: null, review: {originalSourceType: 'ai', humanModified: false, modifiedAt: null}}).layout;
 }
