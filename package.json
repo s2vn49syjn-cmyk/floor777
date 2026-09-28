@@ -24,7 +24,8 @@
     "nationwide:handoff-candidates": "node tools/nationwide.mjs handoff-candidates",
     "nationwide:dashboard": "node tools/nationwide.mjs dashboard",
     "review:prepare": "node tools/prepare-review.mjs",
-    "test:review-prepare": "node tests/review-prepare.mjs && node tests/review-prepare-browser.mjs"
+    "test:review-prepare": "node tests/review-prepare.mjs && node tests/review-prepare-browser.mjs",
+    "nationwide:auto": "node tools/nationwide.mjs auto"
   },
   "devDependencies": {
     "playwright": "1.62.1"
