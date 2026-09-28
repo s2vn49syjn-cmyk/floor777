@@ -91,6 +91,7 @@
       "required": ["id", "shape", "geometry", "machineCount", "machines", "confidence"],
       "properties": {
         "id": {"$ref": "#/$defs/id"},
+        "label": {"type": ["string", "null"]},
         "shape": {"enum": ["unknown", "line", "arc", "circle", "custom"]},
         "geometry": {"$ref": "#/$defs/geometry"},
         "machineCount": {"type": "integer", "minimum": 0},

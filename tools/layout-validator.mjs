@@ -62,7 +62,7 @@ export function validateLayout(layout, {referenceNumbers = null} = {}) {
     for (const island of floor.islands) {
       const islandId = island?.id ?? null;
       const islandCtx = {floorId, islandId};
-      if (!object(island) || typeof island.id !== 'string' || !ID.test(island.id) || !SHAPES.has(island.shape) ||
+      if (!object(island) || typeof island.id !== 'string' || !ID.test(island.id) || !optionalText(island.label) || !SHAPES.has(island.shape) ||
         !geometryValid(island.geometry) ||
         (island.shape !== 'unknown' && island.geometry === null) ||
         !Number.isInteger(island.machineCount) || island.machineCount < 0 ||
