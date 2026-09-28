@@ -3,6 +3,8 @@ test-results/
 playwright-report/
 hall-output/
 work/layout-drafts/
+work/publish-state/
+work/publish-staging/
 
 .env
 .env.*
