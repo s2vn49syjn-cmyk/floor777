@@ -47,10 +47,11 @@ export async function generateNationwide(root, {storeIds = null, prefecture = nu
         provider, generatorVersion, force});
       let validation = null;
       if (generated.layout) validation = await validateRolloutDraft(root, record, generated.layout, generated.audit);
-      const status = generated.status === 'blocked' || generated.status === 'insufficient_evidence' || validation?.status === 'blocked'
-        ? 'blocked' : generated.status === 'needs_review' || validation?.status === 'needs_review' ? 'needs_review' : 'validated';
+      const status = generated.status === 'failed' ? 'failed' :
+        generated.status === 'blocked' || generated.status === 'insufficient_evidence' || validation?.status === 'blocked'
+          ? 'blocked' : generated.status === 'needs_review' || validation?.status === 'needs_review' ? 'needs_review' : 'validated';
       if (status === 'validated') {note(record, 'generated', 'AI draft generated'); note(record, 'validated', 'Automated checks passed');}
-      else note(record, status, generated.audit.reasons.join('; ') || validation?.blockedReasons.join('; ') || 'Review required');
+      else if (status !== 'failed') note(record, status, generated.audit.reasons.join('; ') || validation?.blockedReasons.join('; ') || 'Review required');
       record.generation = {status: generated.status, fingerprint, layoutPath: generated.layoutPath,
         generatedAt: generated.audit.generatedAt, provider: generated.audit.provider,
         model: generated.audit.model, generatorVersion, sourceHashes: generated.audit.sourceHashes,

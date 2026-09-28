@@ -8,6 +8,7 @@ import {queueRows, progressStats} from './nationwide/queue.mjs';
 import {createSourceTemplate, inspectSourcePack, sealSourcePack} from './nationwide/source-pack.mjs';
 import {processSourcePacks, sourcePackStatuses} from './nationwide/populate.mjs';
 import {populationDashboard, reviewQueue, handoffCandidates} from './nationwide/report.mjs';
+import {createOpenAIProvider} from './generate-layout/providers/openai.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2), command = args[0];
@@ -16,6 +17,14 @@ const value = name => {const index = args.indexOf(`--${name}`); return index < 0
 const inputFile = value('input');
 const input = inputFile ? JSON.parse(await fs.readFile(path.resolve(inputFile), 'utf8')) : null;
 const execute = flag('execute');
+if (flag('dry-run-provider') && execute) throw Error('--dry-run-provider cannot be combined with --execute');
+const providerName = value('provider') ?? 'mock';
+if (!['mock', 'openai'].includes(providerName)) throw Error('Supported providers: mock, openai');
+const numeric = (flagName, fallback) => value(flagName) === null ? fallback : Number(value(flagName));
+const selectedProvider = providerName === 'openai' ? createOpenAIProvider({root, model: value('model') ?? undefined,
+  maxFiles: numeric('max-files', 4), maxImageBytes: numeric('max-image-bytes', 8 * 1024 * 1024),
+  maxPdfPages: numeric('max-pdf-pages', 3), timeoutMs: numeric('timeout-ms', 90_000),
+  maxRetries: numeric('max-retries', 1)}) : undefined;
 let result;
 try {
   if (command === 'init') {
@@ -44,7 +53,7 @@ try {
   } else if (command === 'generate') {
     result = await generateNationwide(root, {storeIds: value('store')?.split(',') ?? null,
       prefecture: value('prefecture'), limit: value('limit') ? Number(value('limit')) : Infinity,
-      dryRun: !execute, force: flag('force')});
+      dryRun: !execute, force: flag('force'), ...(selectedProvider ? {provider: selectedProvider} : {})});
   } else if (command === 'source-template') {
     const hallId = value('hall') ?? value('store');
     if (!hallId || !(await loadMaster(root)).stores[hallId]) throw Error('Registered --hall is required');
@@ -66,7 +75,7 @@ try {
   } else if (command === 'process') {
     result = await processSourcePacks(root, {hallIds: (value('hall') ?? value('store'))?.split(',') ?? null,
       prefecture: value('prefecture'), limit: value('limit') ? Number(value('limit')) : Infinity,
-      dryRun: !execute, force: flag('force')});
+      dryRun: !execute, force: flag('force'), provider: selectedProvider});
   } else if (command === 'review-queue') {
     result = await reviewQueue(root, {prefecture: value('prefecture')});
   } else if (command === 'handoff-candidates') {
@@ -85,7 +94,7 @@ try {
     result = command === 'review' ? await importHumanReview(root, {...input, reviewedPath: path.resolve(path.dirname(path.resolve(inputFile)), input.reviewedPath)}) :
       await prepareGoal6Handoff(root, input);
   } else {
-    throw Error('Usage: node tools/nationwide.mjs init|register|source|review-source|source-template|source-check|source-seal|source-status|process|review-queue|handoff-candidates|dashboard|generate|queue|stats|review|handoff [--input FILE] [--hall ID] [--prefecture NAME] [--status STATE] [--source-state STATE] [--limit N] [--force] [--execute]');
+    throw Error('Usage: node tools/nationwide.mjs init|register|source|review-source|source-template|source-check|source-seal|source-status|process|review-queue|handoff-candidates|dashboard|generate|queue|stats|review|handoff [--input FILE] [--hall ID] [--prefecture NAME] [--provider mock|openai] [--model MODEL] [--max-files N] [--max-image-bytes N] [--max-pdf-pages N] [--timeout-ms N] [--max-retries 0..2] [--dry-run-provider] [--force] [--execute]');
   }
   console.log(JSON.stringify(result, null, 2));
 } catch (error) {console.error(error.message); process.exitCode = 1;}

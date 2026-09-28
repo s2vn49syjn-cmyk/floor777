@@ -29,6 +29,7 @@
       "required": ["id", "position", "visibleNumber", "modelConfidence"], "properties": {
         "id": {"$ref": "#/$defs/id"}, "position": {"$ref": "#/$defs/position"},
         "visibleNumber": {"type": ["integer", "null"], "minimum": 1},
+        "visibleMachineName": {"type": ["string", "null"]},
         "modelConfidence": {"$ref": "#/$defs/score"}
       }
     },
