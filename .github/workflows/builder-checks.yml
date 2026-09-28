@@ -1,9 +1,9 @@
 name: Island builder checks
 on:
   push:
-    branches: ['codex/island-builder-*']
+    branches: ['codex/island-builder-*', 'feature/ai-layout-generation']
   pull_request:
-    paths: ['tools/**', 'tests/builder-*', '.github/workflows/builder-checks.yml']
+    paths: ['tools/**', 'tests/builder-*', 'tests/ai-layout*', '.github/workflows/builder-checks.yml']
 permissions:
   contents: read
 jobs:
@@ -23,6 +23,8 @@ jobs:
       - run: node tests/builder-browser.cjs
       - run: node tests/review-model.mjs
       - run: node tests/review-browser.cjs
+      - run: node tests/ai-layout.mjs
+      - run: node tests/ai-layout-browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

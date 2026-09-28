@@ -6,7 +6,8 @@
     "build:halls": "node tools/render-hall-pages.mjs --write",
     "check:halls": "node tools/render-hall-pages.mjs --check",
     "test:review": "node tests/review-model.mjs && node tests/review-browser.cjs",
-    "review:open": "node tools/start-review-editor.mjs"
+    "review:open": "node tools/start-review-editor.mjs",
+    "test:generate-layout": "node tests/ai-layout.mjs && node tests/ai-layout-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
