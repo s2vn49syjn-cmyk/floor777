@@ -15,7 +15,14 @@ const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicFiles = ['data/halls.json', 'tests/fixtures/layout-golden.json',
   'data/hyper-arrow-mihara.json', 'data/super-cosmo-sakai.json', 'data/kikuya-sakai-honten.json'];
 const snapshots = await Promise.all(publicFiles.map(file => fs.readFile(path.join(repo, file))));
-const realRows = await sourcePackStatuses(repo);
+// Check the shipped seed, independently of private local population runs.
+const seedRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'floor777-source-seed-'));
+let realRows;
+try {
+  await fs.cp(path.join(repo, 'data'), path.join(seedRoot, 'data'), {recursive: true});
+  await fs.cp(path.join(repo, 'halls'), path.join(seedRoot, 'halls'), {recursive: true});
+  realRows = await sourcePackStatuses(seedRoot);
+} finally {await fs.rm(seedRoot, {recursive: true, force: true});}
 assert.equal(realRows.length, 19);
 assert.equal(realRows.filter(row => row.currentPublicStatus === 'published').length, 3);
 assert.equal(realRows.filter(row => row.sourceStatus === 'source_needed').length, 19);

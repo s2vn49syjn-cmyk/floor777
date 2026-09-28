@@ -67,7 +67,7 @@ export async function prepareVisionInput(bundle, {root, allowedDirectory = null,
   const visualSources = bundle.sources.filter(source => visual.has(source.format));
   if (!visualSources.length) throw fail('insufficient_evidence', 'No local floor-map image or PDF');
   if (visualSources.length > limits.maxFiles) throw fail('file_limit', 'Too many visual files for one store');
-  const content = [{type: 'input_text', text: `Store ${bundle.storeId}. Visual evidence IDs: ${visualSources.map(s => `${s.sourceId} (floor ${s.floor})`).join(', ')}. Source URLs are provenance only and are not available to fetch.`}];
+  const content = [{type: 'input_text', text: `Store ${bundle.storeId}. Visual evidence metadata: ${visualSources.map(s => `${s.sourceId} (floor=${s.floor}; category=${s.category}; rentalType=${s.rentalType})`).join(', ')}. Floor category and rentalType are trusted source metadata; copy them exactly into the matching floor output. Source URLs are provenance only and are not available to fetch.`}];
   const files = [];
   let totalBytes = 0, pageCount = 0;
   for (const source of visualSources) {
@@ -97,7 +97,7 @@ export async function prepareVisionInput(bundle, {root, allowedDirectory = null,
         const copied = await selected.copyPages(document, pages.map(page => page - 1));
         copied.forEach(page => selected.addPage(page));
         const selectedBytes = await selected.save();
-        content.push({type: 'input_text', text: `sourceId=${source.sourceId}; selected PDF pages=${pages.join(',')}; floor=${source.floor}`});
+        content.push({type: 'input_text', text: `sourceId=${source.sourceId}; selected PDF pages=${pages.join(',')}; floor=${source.floor}; category=${source.category}; rentalType=${source.rentalType}`});
         content.push({type: 'input_file', filename: `${source.sourceId}.pdf`, file_data: `data:application/pdf;base64,${Buffer.from(selectedBytes).toString('base64')}`, detail: 'high'});
       }
     } else {
@@ -107,7 +107,7 @@ export async function prepareVisionInput(bundle, {root, allowedDirectory = null,
       }
       files.push({sourceId: source.sourceId, format, bytes: bytes.length, width: dimensions.width, height: dimensions.height});
       if (includeData) {
-        content.push({type: 'input_text', text: `sourceId=${source.sourceId}; floor=${source.floor}; image=${dimensions.width}x${dimensions.height}`});
+        content.push({type: 'input_text', text: `sourceId=${source.sourceId}; floor=${source.floor}; category=${source.category}; rentalType=${source.rentalType}; image=${dimensions.width}x${dimensions.height}`});
         content.push({type: 'input_image', image_url: `data:image/${format === 'jpeg' ? 'jpeg' : 'png'};base64,${bytes.toString('base64')}`, detail: 'high'});
       }
     }
@@ -116,7 +116,7 @@ export async function prepareVisionInput(bundle, {root, allowedDirectory = null,
     visualSourceIds: new Set(visualSources.map(source => source.sourceId))};
 }
 
-const INSTRUCTIONS = `You extract FLOOR777 floor-map observations from supplied local visual evidence only. Never fetch a URL or use unseen information. Return only the supplied JSON schema. Never invent islands, island boundaries, machine slots, machine numbers, floor names, or consecutive numbers. visibleNumber is an integer only when those exact digits are visibly legible at that slot; otherwise null. Do not infer a missing number from neighboring numbers or a roster. visibleMachineName is a candidate only when the exact name is visibly legible at that slot; otherwise null. Use only the supplied visual sourceIds. Coordinates are normalized fractions 0..1 of each floor map: floor width=1 and height=1, all geometry and machine-slot boxes inside that area. Rotation is degrees. If a boundary, count, shape, direction or number is unclear, use unknown/null where the schema permits, reduce confidence, and state the uncertainty on the island. If no floor/island can be recognized, return an empty island list for the visible floor. Do not include explanations or Markdown.`;
+const INSTRUCTIONS = `You extract FLOOR777 floor-map observations from supplied local visual evidence only. Never fetch a URL or use unseen information. Return only the supplied JSON schema. Never invent islands, island boundaries, machine slots, machine numbers, floor names, or consecutive numbers. visibleNumber is an integer only when those exact digits are visibly legible at that slot; otherwise null. Do not infer a missing number from neighboring numbers or a roster. visibleMachineName is a candidate only when the exact name is visibly legible at that slot; otherwise null. Use only the supplied visual sourceIds. For each floor, copy category and rentalType exactly from the supplied source metadata for that floor; never infer or normalize either value from image text. Coordinates are normalized fractions 0..1 of each floor map: floor width=1 and height=1, all geometry and machine-slot boxes inside that area. Rotation is degrees. If a boundary, count, shape, direction or number is unclear, use unknown/null where the schema permits, reduce confidence, and state the uncertainty on the island. If no floor/island can be recognized, return an empty island list for the visible floor. Do not include explanations or Markdown.`;
 
 function extractResponse(response) {
   if (response?.status === 'incomplete') throw fail('incomplete_response', 'AI response was incomplete', true);

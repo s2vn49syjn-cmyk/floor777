@@ -22,7 +22,26 @@ export function findIsland(layout, islandId) {
 
 export function islandBounds(island) {
   const positions = island.machines.map(machine => machine.position);
-  if (!positions.length) return {x: island.geometry?.x ?? 0, y: island.geometry?.y ?? 0, width: 0, height: 0};
+  const geometry = island.geometry ?? {};
+  if (!positions.length) {
+    const points = Array.isArray(geometry.points) ? geometry.points : [];
+    if (points.length) {
+      const x = Math.min(...points.map(p => p[0])), y = Math.min(...points.map(p => p[1]));
+      return {x, y, width: Math.max(...points.map(p => p[0] + p[2])) - x,
+        height: Math.max(...points.map(p => p[1] + p[3])) - y};
+    }
+    if (finite(geometry.width) && finite(geometry.height)) {
+      return {x: geometry.x ?? 0, y: geometry.y ?? 0, width: geometry.width, height: geometry.height};
+    }
+    if (finite(geometry.radius)) {
+      const size = finite(geometry.size) ? geometry.size : 0;
+      return {x: (geometry.x ?? 0) - geometry.radius - size / 2,
+        y: (geometry.y ?? 0) - geometry.radius - size / 2,
+        width: geometry.radius * 2 + size, height: geometry.radius * 2 + size};
+    }
+    const size = finite(geometry.size) ? geometry.size : 20;
+    return {x: (geometry.x ?? 0) - size / 2, y: (geometry.y ?? 0) - size / 2, width: size, height: size};
+  }
   const x = Math.min(...positions.map(p => p[0])), y = Math.min(...positions.map(p => p[1]));
   return {x, y, width: Math.max(...positions.map(p => p[0] + p[2])) - x,
     height: Math.max(...positions.map(p => p[1] + p[3])) - y};
@@ -50,6 +69,22 @@ function sampledPositions(positions, count, closed) {
     const start = centers[next - 1], end = centers[next];
     return withCenter(positions[Math.min(index, positions.length - 1)],
       start[0] + (end[0] - start[0]) * ratio, start[1] + (end[1] - start[1]) * ratio);
+  });
+}
+
+function placeholderPositionsFromGeometry(island, count) {
+  const bounds = islandBounds(island), geometry = island.geometry ?? {};
+  const size = Math.max(6, Math.min(28, finite(geometry.size) ? geometry.size :
+    Math.min(Math.max(bounds.width, 1), Math.max(bounds.height, 1)) / 5));
+  const horizontal = bounds.width >= bounds.height;
+  const span = Math.max(size, (horizontal ? bounds.width : bounds.height) - size);
+  const startX = horizontal ? bounds.x + size / 2 : bounds.x + bounds.width / 2;
+  const startY = horizontal ? bounds.y + bounds.height / 2 : bounds.y + size / 2;
+  return Array.from({length: count}, (_, index) => {
+    const ratio = count === 1 ? 0.5 : index / (count - 1);
+    const cx = horizontal ? bounds.x + size / 2 + span * ratio : startX;
+    const cy = horizontal ? startY : bounds.y + size / 2 + span * ratio;
+    return [cx - size / 2, cy - size / 2, size, size];
   });
 }
 
@@ -172,13 +207,20 @@ export class ReviewSession {
     if (!Number.isInteger(count) || count < 1 || count > 1000) throw Error('Count must be 1–1000');
     return this.change(layout => {
       const {island} = findIsland(layout, id);
-      if (island.machineCount === count) return;
-      const positions = sampledPositions(island.machines.map(machine => machine.position), count, island.shape === 'circle');
+      if (island.machineCount === count && island.machines.length === count) return;
       const previous = island.machines;
+      const positions = previous.length
+        ? sampledPositions(previous.map(machine => machine.position), count, island.shape === 'circle')
+        : placeholderPositionsFromGeometry(island, count);
       island.machines = positions.map((position, index) => previous[index]
         ? {...previous[index], position} : {id: uid('machine'), number: null, machineName: null, position, confidence: null});
       island.machineCount = count;
+      island.geometry ??= {x: positions[0][0], y: positions[0][1]};
       island.geometry.points = positions.map(p => [...p]);
+      if (!previous.length) {
+        const note = `${island.id}: 台枠は島形状と推定台数から仮配置しました。資料と照合してください`;
+        if (!layout.verification.notes.includes(note)) layout.verification.notes.push(note);
+      }
     });
   }
   assignSequential(id, {start, count = null, end = null, direction = 'left-right', side = 'all', ids = null, exclude = []} = {}) {

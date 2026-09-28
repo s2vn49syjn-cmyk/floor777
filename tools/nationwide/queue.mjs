@@ -17,8 +17,8 @@ export function queueRows(master, {state = null, prefecture = null, ungenerated 
       unresolvedCount, seatNumbersMatch: numberMatch, humanReviewed: !!record.review,
       goal6Eligible: record.layoutProgress === 'human_verified' && evidence.ready && report?.status === 'validated' &&
         unresolvedCount === 0 && numberMatch !== false,
-      draftPath: record.generation?.layoutPath ?? null,
-      reviewEditorUrl: 'http://127.0.0.1:8781/tools/layout-review.html'};
+      draftPath: record.review?.reviewedPath ?? record.generation?.preparedReview?.layoutPath ?? record.generation?.layoutPath ?? null,
+      reviewEditorUrl: `http://127.0.0.1:8781${record.generation?.preparedReview?.reviewPath ?? `/tools/layout-review.html?store=${record.hallId}`}`};
   });
 }
 

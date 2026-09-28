@@ -19,6 +19,8 @@ const input = inputFile ? JSON.parse(await fs.readFile(path.resolve(inputFile), 
 const execute = flag('execute');
 if (flag('dry-run-provider') && execute) throw Error('--dry-run-provider cannot be combined with --execute');
 const providerName = value('provider') ?? 'mock';
+if (providerName === 'openai' && execute && ['process', 'generate'].includes(command) && !flag('confirm-api-cost'))
+  throw Error('OpenAI API charges may apply: explicit --confirm-api-cost is required');
 if (!['mock', 'openai'].includes(providerName)) throw Error('Supported providers: mock, openai');
 const numeric = (flagName, fallback) => value(flagName) === null ? fallback : Number(value(flagName));
 const selectedProvider = providerName === 'openai' ? createOpenAIProvider({root, model: value('model') ?? undefined,

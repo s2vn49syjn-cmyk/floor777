@@ -22,7 +22,9 @@
     "nationwide:review-queue": "node tools/nationwide.mjs review-queue",
     "nationwide:review-import": "node tools/nationwide.mjs review",
     "nationwide:handoff-candidates": "node tools/nationwide.mjs handoff-candidates",
-    "nationwide:dashboard": "node tools/nationwide.mjs dashboard"
+    "nationwide:dashboard": "node tools/nationwide.mjs dashboard",
+    "review:prepare": "node tools/prepare-review.mjs",
+    "test:review-prepare": "node tests/review-prepare.mjs && node tests/review-prepare-browser.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

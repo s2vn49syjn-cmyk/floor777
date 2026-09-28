@@ -6,6 +6,8 @@ work/layout-drafts/
 work/publish-state/
 work/publish-staging/
 work/nationwide/
+work/review-drafts/
+work/review-preparation-result.json
 
 .env
 .env.*
