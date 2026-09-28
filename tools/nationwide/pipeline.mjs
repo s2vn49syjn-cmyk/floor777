@@ -56,6 +56,7 @@ export async function generateNationwide(root, {storeIds = null, prefecture = nu
         model: generated.audit.model, generatorVersion, sourceHashes: generated.audit.sourceHashes,
         audit: generated.audit, cached: generated.cached};
       record.validation = validation;
+      record.lastUpdatedAt = new Date().toISOString();
       await saveMaster(root, master);
       results.push({hallId: id, status, generatedStatus: generated.status, cached: generated.cached,
         layoutPath: generated.layoutPath, reasons: [...(generated.audit.reasons ?? []), ...(validation?.blockedReasons ?? [])]});
@@ -81,24 +82,30 @@ export async function importHumanReview(root, {hallId, reviewedPath, reviewedBy,
   if (!reviewedBy?.trim() || !Number.isFinite(Date.parse(reviewedAt)) || typeof reviewNotes !== 'string' ||
     !Number.isSafeInteger(unresolvedCount) || unresolvedCount < 0) throw Error('Complete human review metadata is required');
   const layout = await readJSON(path.resolve(reviewedPath));
-  if (layout.storeId !== hallId || layout.verification?.status !== 'verified' ||
-    !layout.verification.lastVerifiedAt || !(layout.review?.humanModified || layout.verification.status === 'verified')) {
+  if (layout.storeId !== hallId || !(layout.review?.humanModified ||
+    layout.verification?.status === 'verified' && layout.verification.lastVerifiedAt)) {
     throw Error('Review Editor verification is required');
   }
   const validation = await validateRolloutDraft(root, record, layout, record.generation.audit, {reviewed: true});
-  if (unresolvedCount || validation.status !== 'validated') throw Error(`Human review cannot pass: ${validation.blockedReasons.join(', ')} ${validation.warnings.join(', ')}`);
+  if (!unresolvedCount && (validation.status !== 'validated' || layout.verification?.status !== 'verified' ||
+    !layout.verification.lastVerifiedAt)) throw Error(`Human review cannot pass: ${validation.blockedReasons.join(', ')} ${validation.warnings.join(', ')}`);
   if (!['validated', 'needs_review'].includes(record.layoutProgress)) throw Error(`Cannot review from ${record.layoutProgress}`);
-  const dir = path.join(root, 'work/nationwide/reviewed'); await fs.mkdir(dir, {recursive: true});
+  const completed = unresolvedCount === 0;
+  const dir = path.join(root, completed ? 'work/nationwide/reviewed' : 'work/nationwide/review-in-progress');
+  await fs.mkdir(dir, {recursive: true});
   const target = path.join(dir, `${hallId}.json`);
   await fs.copyFile(path.resolve(reviewedPath), target);
-  if (record.layoutProgress === 'needs_review') note(record, 'validated', 'Review Editor corrections validated');
-  note(record, 'human_verified', `Reviewed by ${reviewedBy}`);
-  record.lastVerifiedAt = reviewedAt;
+  if (completed) {
+    if (record.layoutProgress === 'needs_review') note(record, 'validated', 'Review Editor corrections validated');
+    note(record, 'human_verified', `Reviewed by ${reviewedBy}`);
+    record.lastVerifiedAt = reviewedAt;
+  } else note(record, 'needs_review', `Review Editor has ${unresolvedCount} unresolved item(s)`);
   record.review = {reviewedBy: reviewedBy.trim(), humanReviewedAt: reviewedAt, reviewNotes,
-    unresolvedCount, verificationStatus: layout.verification.status, reviewedPath: target};
+    unresolvedCount, verificationStatus: completed ? 'verified' : 'needs_review', reviewedPath: target};
   record.validation = validation;
+  record.lastUpdatedAt = new Date().toISOString();
   await saveMaster(root, master);
-  return {hallId, status: 'human_verified', reviewedPath: target, validation};
+  return {hallId, status: completed ? 'human_verified' : 'needs_review', reviewedPath: target, validation};
 }
 
 export async function prepareGoal6Handoff(root, {hallId, approvedBy, approvalNote, promoteReason}) {

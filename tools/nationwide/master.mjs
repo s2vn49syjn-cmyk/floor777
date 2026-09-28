@@ -21,7 +21,7 @@ export async function seedExisting(root) {
       address: hall.address ?? null, slotSupported: true, status: 'existing',
       sourceInfo: hall.source ? [{sourceType: hall.source.name ?? 'legacy', sourceUrl: hall.source.url ?? null}] : [],
       sources: [], layoutProgress: published.has(hallId) ? 'published' : 'needs_review',
-      lastVerifiedAt: null, published: published.has(hallId),
+      lastVerifiedAt: null, lastUpdatedAt: hall.updated_at ?? null, published: published.has(hallId),
       generation: null, review: null, validation: null, history: []
     };
   }
@@ -57,6 +57,7 @@ export function registerHall(master, input) {
   const record = {hallId, name: input.name.trim(), prefecture: input.prefecture.trim(), municipality: input.municipality.trim(),
     address: proposed.address, slotSupported: input.slotSupported, status: 'registered', sourceInfo: [], sources: [],
     layoutProgress: 'source_needed', lastVerifiedAt: null, published: false,
+    lastUpdatedAt: new Date().toISOString(),
     generation: null, review: null, validation: null, history: [{state: 'source_needed', at: new Date().toISOString(), reason: 'registered'}]};
   master.stores[hallId] = record;
   return record;

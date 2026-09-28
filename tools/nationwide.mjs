@@ -5,6 +5,9 @@ import {loadMaster, saveMaster, registerHall, masterPath} from './nationwide/mas
 import {registerSource, reviewSourceUsage} from './nationwide/evidence.mjs';
 import {generateNationwide, importHumanReview, prepareGoal6Handoff} from './nationwide/pipeline.mjs';
 import {queueRows, progressStats} from './nationwide/queue.mjs';
+import {createSourceTemplate, inspectSourcePack, sealSourcePack} from './nationwide/source-pack.mjs';
+import {processSourcePacks, sourcePackStatuses} from './nationwide/populate.mjs';
+import {populationDashboard, reviewQueue, handoffCandidates} from './nationwide/report.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2), command = args[0];
@@ -42,6 +45,34 @@ try {
     result = await generateNationwide(root, {storeIds: value('store')?.split(',') ?? null,
       prefecture: value('prefecture'), limit: value('limit') ? Number(value('limit')) : Infinity,
       dryRun: !execute, force: flag('force')});
+  } else if (command === 'source-template') {
+    const hallId = value('hall') ?? value('store');
+    if (!hallId || !(await loadMaster(root)).stores[hallId]) throw Error('Registered --hall is required');
+    result = await createSourceTemplate(root, hallId, {dryRun: flag('dry-run')});
+  } else if (command === 'source-check') {
+    const hallId = value('hall') ?? value('store');
+    if (!hallId || !(await loadMaster(root)).stores[hallId]) throw Error('Registered --hall is required');
+    result = await inspectSourcePack(root, hallId);
+    result = {hallId, status: result.status, reasons: result.reasons,
+      sources: result.sources.map(item => ({sourceId: item.source.sourceId, format: item.format, checksum: item.checksum}))};
+  } else if (command === 'source-seal') {
+    const hallId = value('hall') ?? value('store');
+    if (!hallId || !(await loadMaster(root)).stores[hallId]) throw Error('Registered --hall is required');
+    result = await sealSourcePack(root, hallId, {dryRun: !execute});
+  } else if (command === 'source-status') {
+    result = await sourcePackStatuses(root, {prefecture: value('prefecture'), layoutStatus: value('status'),
+      sourceStatus: value('source-state'), hallIds: (value('hall') ?? value('store'))?.split(',') ?? null,
+      limit: value('limit') ? Number(value('limit')) : Infinity});
+  } else if (command === 'process') {
+    result = await processSourcePacks(root, {hallIds: (value('hall') ?? value('store'))?.split(',') ?? null,
+      prefecture: value('prefecture'), limit: value('limit') ? Number(value('limit')) : Infinity,
+      dryRun: !execute, force: flag('force')});
+  } else if (command === 'review-queue') {
+    result = await reviewQueue(root, {prefecture: value('prefecture')});
+  } else if (command === 'handoff-candidates') {
+    result = await handoffCandidates(root, {prefecture: value('prefecture')});
+  } else if (command === 'dashboard') {
+    result = await populationDashboard(root);
   } else if (command === 'queue') {
     const master = await loadMaster(root);
     result = {rows: queueRows(master, {state: value('state'), prefecture: value('prefecture'),
@@ -54,7 +85,7 @@ try {
     result = command === 'review' ? await importHumanReview(root, {...input, reviewedPath: path.resolve(path.dirname(path.resolve(inputFile)), input.reviewedPath)}) :
       await prepareGoal6Handoff(root, input);
   } else {
-    throw Error('Usage: node tools/nationwide.mjs init|register|source|review-source|generate|queue|stats|review|handoff [--input FILE] [--store ID] [--prefecture NAME] [--state STATE] [--limit N] [--ungenerated] [--force] [--execute]');
+    throw Error('Usage: node tools/nationwide.mjs init|register|source|review-source|source-template|source-check|source-seal|source-status|process|review-queue|handoff-candidates|dashboard|generate|queue|stats|review|handoff [--input FILE] [--hall ID] [--prefecture NAME] [--status STATE] [--source-state STATE] [--limit N] [--force] [--execute]');
   }
   console.log(JSON.stringify(result, null, 2));
 } catch (error) {console.error(error.message); process.exitCode = 1;}

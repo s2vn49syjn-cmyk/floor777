@@ -9,7 +9,17 @@
     "review:open": "node tools/start-review-editor.mjs",
     "test:generate-layout": "node tests/ai-layout.mjs && node tests/ai-layout-browser.cjs",
     "test:publish-workflow": "node tests/publish-workflow.mjs",
-    "test:nationwide": "node tests/nationwide.mjs"
+    "test:nationwide": "node tests/nationwide.mjs",
+    "test:source-pack": "node tests/source-pack.mjs",
+    "nationwide:source-template": "node tools/nationwide.mjs source-template",
+    "nationwide:source-check": "node tools/nationwide.mjs source-check",
+    "nationwide:source-seal": "node tools/nationwide.mjs source-seal",
+    "nationwide:source-status": "node tools/nationwide.mjs source-status",
+    "nationwide:process": "node tools/nationwide.mjs process",
+    "nationwide:review-queue": "node tools/nationwide.mjs review-queue",
+    "nationwide:review-import": "node tools/nationwide.mjs review",
+    "nationwide:handoff-candidates": "node tools/nationwide.mjs handoff-candidates",
+    "nationwide:dashboard": "node tools/nationwide.mjs dashboard"
   },
   "devDependencies": {
     "playwright": "1.62.1"
