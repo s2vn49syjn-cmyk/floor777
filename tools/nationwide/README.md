@@ -45,3 +45,31 @@ node tools/nationwide.mjs handoff --input approval.json --execute
 ```
 
 `approval.json` contains `hallId`, `approvedBy`, `approvalNote`, and `promoteReason`. Handoff revalidates the reviewed file and writes a **Goal 6 promotion request only** to `work/nationwide/goal6-requests/`. It never runs promote, stage, publish, or deploy. A separate, explicit Goal 6 dry-run and approval is still required. The current public UI is single-floor slot-only; multi-floor layouts are preserved in the draft but blocked from handoff. Layout versions and daily performance data remain separate.
+
+## Source Packs and ongoing population (Goal 8)
+
+The source policy above still applies. A Source Pack is one private folder per hall under `work/nationwide/sources/<hallId>/`; it is ignored by Git. `manifest.json` records each source's type, optional provenance URL (never fetched), observation/import dates, owner, rights-review note/date, local filename, and SHA-256 checksum. Keep map images, PDFs, structured machine lists, mock/vision observations and notes in this folder. Add one source entry per local file. A map image/PDF is required for generation. A structured JSON observation can assist the mock provider, but it is not a substitute for the map. Do not put these source files in public `data/layouts/`.
+
+```text
+npm run nationwide:source-template -- --hall example-tokyo
+npm run nationwide:source-check -- --hall example-tokyo
+npm run nationwide:source-seal -- --hall example-tokyo
+npm run nationwide:source-seal -- --hall example-tokyo --execute
+npm run nationwide:source-status -- --prefecture 東京都 --source-state source_needed
+npm run nationwide:process -- --hall example-tokyo
+npm run nationwide:process -- --hall example-tokyo --execute
+npm run nationwide:process -- --prefecture 東京都 --limit 5 --execute
+npm run nationwide:process -- --hall example-tokyo --execute --force
+npm run nationwide:review-queue
+npm run nationwide:review-import -- --input review.json --execute
+npm run nationwide:handoff-candidates
+npm run nationwide:dashboard
+```
+
+Template creation does not overwrite a manifest. It sets `usageReviewed: false`, with no permission inferred. After a person checks the exact source and its allowed use, they must explicitly fill `usageReviewed: true`, `usageReviewedAt`, `usageNote`, `sourceOwner`, source/floor metadata and local file paths. Run `source-seal --execute` to record the actual checksums; sealing never changes the rights decision. `source-check` reports missing evidence as `source_needed` and invalid/tampered evidence as `blocked`. A mismatch, unreviewed source or missing map prevents AI input. To replace registered evidence, use a new `sourceId` so previous evidence remains traceable.
+
+`process` is read-only by default. With `--execute`, it imports checked packs into private evidence storage and invokes the Goal 5 generator through the Goal 7 pipeline. It continues after a failed hall, records a per-run result in `work/nationwide/population-runs/`, and skips unchanged drafts through the content cache. `--force` requests regeneration; it does not override source, review or public safety gates. Published halls are read-only. The bundled provider is still a **mock** consuming a local `visionOutput` JSON. It does not analyze pixels; real image interpretation requires a separately configured, policy-reviewed provider. No external API key or website access is required in CI.
+
+The review queue shows the draft path and local Review Editor URL. Save the editor's JSON, then submit metadata with the existing `review --input review.json --execute` command. A review with `unresolvedCount > 0` is stored under `work/nationwide/review-in-progress/` and remains `needs_review`; only zero unresolved items, valid layout and explicit verification become `human_verified`. `handoff-candidates` recalculates Source Pack integrity and layout validation and **only lists** eligible halls. It never invokes Goal 6 promote, stage or publish. A separate explicit `handoff` action and Goal 6 review are still required.
+
+The nationwide master currently seeds the 19 existing halls from local public metadata, without changing those public files. Source Packs, drafts, reviews, run logs and status are separated per hall under ignored `work/`; this allows later movement to SQLite/PostgreSQL and object storage without mixing evidence with published layouts or daily performance. Keep this private work directory in backups. Future layout version records can add `layoutVersion`, `effectiveFrom`, `effectiveTo`, `observedAt` and `recordedAt`; no historical period is inferred from the current floor map.
