@@ -1,0 +1,1068 @@
+{
+  "id": "123-sakai-inter",
+  "name": "123堺インター店",
+  "prefecture": "大阪府",
+  "city": "堺市西区",
+  "floor": "46枚スロット",
+  "seat_count": 262,
+  "updated_at": "2026-09-25",
+  "layout_updated_at": "2026-09-25",
+  "preserve_layout": true,
+  "source": {
+    "name": "みんレポ",
+    "url": "https://min-repo.com/tag/123%E5%A0%BA%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E5%BA%97/",
+    "note": "P-WORLDのフロアマップ画像を参照した配置推定案。みんレポ2026-09-25全台表の262番号を配置。画像に台番号がないため、台番と図上座席の対応は推定。貸しレートも未確認。機種名と差枚はデータ取得時に同期。"
+  },
+  "layout_status": "draft-unverified",
+  "seats": [
+    {
+      "seat": 647,
+      "machine": ""
+    },
+    {
+      "seat": 648,
+      "machine": ""
+    },
+    {
+      "seat": 649,
+      "machine": ""
+    },
+    {
+      "seat": 650,
+      "machine": ""
+    },
+    {
+      "seat": 651,
+      "machine": ""
+    },
+    {
+      "seat": 652,
+      "machine": ""
+    },
+    {
+      "seat": 653,
+      "machine": ""
+    },
+    {
+      "seat": 654,
+      "machine": ""
+    },
+    {
+      "seat": 655,
+      "machine": ""
+    },
+    {
+      "seat": 656,
+      "machine": ""
+    },
+    {
+      "seat": 657,
+      "machine": ""
+    },
+    {
+      "seat": 658,
+      "machine": ""
+    },
+    {
+      "seat": 659,
+      "machine": ""
+    },
+    {
+      "seat": 660,
+      "machine": ""
+    },
+    {
+      "seat": 661,
+      "machine": ""
+    },
+    {
+      "seat": 662,
+      "machine": ""
+    },
+    {
+      "seat": 663,
+      "machine": ""
+    },
+    {
+      "seat": 664,
+      "machine": ""
+    },
+    {
+      "seat": 665,
+      "machine": ""
+    },
+    {
+      "seat": 666,
+      "machine": ""
+    },
+    {
+      "seat": 667,
+      "machine": ""
+    },
+    {
+      "seat": 668,
+      "machine": ""
+    },
+    {
+      "seat": 669,
+      "machine": ""
+    },
+    {
+      "seat": 670,
+      "machine": ""
+    },
+    {
+      "seat": 671,
+      "machine": ""
+    },
+    {
+      "seat": 672,
+      "machine": ""
+    },
+    {
+      "seat": 673,
+      "machine": ""
+    },
+    {
+      "seat": 674,
+      "machine": ""
+    },
+    {
+      "seat": 675,
+      "machine": ""
+    },
+    {
+      "seat": 676,
+      "machine": ""
+    },
+    {
+      "seat": 677,
+      "machine": ""
+    },
+    {
+      "seat": 678,
+      "machine": ""
+    },
+    {
+      "seat": 679,
+      "machine": ""
+    },
+    {
+      "seat": 680,
+      "machine": ""
+    },
+    {
+      "seat": 681,
+      "machine": ""
+    },
+    {
+      "seat": 682,
+      "machine": ""
+    },
+    {
+      "seat": 683,
+      "machine": ""
+    },
+    {
+      "seat": 684,
+      "machine": ""
+    },
+    {
+      "seat": 685,
+      "machine": ""
+    },
+    {
+      "seat": 686,
+      "machine": ""
+    },
+    {
+      "seat": 687,
+      "machine": ""
+    },
+    {
+      "seat": 688,
+      "machine": ""
+    },
+    {
+      "seat": 689,
+      "machine": ""
+    },
+    {
+      "seat": 690,
+      "machine": ""
+    },
+    {
+      "seat": 691,
+      "machine": ""
+    },
+    {
+      "seat": 692,
+      "machine": ""
+    },
+    {
+      "seat": 693,
+      "machine": ""
+    },
+    {
+      "seat": 694,
+      "machine": ""
+    },
+    {
+      "seat": 695,
+      "machine": ""
+    },
+    {
+      "seat": 696,
+      "machine": ""
+    },
+    {
+      "seat": 697,
+      "machine": ""
+    },
+    {
+      "seat": 698,
+      "machine": ""
+    },
+    {
+      "seat": 699,
+      "machine": ""
+    },
+    {
+      "seat": 700,
+      "machine": ""
+    },
+    {
+      "seat": 701,
+      "machine": ""
+    },
+    {
+      "seat": 702,
+      "machine": ""
+    },
+    {
+      "seat": 703,
+      "machine": ""
+    },
+    {
+      "seat": 704,
+      "machine": ""
+    },
+    {
+      "seat": 705,
+      "machine": ""
+    },
+    {
+      "seat": 706,
+      "machine": ""
+    },
+    {
+      "seat": 707,
+      "machine": ""
+    },
+    {
+      "seat": 708,
+      "machine": ""
+    },
+    {
+      "seat": 709,
+      "machine": ""
+    },
+    {
+      "seat": 710,
+      "machine": ""
+    },
+    {
+      "seat": 711,
+      "machine": ""
+    },
+    {
+      "seat": 712,
+      "machine": ""
+    },
+    {
+      "seat": 713,
+      "machine": ""
+    },
+    {
+      "seat": 714,
+      "machine": ""
+    },
+    {
+      "seat": 715,
+      "machine": ""
+    },
+    {
+      "seat": 716,
+      "machine": ""
+    },
+    {
+      "seat": 717,
+      "machine": ""
+    },
+    {
+      "seat": 718,
+      "machine": ""
+    },
+    {
+      "seat": 719,
+      "machine": ""
+    },
+    {
+      "seat": 720,
+      "machine": ""
+    },
+    {
+      "seat": 721,
+      "machine": ""
+    },
+    {
+      "seat": 722,
+      "machine": ""
+    },
+    {
+      "seat": 723,
+      "machine": ""
+    },
+    {
+      "seat": 724,
+      "machine": ""
+    },
+    {
+      "seat": 725,
+      "machine": ""
+    },
+    {
+      "seat": 726,
+      "machine": ""
+    },
+    {
+      "seat": 727,
+      "machine": ""
+    },
+    {
+      "seat": 728,
+      "machine": ""
+    },
+    {
+      "seat": 729,
+      "machine": ""
+    },
+    {
+      "seat": 730,
+      "machine": ""
+    },
+    {
+      "seat": 731,
+      "machine": ""
+    },
+    {
+      "seat": 732,
+      "machine": ""
+    },
+    {
+      "seat": 733,
+      "machine": ""
+    },
+    {
+      "seat": 734,
+      "machine": ""
+    },
+    {
+      "seat": 735,
+      "machine": ""
+    },
+    {
+      "seat": 736,
+      "machine": ""
+    },
+    {
+      "seat": 737,
+      "machine": ""
+    },
+    {
+      "seat": 738,
+      "machine": ""
+    },
+    {
+      "seat": 739,
+      "machine": ""
+    },
+    {
+      "seat": 740,
+      "machine": ""
+    },
+    {
+      "seat": 741,
+      "machine": ""
+    },
+    {
+      "seat": 742,
+      "machine": ""
+    },
+    {
+      "seat": 743,
+      "machine": ""
+    },
+    {
+      "seat": 744,
+      "machine": ""
+    },
+    {
+      "seat": 745,
+      "machine": ""
+    },
+    {
+      "seat": 746,
+      "machine": ""
+    },
+    {
+      "seat": 747,
+      "machine": ""
+    },
+    {
+      "seat": 748,
+      "machine": ""
+    },
+    {
+      "seat": 749,
+      "machine": ""
+    },
+    {
+      "seat": 750,
+      "machine": ""
+    },
+    {
+      "seat": 751,
+      "machine": ""
+    },
+    {
+      "seat": 752,
+      "machine": ""
+    },
+    {
+      "seat": 753,
+      "machine": ""
+    },
+    {
+      "seat": 754,
+      "machine": ""
+    },
+    {
+      "seat": 755,
+      "machine": ""
+    },
+    {
+      "seat": 756,
+      "machine": ""
+    },
+    {
+      "seat": 757,
+      "machine": ""
+    },
+    {
+      "seat": 758,
+      "machine": ""
+    },
+    {
+      "seat": 759,
+      "machine": ""
+    },
+    {
+      "seat": 760,
+      "machine": ""
+    },
+    {
+      "seat": 761,
+      "machine": ""
+    },
+    {
+      "seat": 762,
+      "machine": ""
+    },
+    {
+      "seat": 763,
+      "machine": ""
+    },
+    {
+      "seat": 764,
+      "machine": ""
+    },
+    {
+      "seat": 765,
+      "machine": ""
+    },
+    {
+      "seat": 766,
+      "machine": ""
+    },
+    {
+      "seat": 767,
+      "machine": ""
+    },
+    {
+      "seat": 768,
+      "machine": ""
+    },
+    {
+      "seat": 769,
+      "machine": ""
+    },
+    {
+      "seat": 770,
+      "machine": ""
+    },
+    {
+      "seat": 771,
+      "machine": ""
+    },
+    {
+      "seat": 772,
+      "machine": ""
+    },
+    {
+      "seat": 773,
+      "machine": ""
+    },
+    {
+      "seat": 774,
+      "machine": ""
+    },
+    {
+      "seat": 775,
+      "machine": ""
+    },
+    {
+      "seat": 776,
+      "machine": ""
+    },
+    {
+      "seat": 777,
+      "machine": ""
+    },
+    {
+      "seat": 778,
+      "machine": ""
+    },
+    {
+      "seat": 779,
+      "machine": ""
+    },
+    {
+      "seat": 780,
+      "machine": ""
+    },
+    {
+      "seat": 781,
+      "machine": ""
+    },
+    {
+      "seat": 782,
+      "machine": ""
+    },
+    {
+      "seat": 783,
+      "machine": ""
+    },
+    {
+      "seat": 784,
+      "machine": ""
+    },
+    {
+      "seat": 785,
+      "machine": ""
+    },
+    {
+      "seat": 786,
+      "machine": ""
+    },
+    {
+      "seat": 787,
+      "machine": ""
+    },
+    {
+      "seat": 788,
+      "machine": ""
+    },
+    {
+      "seat": 789,
+      "machine": ""
+    },
+    {
+      "seat": 790,
+      "machine": ""
+    },
+    {
+      "seat": 791,
+      "machine": ""
+    },
+    {
+      "seat": 792,
+      "machine": ""
+    },
+    {
+      "seat": 793,
+      "machine": ""
+    },
+    {
+      "seat": 794,
+      "machine": ""
+    },
+    {
+      "seat": 795,
+      "machine": ""
+    },
+    {
+      "seat": 796,
+      "machine": ""
+    },
+    {
+      "seat": 797,
+      "machine": ""
+    },
+    {
+      "seat": 798,
+      "machine": ""
+    },
+    {
+      "seat": 799,
+      "machine": ""
+    },
+    {
+      "seat": 800,
+      "machine": ""
+    },
+    {
+      "seat": 801,
+      "machine": ""
+    },
+    {
+      "seat": 802,
+      "machine": ""
+    },
+    {
+      "seat": 803,
+      "machine": ""
+    },
+    {
+      "seat": 804,
+      "machine": ""
+    },
+    {
+      "seat": 805,
+      "machine": ""
+    },
+    {
+      "seat": 806,
+      "machine": ""
+    },
+    {
+      "seat": 807,
+      "machine": ""
+    },
+    {
+      "seat": 808,
+      "machine": ""
+    },
+    {
+      "seat": 809,
+      "machine": ""
+    },
+    {
+      "seat": 810,
+      "machine": ""
+    },
+    {
+      "seat": 811,
+      "machine": ""
+    },
+    {
+      "seat": 812,
+      "machine": ""
+    },
+    {
+      "seat": 813,
+      "machine": ""
+    },
+    {
+      "seat": 814,
+      "machine": ""
+    },
+    {
+      "seat": 815,
+      "machine": ""
+    },
+    {
+      "seat": 816,
+      "machine": ""
+    },
+    {
+      "seat": 817,
+      "machine": ""
+    },
+    {
+      "seat": 818,
+      "machine": ""
+    },
+    {
+      "seat": 819,
+      "machine": ""
+    },
+    {
+      "seat": 820,
+      "machine": ""
+    },
+    {
+      "seat": 821,
+      "machine": ""
+    },
+    {
+      "seat": 822,
+      "machine": ""
+    },
+    {
+      "seat": 823,
+      "machine": ""
+    },
+    {
+      "seat": 824,
+      "machine": ""
+    },
+    {
+      "seat": 825,
+      "machine": ""
+    },
+    {
+      "seat": 826,
+      "machine": ""
+    },
+    {
+      "seat": 827,
+      "machine": ""
+    },
+    {
+      "seat": 828,
+      "machine": ""
+    },
+    {
+      "seat": 829,
+      "machine": ""
+    },
+    {
+      "seat": 830,
+      "machine": ""
+    },
+    {
+      "seat": 831,
+      "machine": ""
+    },
+    {
+      "seat": 832,
+      "machine": ""
+    },
+    {
+      "seat": 833,
+      "machine": ""
+    },
+    {
+      "seat": 834,
+      "machine": ""
+    },
+    {
+      "seat": 835,
+      "machine": ""
+    },
+    {
+      "seat": 836,
+      "machine": ""
+    },
+    {
+      "seat": 837,
+      "machine": ""
+    },
+    {
+      "seat": 838,
+      "machine": ""
+    },
+    {
+      "seat": 839,
+      "machine": ""
+    },
+    {
+      "seat": 840,
+      "machine": ""
+    },
+    {
+      "seat": 841,
+      "machine": ""
+    },
+    {
+      "seat": 842,
+      "machine": ""
+    },
+    {
+      "seat": 843,
+      "machine": ""
+    },
+    {
+      "seat": 844,
+      "machine": ""
+    },
+    {
+      "seat": 845,
+      "machine": ""
+    },
+    {
+      "seat": 846,
+      "machine": ""
+    },
+    {
+      "seat": 847,
+      "machine": ""
+    },
+    {
+      "seat": 848,
+      "machine": ""
+    },
+    {
+      "seat": 849,
+      "machine": ""
+    },
+    {
+      "seat": 850,
+      "machine": ""
+    },
+    {
+      "seat": 851,
+      "machine": ""
+    },
+    {
+      "seat": 852,
+      "machine": ""
+    },
+    {
+      "seat": 853,
+      "machine": ""
+    },
+    {
+      "seat": 854,
+      "machine": ""
+    },
+    {
+      "seat": 855,
+      "machine": ""
+    },
+    {
+      "seat": 856,
+      "machine": ""
+    },
+    {
+      "seat": 857,
+      "machine": ""
+    },
+    {
+      "seat": 858,
+      "machine": ""
+    },
+    {
+      "seat": 859,
+      "machine": ""
+    },
+    {
+      "seat": 860,
+      "machine": ""
+    },
+    {
+      "seat": 861,
+      "machine": ""
+    },
+    {
+      "seat": 862,
+      "machine": ""
+    },
+    {
+      "seat": 863,
+      "machine": ""
+    },
+    {
+      "seat": 864,
+      "machine": ""
+    },
+    {
+      "seat": 865,
+      "machine": ""
+    },
+    {
+      "seat": 866,
+      "machine": ""
+    },
+    {
+      "seat": 867,
+      "machine": ""
+    },
+    {
+      "seat": 868,
+      "machine": ""
+    },
+    {
+      "seat": 869,
+      "machine": ""
+    },
+    {
+      "seat": 870,
+      "machine": ""
+    },
+    {
+      "seat": 871,
+      "machine": ""
+    },
+    {
+      "seat": 872,
+      "machine": ""
+    },
+    {
+      "seat": 873,
+      "machine": ""
+    },
+    {
+      "seat": 874,
+      "machine": ""
+    },
+    {
+      "seat": 875,
+      "machine": ""
+    },
+    {
+      "seat": 876,
+      "machine": ""
+    },
+    {
+      "seat": 893,
+      "machine": ""
+    },
+    {
+      "seat": 894,
+      "machine": ""
+    },
+    {
+      "seat": 895,
+      "machine": ""
+    },
+    {
+      "seat": 896,
+      "machine": ""
+    },
+    {
+      "seat": 897,
+      "machine": ""
+    },
+    {
+      "seat": 898,
+      "machine": ""
+    },
+    {
+      "seat": 899,
+      "machine": ""
+    },
+    {
+      "seat": 900,
+      "machine": ""
+    },
+    {
+      "seat": 901,
+      "machine": ""
+    },
+    {
+      "seat": 902,
+      "machine": ""
+    },
+    {
+      "seat": 903,
+      "machine": ""
+    },
+    {
+      "seat": 904,
+      "machine": ""
+    },
+    {
+      "seat": 905,
+      "machine": ""
+    },
+    {
+      "seat": 906,
+      "machine": ""
+    },
+    {
+      "seat": 907,
+      "machine": ""
+    },
+    {
+      "seat": 908,
+      "machine": ""
+    },
+    {
+      "seat": 909,
+      "machine": ""
+    },
+    {
+      "seat": 910,
+      "machine": ""
+    },
+    {
+      "seat": 911,
+      "machine": ""
+    },
+    {
+      "seat": 912,
+      "machine": ""
+    },
+    {
+      "seat": 913,
+      "machine": ""
+    },
+    {
+      "seat": 914,
+      "machine": ""
+    },
+    {
+      "seat": 915,
+      "machine": ""
+    },
+    {
+      "seat": 916,
+      "machine": ""
+    },
+    {
+      "seat": 917,
+      "machine": ""
+    },
+    {
+      "seat": 918,
+      "machine": ""
+    },
+    {
+      "seat": 919,
+      "machine": ""
+    },
+    {
+      "seat": 920,
+      "machine": ""
+    },
+    {
+      "seat": 921,
+      "machine": ""
+    },
+    {
+      "seat": 922,
+      "machine": ""
+    },
+    {
+      "seat": 923,
+      "machine": ""
+    },
+    {
+      "seat": 924,
+      "machine": ""
+    }
+  ]
+}
+
