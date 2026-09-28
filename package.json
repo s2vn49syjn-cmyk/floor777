@@ -2,7 +2,9 @@
   "name": "floor777",
   "private": true,
   "scripts": {
-    "test": "node tests/layout-migrate.mjs && node tests/cache.cjs && node tests/browser.cjs"
+    "test": "node tests/layout-migrate.mjs && node tests/shared-floor-ui.mjs && node tests/hall-template.mjs && node tests/cache.cjs && node tests/browser.cjs && node tests/shared-floor-browser.cjs",
+    "build:halls": "node tools/render-hall-pages.mjs --write",
+    "check:halls": "node tools/render-hall-pages.mjs --check"
   },
   "devDependencies": {
     "playwright": "1.62.1"

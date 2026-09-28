@@ -27,26 +27,6 @@ function mapValue(v,mode){
   return String(n);
 }
 
-function compactPositions(raw){
-  const entries=Object.entries(raw).map(([seat,p])=>[seat,p.map(Number)]);
-  const intervals=entries.map(([,p])=>[p[1],p[1]+p[3]]).sort((a,b)=>a[0]-b[0]);
-  if(!intervals.length) return {};
-  let edge=intervals[0][0]; const gaps=[];
-  for(const [start,end] of intervals){
-    if(start-edge>24) gaps.push([edge,start,start-edge-24]);
-    edge=Math.max(edge,end);
-  }
-  const minX=Math.min(...entries.map(([,p])=>p[0]));
-  const minY=intervals[0][0];
-  const out={};
-  for(const [seat,p] of entries){
-    const [x,y,w,h]=p;
-    const cut=gaps.filter(([,end])=>y>=end).reduce((s,g)=>s+g[2],0);
-    out[seat]=[x-minX+12,y-minY+62-cut,w,h];
-  }
-  return out;
-}
-
 async function initHallPage(){
   const app=document.querySelector('[data-hall-app]');
   if(!app) return;
@@ -54,10 +34,15 @@ async function initHallPage(){
   const hallFile=app.dataset.hallFile || 'hyper-arrow-mihara.json';
   const posFile=app.dataset.positionFile || 'positions-mihara.json';
   const [hall,rawPositions]=await Promise.all([
-    Floor777.fetchJSON(`${base}data/${hallFile}`), Floor777.fetchJSON(`${base}data/${posFile}`)
+    Floor777.fetchJSON(`${base}data/${hallFile}`), Floor777.fetchJSON(`${base}data/${posFile}`).catch(()=>null)
   ]);
   if(!Array.isArray(hall.seats)||!hall.seats.length)throw Error('No hall seats');
-  const positions=hall.preserve_layout?rawPositions:compactPositions(rawPositions);
+  const {resolveFloorModel}=await import(new URL(`${base}assets/floor-layout.mjs`,location.href).href);
+  let candidate=null;
+  try{candidate=await Floor777.fetchJSON(`${base}data/layouts/${hall.id}.json`)}catch{/* Legacy-only stores and offline caches have no v3 file. */}
+  const floorModel=resolveFloorModel(hall,rawPositions,candidate);
+  if(floorModel.fallbackReason)console.warn('Layout candidate unavailable; using legacy positions:',floorModel.fallbackReason);
+  const positions=floorModel.positions;
   if(!Object.keys(positions).length)throw Error('No map positions');
   let stats=null;
   const liveStatsUrl=new URL(`${base}data/live/${hall.id}-stats.json`,location.href).href;
@@ -190,7 +175,7 @@ async function initHallPage(){
       const raw=positions[String(item.seat)]; if(!raw) continue;
       const [x,y,w,h]=orientedPosition(raw);
       const rec=stats?.seats?.[String(item.seat)];
-      const g=document.createElementNS(NS,'g');g.setAttribute('class','seat');g.dataset.seat=item.seat;g.dataset.machine=item.machine;g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label',`${item.seat}番台 ${item.machine}`);
+      const g=document.createElementNS(NS,'g');g.setAttribute('class','seat');g.dataset.seat=item.seat;g.dataset.machine=item.machine;const islandId=floorModel.islandByNumber.get(Number(item.seat));if(islandId)g.dataset.island=islandId;g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label',`${item.seat}番台 ${item.machine}`);
       const r=document.createElementNS(NS,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx','3');
       const seatText=document.createElementNS(NS,'text');seatText.setAttribute('x',x+w/2);seatText.setAttribute('y',y+10);seatText.setAttribute('class','seat-number');
       const diffValue=mapDisplay==='diff3'?(hasNumber(rec?.periods?.['3']?.diff_sum)?rec.periods['3'].diff_sum:null):mapDisplay==='diff7'?(hasNumber(rec?.periods?.['7']?.diff_sum)?rec.periods['7'].diff_sum:null):rec?.latest?.diff;
