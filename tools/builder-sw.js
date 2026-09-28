@@ -7,10 +7,10 @@ if (!local) {
     await self.registration.unregister();
   })()));
 } else {
-  const CACHE = 'f777-island-builder-v2-local-review-1';
+  const CACHE = 'f777-island-builder-v2-local-review-2';
   const FILES = ['hall-editor.html', 'builder.css', 'builder.mjs', 'builder-quick.mjs',
     'builder-quick-model.mjs', 'builder-draw.mjs', 'builder-import.mjs', 'builder-store.mjs',
-    'builder-legacy-model.mjs', 'builder-zip.mjs', 'builder-detect.mjs', 'builder-worker.mjs',
+    'builder-model.mjs', 'builder-legacy-model.mjs', 'builder-zip.mjs', 'builder-detect.mjs', 'builder-worker.mjs',
     'builder.webmanifest', 'builder-icon.svg', 'layout-validator.mjs', 'layout-schema-v3.json'];
   self.addEventListener('install', event => event.waitUntil(caches.open(CACHE)
     .then(cache => cache.addAll(FILES.map(file => new URL(file, self.registration.scope).href)))
