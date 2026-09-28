@@ -5,6 +5,7 @@ hall-output/
 work/layout-drafts/
 work/publish-state/
 work/publish-staging/
+work/nationwide/
 
 .env
 .env.*
