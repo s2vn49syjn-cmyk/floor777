@@ -89,7 +89,7 @@ try {
   assert.equal((await inspectSourcePack(root, 'empty-hall')).status, 'blocked');
   assert.equal((await sourcePackStatuses(root)).length, 3); // one malformed pack must not hide other halls
   const record = (await loadMaster(root)).stores['good-hall'];
-  assert.equal(record.layoutProgress, 'validated');
+  assert.equal(record.layoutProgress, 'needs_review');
   assert.equal((await reviewQueue(root)).length, 1);
   assert.equal((await handoffCandidates(root)).length, 0);
   const resumed = await processSourcePacks(root, {hallIds: ['good-hall'], dryRun: false});
