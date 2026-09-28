@@ -10,6 +10,7 @@ import {processSourcePacks, sourcePackStatuses} from './nationwide/populate.mjs'
 import {populationDashboard, reviewQueue, handoffCandidates} from './nationwide/report.mjs';
 import {createOpenAIProvider} from './generate-layout/providers/openai.mjs';
 import {autoPopulateAll} from './nationwide/auto.mjs';
+import {sourceAcquisitionPlan} from './nationwide/source-plan.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2), command = args[0];
@@ -75,6 +76,10 @@ try {
     result = await sourcePackStatuses(root, {prefecture: value('prefecture'), layoutStatus: value('status'),
       sourceStatus: value('source-state'), hallIds: (value('hall') ?? value('store'))?.split(',') ?? null,
       limit: value('limit') ? Number(value('limit')) : Infinity});
+  } else if (command === 'source-plan') {
+    result = await sourceAcquisitionPlan(root, {prefecture: value('prefecture'),
+      hallIds: (value('hall') ?? value('store'))?.split(',') ?? null,
+      limit: value('limit') ? Number(value('limit')) : Infinity, createTemplates: execute});
   } else if (command === 'process') {
     result = await processSourcePacks(root, {hallIds: (value('hall') ?? value('store'))?.split(',') ?? null,
       prefecture: value('prefecture'), limit: value('limit') ? Number(value('limit')) : Infinity,
@@ -101,7 +106,7 @@ try {
     result = command === 'review' ? await importHumanReview(root, {...input, reviewedPath: path.resolve(path.dirname(path.resolve(inputFile)), input.reviewedPath)}) :
       await prepareGoal6Handoff(root, input);
   } else {
-    throw Error('Usage: node tools/nationwide.mjs init|register|source|review-source|source-template|source-check|source-seal|source-status|process|auto|review-queue|handoff-candidates|dashboard|generate|queue|stats|review|handoff [--input FILE] [--hall ID] [--prefecture NAME] [--provider mock|openai] [--model MODEL] [--max-files N] [--max-image-bytes N] [--max-pdf-pages N] [--timeout-ms N] [--max-retries 0..2] [--dry-run-provider] [--force] [--execute]');
+    throw Error('Usage: node tools/nationwide.mjs init|register|source|review-source|source-template|source-check|source-seal|source-status|source-plan|process|auto|review-queue|handoff-candidates|dashboard|generate|queue|stats|review|handoff [--input FILE] [--hall ID] [--prefecture NAME] [--provider mock|openai] [--model MODEL] [--max-files N] [--max-image-bytes N] [--max-pdf-pages N] [--timeout-ms N] [--max-retries 0..2] [--dry-run-provider] [--force] [--execute]');
   }
   console.log(JSON.stringify(result, null, 2));
 } catch (error) {console.error(error.message); process.exitCode = 1;}
