@@ -18,8 +18,11 @@ jobs:
       - run: npm install --ignore-scripts
       - run: npx playwright install --with-deps chromium
       - run: node tests/builder-model.mjs
+      - run: node tests/builder-detection.mjs
       - run: node tests/hall-template.mjs
       - run: node tests/builder-browser.cjs
+      - run: node tests/review-model.mjs
+      - run: node tests/review-browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

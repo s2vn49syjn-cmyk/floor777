@@ -15,6 +15,7 @@ const path=require('node:path');
   async function fill(id,value){await page.locator('#'+id).fill(String(value));await page.locator('#'+id).blur();}
   async function saved(){await page.waitForFunction(()=>document.querySelector('#saveState').textContent.includes('自動保存済み'));}
   await fill('name','検証用店舗');await fill('id','builder-test');await fill('city','堺市');
+  await page.locator('.add-tools').evaluate(element=>element.closest('details').open=true);
   await page.locator('[data-add=line]').click();await fill('count',5);await page.locator('#confirmed').check();await page.locator('#applyGeometry').click();await saved();
   assert.equal(await page.locator('.seat').count(),5);
   await page.locator('#fieldMode').click();await fill('startNumber',101);await page.locator('#numberDetails').evaluate(e=>e.open=true);await fill('skipNumbers',104);await page.locator('#assign').click();await saved();
@@ -31,7 +32,19 @@ const path=require('node:path');
   const dl=page.waitForEvent('download');await page.locator('#export').click();const download=await dl;assert(download.suggestedFilename().endsWith('.zip'));await download.saveAs(path.join(require('node:os').tmpdir(),'builder-browser.zip'));
   // Reload the entire app without network. Geometry and numbering must survive.
   await page.waitForFunction(()=>document.querySelector('#offlineState').textContent.includes('利用できます'));
-  await page.reload();await saved();await context.setOffline(true);await page.reload();await saved();assert.equal(await page.locator('.seat').count(),8);
+  await page.reload();await saved();
+  await page.waitForFunction(()=>navigator.serviceWorker.controller!==null);
+  // A fresh Linux CI browser has no warm HTTP cache. Check the module graph
+  // before going offline, then disable HTTP cache so only the worker can serve it.
+  const missing=await page.evaluate(async()=>{
+   const required=['hall-editor.html','builder.mjs','builder-model.mjs','builder-legacy-model.mjs','layout-validator.mjs'];
+   const results=await Promise.all(required.map(async file=>[file,!!(await caches.match(new URL(file,location.href)))]));
+   return results.filter(([,cached])=>!cached).map(([file])=>file);
+  });
+  assert.deepEqual(missing,[],'offline cache is missing required builder modules');
+  const cdp=await context.newCDPSession(page);
+  await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
+  await context.setOffline(true);await page.reload();await saved();assert.equal(await page.locator('.seat').count(),8);
   console.log('Offline probe',await page.evaluate(()=>({online:navigator.onLine,label:document.querySelector('#network').textContent})));
   assert(await page.evaluate(async()=>{try{await fetch('/offline-probe',{cache:'no-store'});return false;}catch{return true;}}));
   await page.locator('#islandSelect').selectOption({index:0});await fill('startNumber',301);await page.locator('#assign').click();await saved();await page.reload();await saved();assert((await page.locator('.seat-label').allTextContents()).includes('301'));await context.setOffline(false);
