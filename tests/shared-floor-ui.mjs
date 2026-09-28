@@ -31,7 +31,10 @@ for (const id of ids) {
     assert.equal(model.floor.islands.length, 0);
   }
   const currentHTML = fs.readFileSync(path.join(root, 'halls', id, 'index.html'), 'utf8');
-  assert.equal(renderExistingHall(id), currentHTML, `${id}: shared template changed page contents`);
+  // Git may check out LF on Linux and CRLF on Windows; compare page content,
+  // leaving line-ending conversion outside the shared-template regression.
+  assert.equal(renderExistingHall(id).replace(/\r\n/g, '\n'), currentHTML.replace(/\r\n/g, '\n'),
+    `${id}: shared template changed page contents`);
   assert(currentHTML.includes(`data-hall-file="${id}.json"`));
   assert(currentHTML.includes(`https://floor777.com/halls/${id}/`));
   if (candidate) assert(currentHTML.includes('noindex,nofollow'), `${id}: draft must remain unpublished`);

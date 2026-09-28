@@ -11,7 +11,7 @@ for (const id of ids) {
   const target = path.join(root, 'halls', id, 'index.html');
   if (!fs.existsSync(target)) throw Error(`Missing existing page: ${id}`);
   const rendered = renderExistingHall(id);
-  if (fs.readFileSync(target, 'utf8') === rendered) continue;
+  if (fs.readFileSync(target, 'utf8').replace(/\r\n/g, '\n') === rendered.replace(/\r\n/g, '\n')) continue;
   changed++;
   if (write) fs.writeFileSync(target, rendered);
   console.log(`${id}: ${write ? 'updated' : 'needs regeneration'}`);
