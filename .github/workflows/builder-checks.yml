@@ -3,7 +3,7 @@ on:
   push:
     branches: ['codex/island-builder-*', 'feature/ai-layout-generation', 'feature/publish-promotion-workflow', 'feature/nationwide-layout-rollout', 'feature/nationwide-layout-population', 'feature/vision-layout-provider', 'feature/vision-smoke-pilot']
   pull_request:
-    paths: ['tools/**', 'tests/builder-*', 'tests/review-*', 'tests/ai-layout*', 'tests/publish-workflow.mjs', 'tests/nationwide.mjs', 'tests/source-pack.mjs', 'tests/vision-provider*', '.github/workflows/builder-checks.yml']
+    paths: ['tools/**', 'tests/builder-*', 'tests/review-*', 'tests/ai-layout*', 'tests/publish-workflow.mjs', 'tests/nationwide.mjs', 'tests/source-pack.mjs', 'tests/source-collector.mjs', 'tests/vision-provider*', '.github/workflows/builder-checks.yml']
 permissions:
   contents: read
 jobs:
@@ -30,6 +30,7 @@ jobs:
       - run: node tests/publish-workflow.mjs
       - run: node tests/nationwide.mjs
       - run: node tests/source-pack.mjs
+      - run: node tests/source-collector.mjs
       - run: node tests/vision-provider.mjs
       - run: node tests/vision-provider-browser.cjs
       - run: node tests/layout-v3.mjs
