@@ -11,6 +11,7 @@ import {handoffCandidates, populationDashboard, reviewQueue} from '../tools/nati
 import {importHumanReview} from '../tools/nationwide/pipeline.mjs';
 import {validateRolloutDraft} from '../tools/nationwide/validate.mjs';
 import {autoPopulateAll} from '../tools/nationwide/auto.mjs';
+import {sourceAcquisitionPlan} from '../tools/nationwide/source-plan.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicFiles = ['data/halls.json', 'tests/fixtures/layout-golden.json',
@@ -116,6 +117,11 @@ try {
   const dashboard = await populationDashboard(root);
   assert.equal(dashboard.nationwide.totalHalls, 3);
   assert.equal(dashboard.nationwide.handoff_ready, 1);
+  const sourcePlan = await sourceAcquisitionPlan(root);
+  assert.equal(sourcePlan.selected, 2);
+  assert(sourcePlan.results.every(item => item.searchQueries.length === 3));
+  assert(sourcePlan.results.some(item => item.hallId === 'bad-hall'));
+  assert(sourcePlan.results.some(item => item.hallId === 'empty-hall'));
   assert.equal((await load(path.join(root, 'data/halls.json'))).halls.length, 0);
   console.log('PASS: Source Pack template/seal/rights/checksum, batch/resume/force, review queue, unresolved/multi-floor gates, handoff candidate and dashboard');
 } finally {await fs.rm(root, {recursive: true, force: true});}
