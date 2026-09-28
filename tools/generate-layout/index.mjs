@@ -18,14 +18,14 @@ const summary = report => ({valid: report.valid, machineCount: report.machineCou
   codes: [...new Set(report.diagnostics.map(item => item.code))]});
 
 export async function generateStore(manifest, {baseDir = process.cwd(), draftRoot = defaultDraftRoot,
-  provider = mockProvider, generatorVersion = GENERATOR_VERSION} = {}) {
+  provider = mockProvider, generatorVersion = GENERATOR_VERSION, force = false} = {}) {
   const bundle = await buildEvidenceBundle(manifest, {baseDir});
   const cacheKey = hash(stable({version: generatorVersion, provider: provider.id, model: provider.model,
     storeId: bundle.storeId, storeName: bundle.storeName,
     sources: bundle.sources.map(source => ({hash: source.contentHash, floor: source.floor, category: source.category,
       rentalType: source.rentalType}))}));
   const cached = await loadCached(draftRoot, bundle.storeId, cacheKey);
-  if (cached) return cached;
+  if (cached && !force) return cached;
   const audit = {generatorVersion, provider: provider.id, model: provider.model, generatedAt: new Date().toISOString(),
     sourceHashes: bundle.sources.map(source => ({sourceId: source.sourceId, contentHash: source.contentHash})),
     validationSummary: null, reasons: []};

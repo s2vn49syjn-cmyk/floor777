@@ -8,7 +8,8 @@
     "test:review": "node tests/review-model.mjs && node tests/review-browser.cjs",
     "review:open": "node tools/start-review-editor.mjs",
     "test:generate-layout": "node tests/ai-layout.mjs && node tests/ai-layout-browser.cjs",
-    "test:publish-workflow": "node tests/publish-workflow.mjs"
+    "test:publish-workflow": "node tests/publish-workflow.mjs",
+    "test:nationwide": "node tests/nationwide.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
