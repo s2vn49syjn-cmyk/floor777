@@ -9,6 +9,7 @@ import {createSourceTemplate, inspectSourcePack, sealSourcePack} from './nationw
 import {processSourcePacks, sourcePackStatuses} from './nationwide/populate.mjs';
 import {populationDashboard, reviewQueue, handoffCandidates} from './nationwide/report.mjs';
 import {createOpenAIProvider} from './generate-layout/providers/openai.mjs';
+import {autoPopulateAll} from './nationwide/auto.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2), command = args[0];
@@ -19,7 +20,7 @@ const input = inputFile ? JSON.parse(await fs.readFile(path.resolve(inputFile), 
 const execute = flag('execute');
 if (flag('dry-run-provider') && execute) throw Error('--dry-run-provider cannot be combined with --execute');
 const providerName = value('provider') ?? 'mock';
-if (providerName === 'openai' && execute && ['process', 'generate'].includes(command) && !flag('confirm-api-cost'))
+if (providerName === 'openai' && execute && ['process', 'generate', 'auto'].includes(command) && !flag('confirm-api-cost'))
   throw Error('OpenAI API charges may apply: explicit --confirm-api-cost is required');
 if (!['mock', 'openai'].includes(providerName)) throw Error('Supported providers: mock, openai');
 const numeric = (flagName, fallback) => value(flagName) === null ? fallback : Number(value(flagName));
@@ -78,6 +79,10 @@ try {
     result = await processSourcePacks(root, {hallIds: (value('hall') ?? value('store'))?.split(',') ?? null,
       prefecture: value('prefecture'), limit: value('limit') ? Number(value('limit')) : Infinity,
       dryRun: !execute, force: flag('force'), provider: selectedProvider});
+  } else if (command === 'auto') {
+    result = await autoPopulateAll(root, {hallIds: (value('hall') ?? value('store'))?.split(',') ?? null,
+      prefecture: value('prefecture'), limit: value('limit') ? Number(value('limit')) : Infinity,
+      dryRun: !execute, force: flag('force'), provider: selectedProvider, prepare: !flag('no-prepare')});
   } else if (command === 'review-queue') {
     result = await reviewQueue(root, {prefecture: value('prefecture')});
   } else if (command === 'handoff-candidates') {
@@ -96,7 +101,7 @@ try {
     result = command === 'review' ? await importHumanReview(root, {...input, reviewedPath: path.resolve(path.dirname(path.resolve(inputFile)), input.reviewedPath)}) :
       await prepareGoal6Handoff(root, input);
   } else {
-    throw Error('Usage: node tools/nationwide.mjs init|register|source|review-source|source-template|source-check|source-seal|source-status|process|review-queue|handoff-candidates|dashboard|generate|queue|stats|review|handoff [--input FILE] [--hall ID] [--prefecture NAME] [--provider mock|openai] [--model MODEL] [--max-files N] [--max-image-bytes N] [--max-pdf-pages N] [--timeout-ms N] [--max-retries 0..2] [--dry-run-provider] [--force] [--execute]');
+    throw Error('Usage: node tools/nationwide.mjs init|register|source|review-source|source-template|source-check|source-seal|source-status|process|auto|review-queue|handoff-candidates|dashboard|generate|queue|stats|review|handoff [--input FILE] [--hall ID] [--prefecture NAME] [--provider mock|openai] [--model MODEL] [--max-files N] [--max-image-bytes N] [--max-pdf-pages N] [--timeout-ms N] [--max-retries 0..2] [--dry-run-provider] [--force] [--execute]');
   }
   console.log(JSON.stringify(result, null, 2));
 } catch (error) {console.error(error.message); process.exitCode = 1;}
