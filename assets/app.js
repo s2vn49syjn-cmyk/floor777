@@ -89,10 +89,15 @@ async function initHallPage(){
   const full={x:0,y:0,w:mapW,h:mapH};
   svg.style.aspectRatio=`${mapW} / ${mapH}`;
   let view={...full};
-  let mode='machine',matches=[],selected=null,selectedIndex=-1;
+  let mode=machineNames.length?'machine':'seat',matches=[],selected=null,selectedIndex=-1;
+  if(mode==='seat'){
+    modeButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.searchMode==='seat'));
+    input.placeholder='例：224';
+    input.inputMode='numeric';
+  }
   let sensorRotation=0;
   let flipped=Floor777.storage.get(`floor777-orientation-${hall.id}`)==='180';
-  let showNames=(!compactDraft||machineNames.length>0)&&Floor777.storage.get(`floor777-show-names-${hall.id}`)!=='0';
+  let showNames=machineNames.length>0&&Floor777.storage.get(`floor777-show-names-${hall.id}`)!=='0';
   let mapDisplay=Floor777.storage.get(`floor777-map-display-${hall.id}`)||'seat';
   if(!['seat','diff','diff3','diff7','spins'].includes(mapDisplay))mapDisplay='seat';
   let showRecommendations=Floor777.storage.get(`floor777-recommend-${hall.id}`)==='1';
