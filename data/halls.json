@@ -84,11 +84,12 @@
       "path": "halls/maruhan-megacity-sakai/",
       "status": "published",
       "features": [
+        "機種名検索",
         "台番号検索",
         "島図",
         "向き切替"
       ],
-      "machine_updated_at": null
+      "machine_updated_at": "2026-09-28"
     }
   ]
 }
