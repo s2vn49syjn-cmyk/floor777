@@ -23,9 +23,13 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Probe rendered pages
         run: node tools/live-source-probe.mjs
+      - name: Probe DMM floor-map candidates
+        run: node tools/live-dmm-probe.mjs
       - name: Upload private discovery evidence
         uses: actions/upload-artifact@v4
         with:
           name: floor777-source-discovery
-          path: work/cloud-source-discovery
+          path: |
+            work/cloud-source-discovery
+            work/cloud-dmm-discovery
           retention-days: 7
