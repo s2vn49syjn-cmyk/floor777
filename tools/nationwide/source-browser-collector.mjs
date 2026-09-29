@@ -9,7 +9,7 @@ const catalogPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const today = () => new Date().toISOString().slice(0, 10);
 const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const pworldHost = host => host === 'p-world.co.jp' || host.endsWith('.p-world.co.jp');
-const registeredAssetHost = host => host === 'idn.p-world.co.jp' || host === 'www.maruhan.co.jp' || host === 'maruhan.co.jp';
+const registeredAssetHost = host => host === 'idn.p-world.co.jp' || host === 'www.maruhan.co.jp' || host === 'maruhan.co.jp' || host === 'i0.wp.com';
 
 export function normalizeFloorLink(raw) {
   try {
@@ -166,7 +166,7 @@ export async function collectRenderedHallSource(root, hallId, {candidatePages = 
         if (!current.equals(bytes)) throw Error('Refusing to overwrite changed rendered source file');
       });
       const sourceHost = new URL(sourceUrl).hostname;
-      const sourceOwner = pworldHost(sourceHost) ? 'P-WORLD' : /(^|\.)maruhan\.co\.jp$/.test(sourceHost) ? 'Maruhan' : sourceHost;
+      const sourceOwner = pworldHost(sourceHost) ? 'P-WORLD' : /(^|\.)maruhan\.co\.jp$/.test(sourceHost) ? 'Maruhan' : sourceHost === 'i0.wp.com' ? '関西すろいべ (WordPress CDN)' : sourceHost;
       const manifest = {formatVersion: 1, hallId, createdAt: existing?.createdAt ?? importedAt, sources: [{
         sourceId: 'floor-map', sourceType: 'p-world-rendered', sourceUrl,
         observedAt: today(), importedAt, usageReviewed: false, usageReviewedAt: null, usageNote: '',
