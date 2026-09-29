@@ -145,7 +145,7 @@ export async function collectRenderedHallSource(root, hallId, {candidatePages = 
         await page.waitForTimeout(300);
         const image = page.locator('img').first();
         const dimensions = await image.evaluate(node => ({width: node.naturalWidth || 0, height: node.naturalHeight || 0}));
-        if (dimensions.width < 600 || dimensions.height < 400) return {hallId, status: 'source_needed',
+        if (dimensions.width < 500 || dimensions.height < 350) return {hallId, status: 'source_needed',
           reasons: ['registered floor-map asset is too small'], sourceUrl};
         bytes = await image.screenshot({type: 'png'});
       } else {
