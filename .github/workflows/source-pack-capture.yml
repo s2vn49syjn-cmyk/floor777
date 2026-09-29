@@ -1,0 +1,38 @@
+name: Private source-pack capture
+
+on:
+  push:
+    branches:
+      - ops/source-pack-capture
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Capture currently supported floor-map sources
+        run: >-
+          node tools/nationwide.mjs source-browser-collect
+          --hall 123-senboku,harimaya-nakamozu,maruhan-komyoike,maruhan-megacity-sakai,rakuen-plus,verde
+          --execute
+      - name: Inspect captured Source Packs without waiving usage review
+        run: |
+          for hall in 123-senboku harimaya-nakamozu maruhan-komyoike maruhan-megacity-sakai rakuen-plus verde; do
+            echo "=== $hall ==="
+            node tools/nationwide.mjs source-check --hall "$hall" --allow-unreviewed || true
+          done
+      - name: Upload private unreviewed Source Packs
+        uses: actions/upload-artifact@v4
+        with:
+          name: floor777-private-source-packs
+          path: work/nationwide/sources
+          retention-days: 7
