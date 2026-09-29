@@ -66,6 +66,7 @@ try {
   assert(promptText.includes('category=slot'));
   assert(promptText.includes('rentalType=46枚'));
   assert(payload.instructions.includes('copy category and rentalType exactly'));
+  assert(payload.instructions.includes('include only islands or rows that are visibly part of the slot area'));
   assert(!JSON.stringify(payload).includes('https://example.org/provenance-only'));
   assert(!JSON.stringify(provider.getLastAudit()).includes('test-only'));
   const noRights = structuredClone(bundle); noRights.sources[0].usageReviewed = false;
