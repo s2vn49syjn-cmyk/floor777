@@ -354,6 +354,7 @@ async function initHallPage(){
   updatePhoneOrientationUI();
 
   const namesBtn=document.getElementById('namesBtn');
+  namesBtn.hidden=machineNames.length===0;
   const updateNamesLabel=()=>{const combined=mapDisplay!=='seat';namesBtn.disabled=combined;namesBtn.classList.toggle('active',showNames||combined);namesBtn.textContent=combined?'機種名 ON（固定）':showNames?'機種名 ON':'機種名 OFF';namesBtn.title=combined?'差枚・回転数表示では台番号と機種名も表示します':'機種名の表示切替'};updateNamesLabel();
   namesBtn.addEventListener('click',()=>{showNames=!showNames;Floor777.storage.set(`floor777-show-names-${hall.id}`,showNames?'1':'0');svg.querySelectorAll('.seat-machine').forEach(x=>x.style.display=showNames?'':'none');updateNamesLabel()});
 
