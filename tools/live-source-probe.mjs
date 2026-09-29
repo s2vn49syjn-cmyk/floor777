@@ -46,14 +46,27 @@ try {
             await img.screenshot({path: path.join(hallDir, `inline-candidate-${report[hallId].landingPages.length + 1}-${item.index}.png`)});
           } catch {}
         }
+        const labeledNeighbors = [];
         for (const item of labeledFloorImages.slice(0,6)) {
           try {
             const img = page.locator('img').nth(item.index);
             await img.scrollIntoViewIfNeeded();
             await img.screenshot({path: path.join(hallDir, `labeled-floor-${report[hallId].landingPages.length + 1}-${item.index}.png`)});
           } catch {}
+          for (let offset=1; offset<=5; offset++) {
+            try {
+              const idx=item.index+offset, img=page.locator('img').nth(idx);
+              const meta=await img.evaluate(node=>({src:node.currentSrc||node.src||'',alt:node.alt||'',
+                width:node.naturalWidth||0,height:node.naturalHeight||0}));
+              if(meta.src && meta.width>=450 && meta.height>=250) {
+                labeledNeighbors.push({index:idx,after:item.index,...meta});
+                await img.scrollIntoViewIfNeeded();
+                await img.screenshot({path:path.join(hallDir,`floor-neighbor-${report[hallId].landingPages.length + 1}-${item.index}-${idx}.png`)});
+              }
+            } catch {}
+          }
         }
-        report[hallId].landingPages.push({url: candidate.pageUrl, title: await page.title(), links, inline, labeledFloorImages});
+        report[hallId].landingPages.push({url: candidate.pageUrl, title: await page.title(), links, inline, labeledFloorImages, labeledNeighbors});
         floorLinks.push(...links.map(x => x.href));
       } catch (error) {report[hallId].landingPages.push({url: candidate.pageUrl, error: error.message});}
       finally {await page.close();}
