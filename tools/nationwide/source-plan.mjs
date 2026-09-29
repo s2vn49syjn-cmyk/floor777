@@ -7,7 +7,7 @@ import {createSourceTemplate} from './source-pack.mjs';
 
 const catalogPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'source-candidates.json');
 const loadCatalog = async () => fs.readFile(catalogPath, 'utf8').then(JSON.parse, () => ({halls: {}}));
-const cloudCollectableTypes = new Set(['p-world-smart-floor', 'p-world-slot-floor-image']);
+const cloudCollectableTypes = new Set(['p-world-smart-floor', 'p-world-slot-floor-image', 'maruhan-floor-image-via-p-world']);
 
 export function sourceCandidateCapability(candidate) {
   if (!candidate || typeof candidate !== 'object') return 'discovery_only';
