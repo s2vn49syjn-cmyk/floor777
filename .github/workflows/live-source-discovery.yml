@@ -25,6 +25,8 @@ jobs:
         run: node tools/live-source-probe.mjs
       - name: Probe DMM floor-map candidates
         run: node tools/live-dmm-probe.mjs
+      - name: Probe guessed P-WORLD floor endpoints
+        run: node tools/direct-floor-endpoint-probe.mjs
       - name: Upload private discovery evidence
         uses: actions/upload-artifact@v4
         with:
@@ -32,4 +34,5 @@ jobs:
           path: |
             work/cloud-source-discovery
             work/cloud-dmm-discovery
+            work/direct-floor-endpoint-probe
           retention-days: 7
