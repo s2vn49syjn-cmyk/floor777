@@ -9,6 +9,7 @@ const catalogPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const today = () => new Date().toISOString().slice(0, 10);
 const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const pworldHost = host => host === 'p-world.co.jp' || host.endsWith('.p-world.co.jp');
+const pworldAssetHost = host => host === 'idn.p-world.co.jp';
 
 export function normalizeFloorLink(raw) {
   try {
@@ -24,6 +25,23 @@ export function normalizeFloorLink(raw) {
     if (url.pathname.includes('/hall/floor_maps/')) return url.href;
     return null;
   } catch {return null;}
+}
+
+export function normalizePworldAsset(raw) {
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== 'https:' || !pworldAssetHost(url.hostname)) return null;
+    if (!/\.(?:png|jpe?g)(?:$|\?)/i.test(url.href)) return null;
+    return url.href;
+  } catch {return null;}
+}
+
+export function chooseRegisteredAsset(candidatePages) {
+  for (const candidate of candidatePages ?? []) {
+    const asset = normalizePworldAsset(candidate?.assetUrl);
+    if (asset) return asset;
+  }
+  return null;
 }
 
 export function chooseInlineFloorImage(headingY, images) {
@@ -52,7 +70,7 @@ async function linksFromPage(page) {
 }
 
 export async function discoverRenderedFloorSource(page, candidatePages) {
-  const observations = [], links = [];
+  const observations = [], links = [], directAssetUrl = chooseRegisteredAsset(candidatePages);
   for (const candidate of candidatePages.slice(0, 3)) {
     try {
       const url = new URL(candidate.pageUrl);
@@ -83,7 +101,7 @@ export async function discoverRenderedFloorSource(page, candidatePages) {
   }
   const selectedUrl = chooseSlotFloorLink(links);
   const inline = observations.find(item => Number.isInteger(item.inlineImageIndex));
-  return {selectedUrl, inline: inline ? {pageUrl: inline.pageUrl, imageIndex: inline.inlineImageIndex} : null, observations};
+  return {selectedUrl, directAssetUrl, inline: inline ? {pageUrl: inline.pageUrl, imageIndex: inline.inlineImageIndex} : null, observations};
 }
 
 export async function collectRenderedHallSource(root, hallId, {candidatePages = null, browser = null,
@@ -110,17 +128,26 @@ export async function collectRenderedHallSource(root, hallId, {candidatePages = 
     const page = await context.newPage();
     try {
       const discovery = await discoverRenderedFloorSource(page, pages);
-      if (!discovery.selectedUrl && !discovery.inline) return {hallId, status: 'source_needed',
-        reasons: ['no rendered floor-map link or inline map found'], observations: discovery.observations};
-      const sourceUrl = discovery.selectedUrl ?? discovery.inline.pageUrl;
+      if (!discovery.selectedUrl && !discovery.directAssetUrl && !discovery.inline) return {hallId, status: 'source_needed',
+        reasons: ['no rendered floor-map link, registered asset, or inline map found'], observations: discovery.observations};
+      const sourceUrl = discovery.selectedUrl ?? discovery.directAssetUrl ?? discovery.inline.pageUrl;
+      const capture = discovery.selectedUrl ? 'page' : discovery.directAssetUrl ? 'direct-image' : 'inline-image';
       if (dryRun) return {hallId, status: 'would_collect_rendered', sourceUrl,
-        capture: discovery.selectedUrl ? 'page' : 'inline-image', observations: discovery.observations};
+        capture, observations: discovery.observations};
 
       let bytes;
       if (discovery.selectedUrl) {
         await page.goto(discovery.selectedUrl, {waitUntil: 'domcontentloaded', timeout: 30000});
         await page.waitForTimeout(1200);
         bytes = await page.screenshot({fullPage: true, type: 'png'});
+      } else if (discovery.directAssetUrl) {
+        await page.goto(discovery.directAssetUrl, {waitUntil: 'domcontentloaded', timeout: 30000});
+        await page.waitForTimeout(300);
+        const image = page.locator('img').first();
+        const dimensions = await image.evaluate(node => ({width: node.naturalWidth || 0, height: node.naturalHeight || 0}));
+        if (dimensions.width < 600 || dimensions.height < 400) return {hallId, status: 'source_needed',
+          reasons: ['registered floor-map asset is too small'], sourceUrl};
+        bytes = await image.screenshot({type: 'png'});
       } else {
         await page.goto(discovery.inline.pageUrl, {waitUntil: 'domcontentloaded', timeout: 30000});
         await page.waitForTimeout(1000);

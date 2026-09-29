@@ -8,6 +8,12 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/kitanoda123.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7610",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "123-sakai-inter": [
@@ -15,6 +21,12 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/123-sakai.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7630",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "123-senboku": [
@@ -22,6 +34,19 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/senboku.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "p-world-slot-floor-image",
+        "pageUrl": "https://www.p-world.co.jp/osaka/senboku.htm",
+        "assetUrl": "https://idn.p-world.co.jp/hall/14799/img_warehouse/basic/2/4.jpg?1785895019",
+        "status": "unreviewed_candidate",
+        "note": "Current slot-floor image visually identified from the P-WORLD floor-map section during cloud discovery; usage review is still required."
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7644",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "arrow-toga": [
@@ -29,12 +54,23 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/toga-arrow.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7645",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "harimaya-nakamozu": [
       {
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/harimaya-nakamozu.htm",
+        "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "p-world-smart-floor",
+        "pageUrl": "https://www.p-world.co.jp/hall/floor_maps/59fe32feff6f",
         "status": "unreviewed_candidate"
       }
     ],
@@ -43,6 +79,12 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/hyper-arrow.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7604",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "hyper-arrow-senboku": [
@@ -50,6 +92,12 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/arrow-senboku.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7638",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "maruhan-harayamadai": [
@@ -57,6 +105,12 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/maruhan-harayamadai.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7648",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "maruhan-komyoike": [
@@ -78,6 +132,12 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/maruhan-oriono.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/12100",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "monroe": [
@@ -85,6 +145,12 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/monroe.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7580",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "rakuen-plus": [
@@ -104,6 +170,12 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/sherra.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7601",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "sherra-part3": [
@@ -111,6 +183,12 @@
         "sourceType": "p-world",
         "pageUrl": "https://www.p-world.co.jp/osaka/sierra3.htm",
         "status": "unreviewed_candidate"
+      },
+      {
+        "sourceType": "dmm-p-town",
+        "pageUrl": "https://p-town.dmm.com/shops/osaka/7651",
+        "status": "unreviewed_candidate",
+        "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
       }
     ],
     "verde": [

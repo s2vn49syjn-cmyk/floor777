@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict';
-import {normalizeFloorLink, chooseSlotFloorLink, chooseInlineFloorImage} from '../tools/nationwide/source-browser-collector.mjs';
+import {normalizeFloorLink, chooseSlotFloorLink, chooseInlineFloorImage, normalizePworldAsset, chooseRegisteredAsset} from '../tools/nationwide/source-browser-collector.mjs';
 
 const base = 'https://www.p-world.co.jp/hall/floor_maps/59fe3ef3f46e';
 assert.equal(normalizeFloorLink(`${base}?map_id=2`), `${base}?map_id=2`);
 assert.equal(normalizeFloorLink('https://example.com/floor_maps/nope'), null);
 assert.equal(normalizeFloorLink('http://www.p-world.co.jp/hall/floor_maps/nope'), null);
+const slotAsset = 'https://idn.p-world.co.jp/hall/14799/img_warehouse/basic/2/4.jpg?1785895019';
+assert.equal(normalizePworldAsset(slotAsset), slotAsset);
+assert.equal(normalizePworldAsset('https://example.com/map.jpg'), null);
+assert.equal(chooseRegisteredAsset([{pageUrl:'https://www.p-world.co.jp/osaka/senboku.htm', assetUrl:slotAsset}]), slotAsset);
+assert.equal(chooseRegisteredAsset([{pageUrl:'https://p-town.dmm.com/shops/osaka/7644'}]), null);
 
 const jump = 'https://www.p-world.co.jp/jump.cgi?url=https%3A%2F%2Fwww.maruhan.co.jp%2Fparts%2Fhall%2F1865%2Ffloor.png%3Fsize%3Dorigin';
 assert.equal(normalizeFloorLink(jump), 'https://www.maruhan.co.jp/parts/hall/1865/floor.png?size=origin');
