@@ -100,6 +100,7 @@ async function initHallPage(){
   let showNames=machineNames.length>0&&Floor777.storage.get(`floor777-show-names-${hall.id}`)!=='0';
   let mapDisplay=Floor777.storage.get(`floor777-map-display-${hall.id}`)||'seat';
   if(!['seat','diff','diff3','diff7','spins'].includes(mapDisplay))mapDisplay='seat';
+  if(stats?.diff_available===false&&mapDisplay.startsWith('diff'))mapDisplay='seat';
   let showRecommendations=Floor777.storage.get(`floor777-recommend-${hall.id}`)==='1';
   const recommendationRule=hall.recommendation||{method:'negative_top10',days:1,limit:10,label:'マイナス差枚上位10台'};
   let recommendationDays=Number(Floor777.storage.get(`floor777-recommend-days-${hall.id}`)||recommendationRule.days||1);
@@ -107,6 +108,7 @@ async function initHallPage(){
   const recommendationModes={negative:'マイナス順',positive:'プラス順',spins:'高稼働順'};
   let recommendationMode=Floor777.storage.get(`floor777-recommend-mode-${hall.id}`)||'negative';
   if(!recommendationModes[recommendationMode])recommendationMode='negative';
+  if(stats?.diff_available===false)recommendationMode='spins';
   function recommendationMetric(rec,days=recommendationDays){
     if(days===1)return recommendationMode==='spins'?rec?.latest?.spins:rec?.latest?.diff;
     const p=rec?.periods?.[String(days)];
@@ -359,6 +361,10 @@ async function initHallPage(){
   namesBtn.addEventListener('click',()=>{showNames=!showNames;Floor777.storage.set(`floor777-show-names-${hall.id}`,showNames?'1':'0');svg.querySelectorAll('.seat-machine').forEach(x=>x.style.display=showNames?'':'none');updateNamesLabel()});
 
   const mapValueButtons=[...document.querySelectorAll('[data-map-value]')];
+  if(stats?.diff_available===false){
+    mapValueButtons.filter(btn=>btn.dataset.mapValue.startsWith('diff')).forEach(btn=>btn.hidden=true);
+    document.querySelector('.diff-legend')?.setAttribute('hidden','');
+  }
   function updateMapValueButtons(){updateNamesLabel();mapValueButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.mapValue===mapDisplay))}
   mapValueButtons.forEach(btn=>btn.addEventListener('click',()=>{mapDisplay=btn.dataset.mapValue;Floor777.storage.set(`floor777-map-display-${hall.id}`,mapDisplay);updateMapValueButtons();renderMap();setView(view)}));updateMapValueButtons();
   const recommendBtn=document.getElementById('recommendBtn');
@@ -370,6 +376,7 @@ async function initHallPage(){
     periodControl.before(choices);
   }
   const recommendModeButtons=[...document.querySelectorAll('[data-recommend-mode]')];
+  if(stats?.diff_available===false)recommendModeButtons.filter(btn=>btn.dataset.recommendMode!=='spins').forEach(btn=>btn.hidden=true);
   function updateRecommendUI(){
     if(!recommendBtn)return;
     recommendBtn.disabled=!stats;
@@ -586,7 +593,7 @@ async function initHallPage(){
   shortlistUI=Floor777Shortlist({hall,bySeat,svg,onDetail:n=>selectSeat(n,false,true),onMap:n=>{detailDialog.close();switchScreen('map');selectSeat(n,true,true,false);document.querySelector('.map-card').scrollIntoView({behavior:'smooth',block:'start'})}});
   const initialParams=new URLSearchParams(location.search);
   switchScreen(initialParams.get('view')||'map');
-  document.getElementById('dataSummary').textContent=stats?`データ基準日 ${Floor777.formatDate(stats.latest_date)} ／ ${Object.keys(stats.seats).length}台`:'台データを読み込めませんでした。島図・検索は利用できます。';
+  document.getElementById('dataSummary').textContent=stats?`データ基準日 ${Floor777.formatDate(stats.latest_date)} ／ ${Object.keys(stats.seats).length}台${stats.diff_available===false?' ／ 差枚は未取得':''}`:'台データを読み込めませんでした。島図・検索は利用できます。';
   document.getElementById('reloadData').onclick=()=>location.reload();
   input.setAttribute('aria-label','機種名・台番号で検索');
   document.getElementById('recommendListToggle').onclick=()=>{showRecommendations=true;Floor777.storage.set(`floor777-recommend-${hall.id}`,'1');updateRecommendUI();renderMap();switchScreen('map');fullMap()};
