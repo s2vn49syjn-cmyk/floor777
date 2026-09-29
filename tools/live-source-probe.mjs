@@ -36,13 +36,24 @@ try {
               width: img.naturalWidth || 0, height: img.naturalHeight || 0};
           }).filter(x => x.src && x.y >= y0 - 100 && x.y <= y0 + 2600 && x.width >= 500 && x.height >= 300).slice(0, 4);
         });
+        const labeledFloorImages = await page.locator('img').evaluateAll(nodes => nodes.map((img,index) => ({
+          index, src: img.currentSrc || img.src || '', alt: img.alt || '',
+          width: img.naturalWidth || 0, height: img.naturalHeight || 0
+        })).filter(x => /フロア.?マップ|島図|floor.?map/i.test(x.alt + ' ' + x.src)));
         for (const item of inline) {
           try {
             const img = page.locator('img').nth(item.index);
             await img.screenshot({path: path.join(hallDir, `inline-candidate-${report[hallId].landingPages.length + 1}-${item.index}.png`)});
           } catch {}
         }
-        report[hallId].landingPages.push({url: candidate.pageUrl, title: await page.title(), links, inline});
+        for (const item of labeledFloorImages.slice(0,6)) {
+          try {
+            const img = page.locator('img').nth(item.index);
+            await img.scrollIntoViewIfNeeded();
+            await img.screenshot({path: path.join(hallDir, `labeled-floor-${report[hallId].landingPages.length + 1}-${item.index}.png`)});
+          } catch {}
+        }
+        report[hallId].landingPages.push({url: candidate.pageUrl, title: await page.title(), links, inline, labeledFloorImages});
         floorLinks.push(...links.map(x => x.href));
       } catch (error) {report[hallId].landingPages.push({url: candidate.pageUrl, error: error.message});}
       finally {await page.close();}
