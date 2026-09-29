@@ -9,7 +9,7 @@ const catalogPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const today = () => new Date().toISOString().slice(0, 10);
 const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const pworldHost = host => host === 'p-world.co.jp' || host.endsWith('.p-world.co.jp');
-const pworldAssetHost = host => host === 'idn.p-world.co.jp';
+const registeredAssetHost = host => host === 'idn.p-world.co.jp' || host === 'www.maruhan.co.jp' || host === 'maruhan.co.jp' || host === 'i0.wp.com';
 
 export function normalizeFloorLink(raw) {
   try {
@@ -27,10 +27,10 @@ export function normalizeFloorLink(raw) {
   } catch {return null;}
 }
 
-export function normalizePworldAsset(raw) {
+export function normalizeRegisteredAsset(raw) {
   try {
     const url = new URL(raw);
-    if (url.protocol !== 'https:' || !pworldAssetHost(url.hostname)) return null;
+    if (url.protocol !== 'https:' || !registeredAssetHost(url.hostname)) return null;
     if (!/\.(?:png|jpe?g)(?:$|\?)/i.test(url.href)) return null;
     return url.href;
   } catch {return null;}
@@ -38,7 +38,7 @@ export function normalizePworldAsset(raw) {
 
 export function chooseRegisteredAsset(candidatePages) {
   for (const candidate of candidatePages ?? []) {
-    const asset = normalizePworldAsset(candidate?.assetUrl);
+    const asset = normalizeRegisteredAsset(candidate?.assetUrl);
     if (asset) return asset;
   }
   return null;
@@ -124,7 +124,7 @@ export async function collectRenderedHallSource(root, hallId, {candidatePages = 
       ownedBrowser = await chromium.launch({headless: true});
       browser = ownedBrowser;
     }
-    const context = await browser.newContext({viewport: {width: 1440, height: 1200}, deviceScaleFactor: 1});
+    const context = await browser.newContext({viewport: {width: 1440, height: 1200}, deviceScaleFactor: 2});
     const page = await context.newPage();
     try {
       const discovery = await discoverRenderedFloorSource(page, pages);
@@ -145,7 +145,7 @@ export async function collectRenderedHallSource(root, hallId, {candidatePages = 
         await page.waitForTimeout(300);
         const image = page.locator('img').first();
         const dimensions = await image.evaluate(node => ({width: node.naturalWidth || 0, height: node.naturalHeight || 0}));
-        if (dimensions.width < 600 || dimensions.height < 400) return {hallId, status: 'source_needed',
+        if (dimensions.width < 500 || dimensions.height < 350) return {hallId, status: 'source_needed',
           reasons: ['registered floor-map asset is too small'], sourceUrl};
         bytes = await image.screenshot({type: 'png'});
       } else {
@@ -166,10 +166,11 @@ export async function collectRenderedHallSource(root, hallId, {candidatePages = 
         if (!current.equals(bytes)) throw Error('Refusing to overwrite changed rendered source file');
       });
       const sourceHost = new URL(sourceUrl).hostname;
+      const sourceOwner = pworldHost(sourceHost) ? 'P-WORLD' : /(^|\.)maruhan\.co\.jp$/.test(sourceHost) ? 'Maruhan' : sourceHost === 'i0.wp.com' ? '関西すろいべ (WordPress CDN)' : sourceHost;
       const manifest = {formatVersion: 1, hallId, createdAt: existing?.createdAt ?? importedAt, sources: [{
         sourceId: 'floor-map', sourceType: 'p-world-rendered', sourceUrl,
         observedAt: today(), importedAt, usageReviewed: false, usageReviewedAt: null, usageNote: '',
-        sourceOwner: pworldHost(sourceHost) ? 'P-WORLD' : sourceHost, floor: 'slot-floor',
+        sourceOwner, floor: 'slot-floor',
         category: 'slot', rentalType: 'slot-floor', pages: null,
         localFiles: [{path: filename, checksum: sha256(bytes)}]
       }]};

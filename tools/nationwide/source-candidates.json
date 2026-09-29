@@ -14,6 +14,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/7610",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "p-world-slot-floor-image",
+        "pageUrl": "https://www.p-world.co.jp/osaka/kitanoda123.htm",
+        "assetUrl": "https://idn.p-world.co.jp/hall/12447/img_warehouse/basic/3/11.jpg?1767605780",
+        "status": "unreviewed_candidate",
+        "note": "Current P-WORLD floor map visually identified during cloud review; mixed floor image, extract only slot area."
       }
     ],
     "123-sakai-inter": [
@@ -27,6 +34,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/7630",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "p-world-slot-floor-image",
+        "pageUrl": "https://www.p-world.co.jp/osaka/123-sakai.htm",
+        "assetUrl": "https://idn.p-world.co.jp/hall/15324/img_warehouse/basic/1/9.jpg?1757722884",
+        "status": "unreviewed_candidate",
+        "note": "Current P-WORLD image explicitly labeled スロットフロアマップ."
       }
     ],
     "123-senboku": [
@@ -60,6 +74,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/7645",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "p-world-slot-floor-image",
+        "pageUrl": "https://www.p-world.co.jp/osaka/toga-arrow.htm",
+        "assetUrl": "https://idn.p-world.co.jp/hall/8090/img_warehouse/basic/2/4.jpg?1778579515",
+        "status": "unreviewed_candidate",
+        "note": "Current P-WORLD floor information image visually identified during cloud review."
       }
     ],
     "harimaya-nakamozu": [
@@ -85,6 +106,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/7604",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "p-world-slot-floor-image",
+        "pageUrl": "https://www.p-world.co.jp/osaka/hyper-arrow.htm",
+        "assetUrl": "https://idn.p-world.co.jp/hall/7862/img_warehouse/basic/0/4.jpg?1788254536",
+        "status": "unreviewed_candidate",
+        "note": "Current P-WORLD floor map visually identified during cloud review."
       }
     ],
     "hyper-arrow-senboku": [
@@ -98,6 +126,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/7638",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "p-world-slot-floor-image",
+        "pageUrl": "https://www.p-world.co.jp/osaka/arrow-senboku.htm",
+        "assetUrl": "https://idn.p-world.co.jp/hall/7527/img_warehouse/basic/1/19.jpg?1788164892",
+        "status": "unreviewed_candidate",
+        "note": "Current P-WORLD slot floor map visually identified during cloud review."
       }
     ],
     "maruhan-harayamadai": [
@@ -138,6 +173,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/12100",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "maruhan-floor-image-via-p-world",
+        "pageUrl": "https://www.p-world.co.jp/osaka/maruhan-oriono.htm",
+        "assetUrl": "https://www.maruhan.co.jp/parts/hall/2878/%E3%83%95%E3%83%AD%E3%82%A2%E3%83%9E%E3%83%83%E3%83%97%E3%82%B7%E3%82%A7%E3%82%A2%E3%83%AA9.9%E2%91%A0.png",
+        "status": "unreviewed_candidate",
+        "note": "Current Maruhan floor guide page 1 surfaced on the hall's P-WORLD page and visually confirmed as the slot-side floor."
       }
     ],
     "monroe": [
@@ -151,6 +193,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/7580",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "kansai-sloeve-floor-image",
+        "pageUrl": "https://kansai-sloeve.com/2026/04/19/4-18-%E3%83%A2%E3%83%B3%E3%83%AD%E3%83%BC%E7%B5%90%E6%9E%9C%E3%81%BE%E3%81%A8%E3%82%81%E3%80%90%E5%A4%A7%E9%98%AA%E5%BA%9C%E3%80%91/",
+        "assetUrl": "https://i0.wp.com/kansai-sloeve.com/wp-content/uploads/2026/04/%E5%B3%B6%E5%9B%B3-39.jpg?resize=640%2C905",
+        "status": "unreviewed_candidate",
+        "note": "April 2026 Monroe floor-information image exposed on a public result page. Private evidence candidate only; freshness and usage rights require human review before AI use."
       }
     ],
     "rakuen-plus": [
@@ -176,6 +225,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/7601",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "p-world-slot-floor-image",
+        "pageUrl": "https://www.p-world.co.jp/osaka/sherra.htm",
+        "assetUrl": "https://idn.p-world.co.jp/hall/11663/img_warehouse/basic/1/17.jpg?1788583345",
+        "status": "unreviewed_candidate",
+        "note": "Current P-WORLD floor information map visually identified next to its floor-information banner; mixed floor image, extract only slot area."
       }
     ],
     "sherra-part3": [
@@ -189,6 +245,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/7651",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "p-world-slot-floor-image",
+        "pageUrl": "https://www.p-world.co.jp/osaka/sierra3.htm",
+        "assetUrl": "https://idn.p-world.co.jp/hall/7868/img_warehouse/basic/0/4.jpg?1776221056",
+        "status": "unreviewed_candidate",
+        "note": "Current P-WORLD floor information map visually identified during cloud review; mixed floor image, extract only slot area."
       }
     ],
     "verde": [
