@@ -26,7 +26,7 @@ try {
         })).filter(x => /floor_maps|フロア.?マップ|島図/i.test(x.href + ' ' + x.text)));
         const inline = await page.evaluate(() => {
           const all = [...document.querySelectorAll('body *')];
-          const headings = all.filter(el => /^(?:▼?\\s*)?(?:フロア.?マップ|島図)(?:\\s*▼?)?$/i.test((el.textContent || '').trim()))
+          const headings = all.filter(el => { const t=(el.textContent||'').replace(/\\s+/g,' ').trim(); return t.length > 0 && t.length <= 60 && /フロア.?マップ|島図/i.test(t); })
             .map(el => el.getBoundingClientRect().top + scrollY).filter(Number.isFinite);
           if (!headings.length) return [];
           const y0 = Math.min(...headings);
@@ -34,7 +34,7 @@ try {
             const r = img.getBoundingClientRect(), y = r.top + scrollY;
             return {index, src: img.currentSrc || img.src || '', alt: img.alt || '', y,
               width: img.naturalWidth || 0, height: img.naturalHeight || 0};
-          }).filter(x => x.src && x.y >= y0 - 100 && x.y <= y0 + 1800 && x.width >= 500 && x.height >= 300).slice(0, 4);
+          }).filter(x => x.src && x.y >= y0 - 100 && x.y <= y0 + 2600 && x.width >= 500 && x.height >= 300).slice(0, 4);
         });
         for (const item of inline) {
           try {
