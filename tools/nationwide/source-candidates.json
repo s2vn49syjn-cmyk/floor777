@@ -193,6 +193,13 @@
         "pageUrl": "https://p-town.dmm.com/shops/osaka/7580",
         "status": "unreviewed_candidate",
         "note": "Secondary discovery candidate only. GitHub-hosted browser probes currently receive an edge error from DMM; do not bypass access controls."
+      },
+      {
+        "sourceType": "kansai-sloeve-floor-image",
+        "pageUrl": "https://kansai-sloeve.com/2026/04/19/4-18-%E3%83%A2%E3%83%B3%E3%83%AD%E3%83%BC%E7%B5%90%E6%9E%9C%E3%81%BE%E3%81%A8%E3%82%81%E3%80%90%E5%A4%A7%E9%98%AA%E5%BA%9C%E3%80%91/",
+        "assetUrl": "https://i0.wp.com/kansai-sloeve.com/wp-content/uploads/2026/04/%E5%B3%B6%E5%9B%B3-39.jpg?resize=640%2C905",
+        "status": "unreviewed_candidate",
+        "note": "April 2026 Monroe floor-information image exposed on a public result page. Private evidence candidate only; freshness and usage rights require human review before AI use."
       }
     ],
     "rakuen-plus": [
