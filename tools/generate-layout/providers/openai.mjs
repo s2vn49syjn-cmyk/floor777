@@ -67,7 +67,7 @@ export async function prepareVisionInput(bundle, {root, allowedDirectory = null,
   const visualSources = bundle.sources.filter(source => visual.has(source.format));
   if (!visualSources.length) throw fail('insufficient_evidence', 'No local floor-map image or PDF');
   if (visualSources.length > limits.maxFiles) throw fail('file_limit', 'Too many visual files for one store');
-  const content = [{type: 'input_text', text: `Store ${bundle.storeId}. Visual evidence metadata: ${visualSources.map(s => `${s.sourceId} (floor=${s.floor}; category=${s.category}; rentalType=${s.rentalType})`).join(', ')}. Floor category and rentalType are trusted source metadata; copy them exactly into the matching floor output. Source URLs are provenance only and are not available to fetch.`}];
+  const content = [{type: 'input_text', text: `Store ${bundle.storeId}. Visual evidence metadata: ${visualSources.map(s => `${s.sourceId} (floor=${s.floor}; category=${s.category}; rentalType=${s.rentalType})`).join(', ')}. Floor category and rentalType are trusted source metadata; copy them exactly into the matching floor output. When trusted category is slot but the image contains both pachinko and slot areas, include only islands or rows that are visibly part of the slot area and ignore pachinko-only areas. Source URLs are provenance only and are not available to fetch.`}];
   const files = [];
   let totalBytes = 0, pageCount = 0;
   for (const source of visualSources) {
