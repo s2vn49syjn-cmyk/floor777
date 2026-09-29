@@ -20,3 +20,6 @@ jobs:
       - run: npm install --ignore-scripts
       - name: Discover current candidate floor maps
         run: node tools/nationwide.mjs source-collect --limit 16
+      - run: npx playwright install --with-deps chromium
+      - name: Probe rendered pages
+        run: node tools/live-source-probe.mjs
