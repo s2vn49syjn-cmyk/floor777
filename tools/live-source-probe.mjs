@@ -24,7 +24,25 @@ try {
         const links = await page.locator('a').evaluateAll(nodes => nodes.map(a => ({
           href: a.href || '', text: (a.innerText || a.textContent || '').trim()
         })).filter(x => /floor_maps|フロア.?マップ|島図/i.test(x.href + ' ' + x.text)));
-        report[hallId].landingPages.push({url: candidate.pageUrl, title: await page.title(), links});
+        const inline = await page.evaluate(() => {
+          const all = [...document.querySelectorAll('body *')];
+          const headings = all.filter(el => /^(?:▼?\\s*)?(?:フロア.?マップ|島図)(?:\\s*▼?)?$/i.test((el.textContent || '').trim()))
+            .map(el => el.getBoundingClientRect().top + scrollY).filter(Number.isFinite);
+          if (!headings.length) return [];
+          const y0 = Math.min(...headings);
+          return [...document.images].map((img, index) => {
+            const r = img.getBoundingClientRect(), y = r.top + scrollY;
+            return {index, src: img.currentSrc || img.src || '', alt: img.alt || '', y,
+              width: img.naturalWidth || 0, height: img.naturalHeight || 0};
+          }).filter(x => x.src && x.y >= y0 - 100 && x.y <= y0 + 1800 && x.width >= 500 && x.height >= 300).slice(0, 4);
+        });
+        for (const item of inline) {
+          try {
+            const img = page.locator('img').nth(item.index);
+            await img.screenshot({path: path.join(hallDir, `inline-candidate-${report[hallId].landingPages.length + 1}-${item.index}.png`)});
+          } catch {}
+        }
+        report[hallId].landingPages.push({url: candidate.pageUrl, title: await page.title(), links, inline});
         floorLinks.push(...links.map(x => x.href));
       } catch (error) {report[hallId].landingPages.push({url: candidate.pageUrl, error: error.message});}
       finally {await page.close();}
