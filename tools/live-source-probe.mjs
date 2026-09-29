@@ -66,7 +66,22 @@ try {
             } catch {}
           }
         }
-        report[hallId].landingPages.push({url: candidate.pageUrl, title: await page.title(), links, inline, labeledFloorImages, labeledNeighbors});
+        const largeImages = await page.locator('img').evaluateAll(nodes => nodes.map((img,index) => ({
+          index, src: img.currentSrc || img.src || '', alt: img.alt || '',
+          width: img.naturalWidth || 0, height: img.naturalHeight || 0
+        })).filter(x => x.src && x.width >= 500 && x.height >= 300).slice(0, 24));
+        const unresolvedIds = new Set(['123-kitanoda','arrow-toga','hyper-arrow-fukai','hyper-arrow-senboku',
+          'maruhan-harayamadai','maruhan-orisano','monroe','sherra-part3']);
+        if (unresolvedIds.has(hallId)) {
+          for (const item of largeImages) {
+            try {
+              const img = page.locator('img').nth(item.index);
+              await img.scrollIntoViewIfNeeded();
+              await img.screenshot({path:path.join(hallDir,`large-${report[hallId].landingPages.length + 1}-${item.index}.png`)});
+            } catch {}
+          }
+        }
+        report[hallId].landingPages.push({url: candidate.pageUrl, title: await page.title(), links, inline, labeledFloorImages, labeledNeighbors, largeImages});
         floorLinks.push(...links.map(x => x.href));
       } catch (error) {report[hallId].landingPages.push({url: candidate.pageUrl, error: error.message});}
       finally {await page.close();}
