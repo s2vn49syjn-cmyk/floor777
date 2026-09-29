@@ -26,6 +26,12 @@ export function normalizeFloorLink(raw) {
   } catch {return null;}
 }
 
+export function chooseInlineFloorImage(headingY, images) {
+  if (!Number.isFinite(headingY)) return null;
+  return images.filter(item => Number.isFinite(item.y) && item.y >= headingY - 100 && item.y <= headingY + 1200 &&
+    item.width >= 500 && item.height >= 300).sort((a, b) => a.y - b.y)[0] ?? null;
+}
+
 export function chooseSlotFloorLink(links) {
   const normalized = [...new Set(links.map(normalizeFloorLink).filter(Boolean))];
   const slotSmart = normalized.find(url => /\/hall\/floor_maps\//.test(url) && /[?&]map_id=2(?:&|$)/.test(url));
@@ -59,11 +65,25 @@ export async function discoverRenderedFloorSource(page, candidatePages) {
       const found = await linksFromPage(page);
       links.push(...found.map(item => item.href));
       if (url.pathname.includes('/hall/floor_maps/')) links.push(url.href);
-      observations.push({pageUrl: url.href, status: 'checked', floorLinks: found.length});
+      const inline = await page.evaluate(() => {
+        const all = [...document.querySelectorAll('body *')];
+        const headings = all.filter(el => /^(?:▼?\\s*)?(?:フロア.?マップ|島図)(?:\\s*▼?)?$/i.test((el.textContent || '').trim()))
+          .map(el => el.getBoundingClientRect().top + scrollY).filter(Number.isFinite);
+        const images = [...document.images].map((img, index) => {
+          const r = img.getBoundingClientRect();
+          return {index, y: r.top + scrollY, width: img.naturalWidth || 0, height: img.naturalHeight || 0};
+        });
+        return {headingY: headings.length ? Math.min(...headings) : null, images};
+      });
+      const inlineCandidate = chooseInlineFloorImage(inline.headingY, inline.images);
+      if (inlineCandidate) observations.push({pageUrl: url.href, status: 'inline_floor_candidate',
+        floorLinks: found.length, inlineImageIndex: inlineCandidate.index});
+      else observations.push({pageUrl: url.href, status: 'checked', floorLinks: found.length});
     } catch (error) {observations.push({pageUrl: candidate.pageUrl, status: 'failed', reason: error.message});}
   }
   const selectedUrl = chooseSlotFloorLink(links);
-  return {selectedUrl, observations};
+  const inline = observations.find(item => Number.isInteger(item.inlineImageIndex));
+  return {selectedUrl, inline: inline ? {pageUrl: inline.pageUrl, imageIndex: inline.inlineImageIndex} : null, observations};
 }
 
 export async function collectRenderedHallSource(root, hallId, {candidatePages = null, browser = null,
@@ -90,16 +110,24 @@ export async function collectRenderedHallSource(root, hallId, {candidatePages = 
     const page = await context.newPage();
     try {
       const discovery = await discoverRenderedFloorSource(page, pages);
-      if (!discovery.selectedUrl) return {hallId, status: 'source_needed',
-        reasons: ['no rendered floor-map link found'], observations: discovery.observations};
-      if (dryRun) return {hallId, status: 'would_collect_rendered', sourceUrl: discovery.selectedUrl,
-        observations: discovery.observations};
+      if (!discovery.selectedUrl && !discovery.inline) return {hallId, status: 'source_needed',
+        reasons: ['no rendered floor-map link or inline map found'], observations: discovery.observations};
+      const sourceUrl = discovery.selectedUrl ?? discovery.inline.pageUrl;
+      if (dryRun) return {hallId, status: 'would_collect_rendered', sourceUrl,
+        capture: discovery.selectedUrl ? 'page' : 'inline-image', observations: discovery.observations};
 
-      await page.goto(discovery.selectedUrl, {waitUntil: 'domcontentloaded', timeout: 30000});
-      await page.waitForTimeout(1200);
-      const bytes = await page.screenshot({fullPage: true, type: 'png'});
+      let bytes;
+      if (discovery.selectedUrl) {
+        await page.goto(discovery.selectedUrl, {waitUntil: 'domcontentloaded', timeout: 30000});
+        await page.waitForTimeout(1200);
+        bytes = await page.screenshot({fullPage: true, type: 'png'});
+      } else {
+        await page.goto(discovery.inline.pageUrl, {waitUntil: 'domcontentloaded', timeout: 30000});
+        await page.waitForTimeout(1000);
+        bytes = await page.locator('img').nth(discovery.inline.imageIndex).screenshot({type: 'png'});
+      }
       if (bytes.length < 10000) return {hallId, status: 'source_needed',
-        reasons: ['rendered floor-map screenshot was unexpectedly small'], sourceUrl: discovery.selectedUrl};
+        reasons: ['rendered floor-map screenshot was unexpectedly small'], sourceUrl};
 
       if (!existing) await createSourceTemplate(root, hallId);
       const directory = packDirectory(root, hallId), importedAt = new Date().toISOString();
@@ -110,9 +138,9 @@ export async function collectRenderedHallSource(root, hallId, {candidatePages = 
         const current = await fs.readFile(target);
         if (!current.equals(bytes)) throw Error('Refusing to overwrite changed rendered source file');
       });
-      const sourceHost = new URL(discovery.selectedUrl).hostname;
+      const sourceHost = new URL(sourceUrl).hostname;
       const manifest = {formatVersion: 1, hallId, createdAt: existing?.createdAt ?? importedAt, sources: [{
-        sourceId: 'floor-map', sourceType: 'p-world-rendered', sourceUrl: discovery.selectedUrl,
+        sourceId: 'floor-map', sourceType: 'p-world-rendered', sourceUrl,
         observedAt: today(), importedAt, usageReviewed: false, usageReviewedAt: null, usageNote: '',
         sourceOwner: pworldHost(sourceHost) ? 'P-WORLD' : sourceHost, floor: 'slot-floor',
         category: 'slot', rentalType: 'slot-floor', pages: null,
@@ -120,8 +148,8 @@ export async function collectRenderedHallSource(root, hallId, {candidatePages = 
       }]};
       await fs.writeFile(path.join(directory, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
       await fs.appendFile(path.join(directory, 'notes.md'),
-        `\n## Rendered collection ${importedAt}\n\nCaptured a rendered floor-map candidate from ${discovery.selectedUrl}. Usage remains unreviewed; AI generation stays blocked until reviewed.\n`).catch(() => {});
-      return {hallId, status: 'collected_rendered_unreviewed', sourceUrl: discovery.selectedUrl,
+        `\n## Rendered collection ${importedAt}\n\nCaptured a rendered floor-map candidate from ${sourceUrl}. Usage remains unreviewed; AI generation stays blocked until reviewed.\n`).catch(() => {});
+      return {hallId, status: 'collected_rendered_unreviewed', sourceUrl,
         bytes: bytes.length, usageReviewed: false, apiCalls: 0, observations: discovery.observations};
     } finally {await context.close();}
   } finally {if (ownedBrowser) await ownedBrowser.close();}
