@@ -33,6 +33,12 @@ assert.equal(realPlan.selected, 16);
 const kitanoda = realPlan.results.find(item => item.hallId === '123-kitanoda');
 assert(kitanoda.candidateSources.some(source => source.pageUrl.includes('/osaka/kitanoda123.htm')));
 assert(kitanoda.candidateSources.every(source => source.status === 'unreviewed_candidate'));
+assert(kitanoda.candidateSources.some(source => source.collectionCapability === 'cloud_collectable'));
+const deepArrow = realPlan.results.find(item => item.hallId === 'hyper-arrow-fukai');
+assert(deepArrow.candidateSources.some(source => source.sourceType === 'dmm-p-town' &&
+  source.collectionCapability === 'external_review_needed'));
+assert(realPlan.acquisitionSummary.cloudCollectable >= 6);
+assert(realPlan.acquisitionSummary.externalReviewNeeded >= 1);
 const root = await fs.mkdtemp(path.join(os.tmpdir(), 'floor777-source-pack-'));
 const packDir = id => path.join(root, 'work/nationwide/sources', id);
 const manifestFile = id => path.join(packDir(id), 'manifest.json');
