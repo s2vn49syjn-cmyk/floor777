@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {normalizeFloorLink, chooseSlotFloorLink, chooseInlineFloorImage, normalizePworldAsset, chooseRegisteredAsset} from '../tools/nationwide/source-browser-collector.mjs';
+import {normalizeFloorLink, chooseSlotFloorLink, chooseInlineFloorImage, normalizeRegisteredAsset, chooseRegisteredAsset} from '../tools/nationwide/source-browser-collector.mjs';
 
 const base = 'https://www.p-world.co.jp/hall/floor_maps/59fe3ef3f46e';
 assert.equal(normalizeFloorLink(`${base}?map_id=2`), `${base}?map_id=2`);
