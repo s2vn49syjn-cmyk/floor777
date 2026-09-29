@@ -325,6 +325,11 @@ button:disabled{opacity:.48;cursor:default}
 .seat.picked:not(.selected) rect,.seat.recommended.picked:not(.selected) rect{stroke:#e51a91!important;stroke-width:5!important}
 .seat.recommended:not(.picked):not(.selected) rect{stroke:#e2ac00!important;stroke-width:4!important;filter:none!important}
 .seat.recommended .recommend-star{fill:#b88400!important;stroke:#fff!important;filter:none!important}
+/* Large halls use contiguous seats as the overview and reveal numbers after zooming. */
+.dense-map .seat rect{stroke-width:.65}
+.dense-map .seat .seat-number{display:none;font-weight:850;pointer-events:none}
+.dense-map.dense-labels .seat .seat-number,.dense-map .seat:is(.selected,.match) .seat-number{display:block}
+.dense-map .seat .seat-machine,.dense-map .seat .seat-value{display:none!important}
 .map-hint{background:#17283ce8;color:#fff;border-color:#405268}
 .recommended-row{animation:floor-row-enter .38s ease-out both}
 .recommended-row:nth-child(2){animation-delay:.04s}.recommended-row:nth-child(3){animation-delay:.08s}.recommended-row:nth-child(4){animation-delay:.12s}

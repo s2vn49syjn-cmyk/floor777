@@ -61,7 +61,7 @@ async function initHallPage(){
   if(!Object.keys(positions).length)throw Error('No map positions');
   let stats=null;
   const liveStatsUrl=new URL(`${base}data/live/${hall.id}-stats.json`,location.href).href;
-  const statsCandidates=[...new Set([liveStatsUrl,hall.stats_url&&Floor777.safeURL(hall.stats_url)].filter(Boolean))];
+  const statsCandidates=hall.no_live_stats?[]:[...new Set([liveStatsUrl,hall.stats_url&&Floor777.safeURL(hall.stats_url)].filter(Boolean))];
   for(const url of statsCandidates){
     try{const loaded=await Floor777.fetchJSON(url);if(loaded?.seats && loaded?.hall_id===hall.id){stats=loaded;break}}
     catch(err){console.warn('Stats unavailable',err.message)}
@@ -72,9 +72,11 @@ async function initHallPage(){
   }
   const bySeat=new Map(seats.map(x=>[Number(x.seat),x]));
   const compactDraft=hall.layout_status==='draft-unverified';
+  const denseMap=hall.compact_map===true;
   const machineCount=new Map(); seats.forEach(x=>{const name=String(x.machine||'').trim();if(name && name!=='機種名未設定' && name!=='機種不明')machineCount.set(name,(machineCount.get(name)||0)+1)});
   const machineNames=[...machineCount.keys()].sort((a,b)=>a.localeCompare(b,'ja'));
   const svg=document.getElementById('floorMap');
+  if(denseMap)svg.classList.add('dense-map');
   const resultBox=document.getElementById('resultSummary');
   const resultText=document.getElementById('resultText');
   const resultList=document.getElementById('resultList');
@@ -100,6 +102,7 @@ async function initHallPage(){
   let showNames=machineNames.length>0&&Floor777.storage.get(`floor777-show-names-${hall.id}`)!=='0';
   let mapDisplay=Floor777.storage.get(`floor777-map-display-${hall.id}`)||'seat';
   if(!['seat','diff','diff3','diff7','spins'].includes(mapDisplay))mapDisplay='seat';
+  if(hall.no_live_stats)mapDisplay='seat';
   if(stats?.diff_available===false&&mapDisplay.startsWith('diff'))mapDisplay='seat';
   let showRecommendations=Floor777.storage.get(`floor777-recommend-${hall.id}`)==='1';
   const recommendationRule=hall.recommendation||{method:'negative_top10',days:1,limit:10,label:'マイナス差枚上位10台'};
@@ -174,7 +177,7 @@ async function initHallPage(){
   document.getElementById('sourceDate').textContent=Floor777.formatDate(stats?.latest_date || hall.machine_updated_at);
   const statsBadge=document.getElementById('statsBadge');
   if(stats?.latest_date){statsBadge.textContent=`台データ ${Floor777.formatDate(stats.latest_date)}`;statsBadge.classList.add('live');const mu2=document.getElementById('machineUpdated');if(mu2)mu2.textContent=Floor777.formatDate(stats.latest_date);if(stats.source?.name)document.getElementById('sourceName').textContent=stats.source.name;if(stats.source?.url)document.getElementById('sourceLink').href=stats.report_urls?.[stats.latest_date]||stats.source.url}
-  else{statsBadge.textContent='台データ同期前';statsBadge.classList.add('warn')}
+  else{statsBadge.textContent=hall.no_live_stats?'台データ未提供':'台データ同期前';statsBadge.classList.add('warn')}
   datalist.innerHTML=machineNames.map(n=>`<option value="${escapeHtml(n)}"></option>`).join('');
 
   const favoriteBtn=document.getElementById('favoriteBtn');
@@ -195,22 +198,27 @@ async function initHallPage(){
     const label=document.createElementNS(NS,'text');label.setAttribute('x','20');label.setAttribute('y','35');label.setAttribute('class','floor-label');label.textContent=`${hall.name} / ${flipped?'180°表示':'標準表示'}`;mapContent.appendChild(label);
     for(const item of seats){
       const raw=positions[String(item.seat)]; if(!raw) continue;
-      const [x,y,w,h]=orientedPosition(raw);
+      let [x,y,w,h]=orientedPosition(raw);
+      if(denseMap){const size=18;x+=(w-size)/2;y+=(h-size)/2;w=size;h=size}
       const rec=stats?.seats?.[String(item.seat)];
       const g=document.createElementNS(NS,'g');g.setAttribute('class','seat');g.dataset.seat=item.seat;g.dataset.machine=item.machine;g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label',`${item.seat}番台 ${item.machine}`);
-      const r=document.createElementNS(NS,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx','3');
+      const r=document.createElementNS(NS,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx',denseMap?'1.5':'3');
       const seatText=document.createElementNS(NS,'text');seatText.setAttribute('x',x+w/2);seatText.setAttribute('y',y+10);seatText.setAttribute('class','seat-number');
       const diffValue=mapDisplay==='diff3'?(hasNumber(rec?.periods?.['3']?.diff_sum)?rec.periods['3'].diff_sum:null):mapDisplay==='diff7'?(hasNumber(rec?.periods?.['7']?.diff_sum)?rec.periods['7'].diff_sum:null):rec?.latest?.diff;
       const isDiffMode=['diff','diff3','diff7'].includes(mapDisplay);
       const showValue=isDiffMode||mapDisplay==='spins';
       g.classList.toggle('with-value',showValue);
       seatText.textContent=item.seat;seatText.setAttribute('y',y+(showValue?8:10));
-      if(compactDraft&&!showValue){
+      if(denseMap){
+        seatText.setAttribute('y',y+h/2);seatText.setAttribute('dominant-baseline','middle');
+        seatText.setAttribute('textLength',w-1.5);seatText.setAttribute('lengthAdjust','spacingAndGlyphs');
+        seatText.style.fontSize='10px';
+      }else if(compactDraft&&!showValue){
         const digits=String(item.seat).length;
         seatText.style.fontSize=`${Math.max(4,Math.min(11,h*0.72,(w-1)/(digits*0.62)))}px`;
         seatText.setAttribute('y',y+h/2);
       }
-      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:27));nameText.setAttribute('class','seat-machine');nameText.textContent=compactDraft&&['機種名未設定','機種不明',''].includes(String(item.machine||'').trim())?'':shortName(item.machine).slice(0,7);nameText.style.display=showNames||showValue?'':'none';
+      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:27));nameText.setAttribute('class','seat-machine');nameText.textContent=(compactDraft||denseMap)&&['機種名未設定','機種不明',''].includes(String(item.machine||'').trim())?'':shortName(item.machine).slice(0,7);nameText.style.display=denseMap?'none':showNames||showValue?'':'none';
       if(isDiffMode&&hasNumber(diffValue)){
         const d=Number(diffValue);
         g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
@@ -254,15 +262,15 @@ async function initHallPage(){
   }
   function clampView(v){
     const bounds=rotatedBounds();
-    const w=Math.max(250,Math.min(bounds.w,v.w)),h=Math.max(220,Math.min(bounds.h,v.h));
+    const w=Math.max(250,Math.min(bounds.w,v.w)),h=Math.max(denseMap?165:220,Math.min(bounds.h,v.h));
     return{x:Math.max(bounds.x,Math.min(bounds.x+bounds.w-w,v.x)),y:Math.max(bounds.y,Math.min(bounds.y+bounds.h-h,v.y)),w,h};
   }
-  function setView(v){view=clampView(v);svg.setAttribute('viewBox',`${view.x} ${view.y} ${view.w} ${view.h}`)}
+  function setView(v){view=clampView(v);svg.setAttribute('viewBox',`${view.x} ${view.y} ${view.w} ${view.h}`);if(denseMap)svg.classList.toggle('dense-labels',view.w<=Math.max(250,svg.clientWidth/1.3))}
   function fullMap(){setView(rotatedBounds())}
   function focusSeats(list){
     const ps=list.map(s=>positions[String(s)]).filter(Boolean).map(orientedPosition).map(rotatedPosition);if(!ps.length){fullMap();return}
     const minX=Math.min(...ps.map(p=>p[0])),maxX=Math.max(...ps.map(p=>p[0]+p[2])),minY=Math.min(...ps.map(p=>p[1])),maxY=Math.max(...ps.map(p=>p[1]+p[3]));
-    const cx=(minX+maxX)/2,cy=(minY+maxY)/2;let w=Math.max(430,(maxX-minX)+340),h=Math.max(360,(maxY-minY)+300);const aspect=svg.clientWidth/Math.max(1,svg.clientHeight);if(w/h<aspect)w=h*aspect;else h=w/aspect;w=Math.min(w,full.w);h=Math.min(h,full.h);setView({x:cx-w/2,y:cy-h/2,w,h});
+    const cx=(minX+maxX)/2,cy=(minY+maxY)/2;let w=Math.max(denseMap?(svg.clientWidth>720?430:250):430,(maxX-minX)+(denseMap?100:340)),h=Math.max(denseMap?165:360,(maxY-minY)+(denseMap?90:300));const aspect=svg.clientWidth/Math.max(1,svg.clientHeight);if(w/h<aspect)w=h*aspect;else h=w/aspect;w=Math.min(w,full.w);h=Math.min(h,full.h);setView({x:cx-w/2,y:cy-h/2,w,h});
   }
   function zoomAt(factor,cx=view.x+view.w/2,cy=view.y+view.h/2){const w=view.w/factor,h=view.h/factor,rx=(cx-view.x)/view.w,ry=(cy-view.y)/view.h;setView({x:cx-w*rx,y:cy-h*ry,w,h})}
   document.getElementById('mapFull').addEventListener('click',fullMap);document.getElementById('zoomIn').addEventListener('click',()=>zoomAt(1.35));document.getElementById('zoomOut').addEventListener('click',()=>zoomAt(.74));
@@ -517,7 +525,7 @@ async function initHallPage(){
   function renderSeatStats(seat){
     const status=document.getElementById('detailStatsStatus'),box=document.getElementById('detailStats');
     const rec=stats?.seats?.[String(seat)];
-    if(!rec){status.hidden=false;status.textContent=stats?'この台の公開データはありません。':'台データはまだ同期されていません。';box.hidden=true;const chart=document.getElementById('detailDiffChart');if(chart)chart.innerHTML='';return}
+    if(!rec){status.hidden=false;status.textContent=stats?'この台の公開データはありません。':hall.no_live_stats?'機種名・差枚は現在未提供です。':'台データはまだ同期されていません。';box.hidden=true;const chart=document.getElementById('detailDiffChart');if(chart)chart.innerHTML='';return}
     status.hidden=true;box.hidden=false;
     const put=(id,value,cls='')=>{const el=document.getElementById(id);el.textContent=value;el.className=cls};
     put('statLatestDiff',fmtNumber(rec.latest?.diff,true,'枚'),diffClass(rec.latest?.diff));
@@ -593,9 +601,9 @@ async function initHallPage(){
   shortlistUI=Floor777Shortlist({hall,bySeat,svg,onDetail:n=>selectSeat(n,false,true),onMap:n=>{detailDialog.close();switchScreen('map');selectSeat(n,true,true,false);document.querySelector('.map-card').scrollIntoView({behavior:'smooth',block:'start'})}});
   const initialParams=new URLSearchParams(location.search);
   switchScreen(initialParams.get('view')||'map');
-  document.getElementById('dataSummary').textContent=stats?`データ基準日 ${Floor777.formatDate(stats.latest_date)} ／ ${Object.keys(stats.seats).length}台${stats.diff_available===false?' ／ 差枚は未取得':''}`:'台データを読み込めませんでした。島図・検索は利用できます。';
+  document.getElementById('dataSummary').textContent=stats?`データ基準日 ${Floor777.formatDate(stats.latest_date)} ／ ${Object.keys(stats.seats).length}台${stats.diff_available===false?' ／ 差枚は未取得':''}`:hall.no_live_stats?'台番号と座席位置を掲載中。機種名・差枚は未提供です。':'台データを読み込めませんでした。島図・検索は利用できます。';
   document.getElementById('reloadData').onclick=()=>location.reload();
-  input.setAttribute('aria-label','機種名・台番号で検索');
+  input.setAttribute('aria-label',hall.no_live_stats?'台番号で検索':'機種名・台番号で検索');
   document.getElementById('recommendListToggle').onclick=()=>{showRecommendations=true;Floor777.storage.set(`floor777-recommend-${hall.id}`,'1');updateRecommendUI();renderMap();switchScreen('map');fullMap()};
   renderMap(); fullMap();
   const params=new URLSearchParams(location.search);if(params.get('mode')==='seat'){mode='seat';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='seat'));input.placeholder='例：821'}if(params.get('q')){input.value=params.get('q');runSearch(true)}if(params.get('seat'))selectSeat(Number(params.get('seat')),initialParams.get('view')==='map'||!initialParams.get('view'),false,false);
