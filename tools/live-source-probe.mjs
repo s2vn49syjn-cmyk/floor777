@@ -13,12 +13,13 @@ try {
       try {
         await page.goto(candidate.pageUrl, {waitUntil: 'domcontentloaded', timeout: 30000});
         await page.waitForTimeout(1200);
+        const floorLinks = await page.locator('a').evaluateAll(nodes => nodes.map(a => ({href: a.href || '', text: (a.innerText || a.textContent || '').trim()})).filter(x => /floor_maps|フロア.?マップ|島図/i.test(x.href + ' ' + x.text)).slice(0, 20));
         const images = await page.locator('img').evaluateAll(nodes => nodes.map((img, index) => ({
           index, src: img.currentSrc || img.src || '', alt: img.alt || '',
           width: img.naturalWidth || 0, height: img.naturalHeight || 0,
           text: (img.parentElement?.innerText || '').slice(0, 120)
         })).filter(x => x.src && x.width >= 500 && x.height >= 300));
-        report[hallId].push({pageUrl: candidate.pageUrl, title: await page.title(), images: images.slice(0, 12)});
+        report[hallId].push({pageUrl: candidate.pageUrl, title: await page.title(), floorLinks, images: images.slice(0, 12)});
       } catch (error) {report[hallId].push({pageUrl: candidate.pageUrl, error: error.message});}
       finally {await page.close();}
     }
