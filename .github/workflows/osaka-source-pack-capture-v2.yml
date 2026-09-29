@@ -1,0 +1,35 @@
+name: Osaka private source-pack capture v2
+
+on:
+  push:
+    branches:
+      - ops/osaka-source-pack-capture-v2
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Capture all current Osaka rollout candidates
+        run: >-
+          node tools/nationwide.mjs source-browser-collect
+          --hall 123-kitanoda,123-sakai-inter,123-senboku,arrow-toga,harimaya-nakamozu,hyper-arrow-fukai,hyper-arrow-senboku,maruhan-harayamadai,maruhan-komyoike,maruhan-megacity-sakai,maruhan-orisano,monroe,rakuen-plus,sherra,sherra-part3,verde
+          --execute
+      - name: Summarize private Source Packs
+        run: |
+          node tools/nationwide.mjs source-plan
+      - name: Upload private unreviewed Source Packs
+        uses: actions/upload-artifact@v4
+        with:
+          name: floor777-osaka-source-packs-v2
+          path: work/nationwide/sources
+          retention-days: 7
