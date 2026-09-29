@@ -1,0 +1,22 @@
+name: Live source discovery
+
+on:
+  push:
+    branches:
+      - ops/live-source-discovery
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --ignore-scripts
+      - name: Discover current candidate floor maps
+        run: node tools/nationwide.mjs source-collect --limit 16
