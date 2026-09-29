@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-21",
+  "updated_at": "2026-09-29",
   "halls": [
     {
       "id": "hyper-arrow-mihara",
@@ -54,6 +54,23 @@
         "向き切替"
       ],
       "machine_updated_at": "2026-09-20"
+    },
+    {
+      "id": "harimaya-nakamozu",
+      "name": "はりまや中もず店",
+      "prefecture": "大阪府",
+      "city": "堺市北区",
+      "category": "スロット",
+      "seat_count": 153,
+      "updated_at": "2026-09-29",
+      "path": "halls/harimaya-nakamozu/",
+      "status": "published",
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": null
     }
   ]
 }
