@@ -6,8 +6,12 @@ assert.equal(normalizeFloorLink(`${base}?map_id=2`), `${base}?map_id=2`);
 assert.equal(normalizeFloorLink('https://example.com/floor_maps/nope'), null);
 assert.equal(normalizeFloorLink('http://www.p-world.co.jp/hall/floor_maps/nope'), null);
 const slotAsset = 'https://idn.p-world.co.jp/hall/14799/img_warehouse/basic/2/4.jpg?1785895019';
-assert.equal(normalizePworldAsset(slotAsset), slotAsset);
-assert.equal(normalizePworldAsset('https://example.com/map.jpg'), null);
+assert.equal(normalizeRegisteredAsset(slotAsset), slotAsset);
+assert.equal(normalizeRegisteredAsset('https://example.com/map.jpg'), null);
+const maruhanAsset = 'https://www.maruhan.co.jp/parts/hall/2878/floor.png';
+assert.equal(normalizeRegisteredAsset(maruhanAsset), maruhanAsset);
+const wpAsset = 'https://i0.wp.com/kansai-sloeve.com/wp-content/uploads/2026/04/map.jpg?resize=640%2C905';
+assert.equal(normalizeRegisteredAsset(wpAsset), wpAsset);
 assert.equal(chooseRegisteredAsset([{pageUrl:'https://www.p-world.co.jp/osaka/senboku.htm', assetUrl:slotAsset}]), slotAsset);
 assert.equal(chooseRegisteredAsset([{pageUrl:'https://p-town.dmm.com/shops/osaka/7644'}]), null);
 
