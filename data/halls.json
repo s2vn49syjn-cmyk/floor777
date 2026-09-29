@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-29",
+  "updated_at": "2026-09-30",
   "halls": [
     {
       "id": "hyper-arrow-mihara",
@@ -90,6 +90,19 @@
         "向き切替"
       ],
       "machine_updated_at": "2026-09-28"
+    },
+    {
+      "id": "rakuen-plus",
+      "name": "ラクエンプラス",
+      "prefecture": "大阪府",
+      "city": "堺市西区",
+      "category": "スロット",
+      "seat_count": 903,
+      "updated_at": "2026-09-30",
+      "path": "halls/rakuen-plus/",
+      "status": "published",
+      "features": ["台番号検索", "島図", "向き切替"],
+      "machine_updated_at": null
     }
   ]
 }
