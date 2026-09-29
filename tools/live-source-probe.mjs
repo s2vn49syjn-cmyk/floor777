@@ -39,7 +39,7 @@ try {
         const labeledFloorImages = await page.locator('img').evaluateAll(nodes => nodes.map((img,index) => ({
           index, src: img.currentSrc || img.src || '', alt: img.alt || '',
           width: img.naturalWidth || 0, height: img.naturalHeight || 0
-        })).filter(x => /フロア.?マップ|島図|floor.?map/i.test(x.alt + ' ' + x.src)));
+        })).filter(x => /フロア.?マップ|フロア.?案内|島図|floor.?map|floor.?information/i.test(x.alt + ' ' + x.src)));
         for (const item of inline) {
           try {
             const img = page.locator('img').nth(item.index);
