@@ -7,6 +7,15 @@ import {createSourceTemplate} from './source-pack.mjs';
 
 const catalogPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'source-candidates.json');
 const loadCatalog = async () => fs.readFile(catalogPath, 'utf8').then(JSON.parse, () => ({halls: {}}));
+const cloudCollectableTypes = new Set(['p-world-smart-floor', 'p-world-slot-floor-image']);
+
+export function sourceCandidateCapability(candidate) {
+  if (!candidate || typeof candidate !== 'object') return 'discovery_only';
+  if (cloudCollectableTypes.has(candidate.sourceType)) return 'cloud_collectable';
+  if (candidate.sourceType === 'p-world') return 'cloud_probe';
+  if (candidate.sourceType === 'dmm-p-town') return 'external_review_needed';
+  return 'discovery_only';
+}
 
 export async function sourceAcquisitionPlan(root, {hallIds = null, prefecture = null, limit = Infinity,
   createTemplates = false} = {}) {
@@ -37,7 +46,10 @@ export async function sourceAcquisitionPlan(root, {hallIds = null, prefecture = 
       targetDirectory: directory,
       manifestPath: `${directory}/manifest.json`,
       template,
-      candidateSources: catalog.halls?.[row.hallId] ?? [],
+      candidateSources: (catalog.halls?.[row.hallId] ?? []).map(candidate => ({
+        ...candidate,
+        collectionCapability: sourceCandidateCapability(candidate)
+      })),
       searchQueries: [
         `${row.hallName} フロアマップ`,
         `${row.hallName} P-WORLD フロアマップ`,
@@ -52,9 +64,16 @@ export async function sourceAcquisitionPlan(root, {hallIds = null, prefecture = 
     });
   }
 
+  const candidates = results.flatMap(item => item.candidateSources);
   return {
     selected: results.length,
     createdTemplates: results.filter(item => item.template?.status === 'created').length,
+    acquisitionSummary: {
+      cloudCollectableCandidates: candidates.filter(source => source.collectionCapability === 'cloud_collectable').length,
+      cloudProbeCandidates: candidates.filter(source => source.collectionCapability === 'cloud_probe').length,
+      externalReviewCandidates: candidates.filter(source => source.collectionCapability === 'external_review_needed').length,
+      discoveryOnlyCandidates: candidates.filter(source => source.collectionCapability === 'discovery_only').length
+    },
     results
   };
 }
