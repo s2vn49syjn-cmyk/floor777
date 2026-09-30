@@ -640,7 +640,11 @@ async function initHallPage(){
   renderMap(); fullMap();
   const generatedSeatSize=generatedMap?50:null;
   const generatedWidth=generatedSeatSize?Math.max(250,generatedSeatSize*svg.clientWidth/(svg.clientWidth<620?24:28)):null;
-  const initialSeatWidth=denseMap?(svg.clientWidth<620?190:380):largeSeatMap?(svg.clientWidth<620?600:1250):generatedWidth;
+  const preferredSeatWidth=hall.seat_display_width_px;
+  const positionWidths=Object.values(positions).map(p=>p[2]).sort((a,b)=>a-b);
+  const displaySeatSize=denseMap?18:positionWidths[Math.floor(positionWidths.length/2)];
+  const chosenWidth=Number.isInteger(preferredSeatWidth)&&preferredSeatWidth>=20&&preferredSeatWidth<=40?displaySeatSize*svg.clientWidth/(preferredSeatWidth+(svg.clientWidth<620?0:4)):null;
+  const initialSeatWidth=chosenWidth??(denseMap?(svg.clientWidth<620?190:380):largeSeatMap?(svg.clientWidth<620?600:1250):generatedWidth);
   if(initialSeatWidth){
     const aspect=svg.clientWidth/Math.max(1,svg.clientHeight);
     const width=Math.min(full.w,initialSeatWidth);
