@@ -385,3 +385,11 @@ button:disabled{opacity:.48;cursor:default}
 .brand-image-logo{display:block;height:52px;width:auto;max-width:min(46vw,180px);object-fit:contain}
 .footer .brand-image-logo{height:44px;max-width:160px}
 @media(max-width:620px){.brand-image-logo{height:50px;max-width:152px}.header-inner{height:70px}.brand-image-link{flex:0 0 auto}}
+
+/* Generated maps use a comfortable viewing area instead of filling the page. */
+.map-viewport.readable-map-viewport{min-height:540px}
+.map-viewport.readable-map-viewport svg{width:min(100%,960px);height:540px;margin-inline:auto}
+@media(max-width:620px){
+  .map-viewport.readable-map-viewport{min-height:480px}
+  .map-viewport.readable-map-viewport svg{height:480px}
+}

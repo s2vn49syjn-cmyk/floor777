@@ -23,6 +23,6 @@ const html=fs.readFileSync(path.join(out,'halls/test-hall/index.html'),'utf8');
 assert(!html.includes('hyper-arrow-mihara'));assert(!html.includes('HYPER ARROW'));assert(html.includes('テスト「店舗」&lt;&amp;'));assert(html.includes('noindex'));
 assert.equal(JSON.parse(fs.readFileSync(path.join(out,'registration.json'))).status,'draft');
 assert.equal(JSON.parse(fs.readFileSync(path.join(out,'data/test-hall.json'))).seat_count,5);
-assert.equal(JSON.parse(fs.readFileSync(path.join(out,'data/test-hall.json'))).auto_fit_map,true);
+assert.equal(JSON.parse(fs.readFileSync(path.join(out,'data/test-hall.json'))).readable_seat_boxes,true);
 assert.throws(()=>execFileSync(process.execPath,['tools/build-hall.mjs',input,'--out',out],{stdio:'pipe'}));
 console.log('PASS: ranges, missing numbers, duplicates, overlap, invalid URL/path, generation and overwrite protection');

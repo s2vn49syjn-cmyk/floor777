@@ -62,11 +62,11 @@ function enlargeAdjacentSeats(raw,hallId){
   ]));
 }
 
-function fitGeneratedMap(raw){
+function sizeGeneratedMap(raw){
   const entries=Object.entries(raw),sizes=entries.map(([,p])=>p[2]).sort((a,b)=>a-b);
   const scale=50/sizes[Math.floor(sizes.length/2)];
   const left=Math.min(...entries.map(([,p])=>p[0]+p[2]/2)),top=Math.min(...entries.map(([,p])=>p[1]+p[3]/2));
-  return Object.fromEntries(entries.map(([seat,[x,y,w,h]])=>[seat,[(x+w/2-left)*scale+24,(y+h/2-top)*scale+64,50,50]]));
+  return Object.fromEntries(entries.map(([seat,[x,y,w,h]])=>[seat,[(x+w/2-left)*scale+72,(y+h/2-top)*scale+96,50,50]]));
 }
 
 async function initHallPage(){
@@ -80,7 +80,8 @@ async function initHallPage(){
   ]);
   if(!Array.isArray(hall.seats)||!hall.seats.length)throw Error('No hall seats');
   const originalPositions=enlargeAdjacentSeats(hall.preserve_layout?rawPositions:compactPositions(rawPositions),hall.id);
-  const positions=hall.auto_fit_map?fitGeneratedMap(originalPositions):originalPositions;
+  const generatedMap=hall.readable_seat_boxes===true||hall.auto_fit_map===true;
+  const positions=generatedMap?sizeGeneratedMap(originalPositions):originalPositions;
   if(!Object.keys(positions).length)throw Error('No map positions');
   let stats=null;
   const liveStatsUrl=new URL(`${base}data/live/${hall.id}-stats.json`,location.href).href;
@@ -97,11 +98,11 @@ async function initHallPage(){
   const compactDraft=hall.layout_status==='draft-unverified';
   const denseMap=hall.compact_map===true;
   const largeSeatMap=['maruhan-megacity-sakai','harimaya-nakamozu'].includes(hall.id);
-  const generatedMap=hall.auto_fit_map===true;
   const machineCount=new Map(); seats.forEach(x=>{const name=String(x.machine||'').trim();if(name && name!=='機種名未設定' && name!=='機種不明')machineCount.set(name,(machineCount.get(name)||0)+1)});
   const machineNames=[...machineCount.keys()].sort((a,b)=>a.localeCompare(b,'ja'));
   const svg=document.getElementById('floorMap');
   if(denseMap)svg.classList.add('dense-map');
+  if(generatedMap)svg.parentElement.classList.add('readable-map-viewport');
   const resultBox=document.getElementById('resultSummary');
   const resultText=document.getElementById('resultText');
   const resultList=document.getElementById('resultList');
@@ -636,10 +637,10 @@ async function initHallPage(){
   input.setAttribute('aria-label',hall.no_live_stats?'台番号で検索':'機種名・台番号で検索');
   document.getElementById('recommendListToggle').onclick=()=>{showRecommendations=true;Floor777.storage.set(`floor777-recommend-${hall.id}`,'1');updateRecommendUI();renderMap();switchScreen('map');fullMap()};
   renderMap(); fullMap();
-  if(svg.clientWidth<620&&(denseMap||largeSeatMap||hall.auto_fit_map))svg.style.height='560px';
-  const generatedSeatSize=hall.auto_fit_map?Object.values(positions).map(p=>p[2]).sort((a,b)=>a-b)[Math.floor(seats.length/2)]:null;
+  if(svg.clientWidth<620&&(denseMap||largeSeatMap))svg.style.height='560px';
+  const generatedSeatSize=generatedMap?50:null;
   const generatedWidth=generatedSeatSize?Math.max(250,generatedSeatSize*svg.clientWidth/(svg.clientWidth<620?24:28)):null;
-  const initialSeatWidth=denseMap?(svg.clientWidth<620?250:500):largeSeatMap?(svg.clientWidth<620?700:1400):hall.auto_fit_map?generatedWidth:null;
+  const initialSeatWidth=denseMap?(svg.clientWidth<620?250:500):largeSeatMap?(svg.clientWidth<620?700:1400):generatedWidth;
   if(initialSeatWidth){
     const aspect=svg.clientWidth/Math.max(1,svg.clientHeight);
     const width=Math.min(full.w,initialSeatWidth);
