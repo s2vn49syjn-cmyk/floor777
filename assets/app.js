@@ -63,8 +63,10 @@ function enlargeAdjacentSeats(raw,hallId){
 }
 
 function fitGeneratedMap(raw){
-  const entries=Object.entries(raw),left=Math.min(...entries.map(([,p])=>p[0])),top=Math.min(...entries.map(([,p])=>p[1]));
-  return Object.fromEntries(entries.map(([seat,[x,y,w,h]])=>[seat,[x-left+24,y-top+64,w,h]]));
+  const entries=Object.entries(raw),sizes=entries.map(([,p])=>p[2]).sort((a,b)=>a-b);
+  const scale=50/sizes[Math.floor(sizes.length/2)];
+  const left=Math.min(...entries.map(([,p])=>p[0]+p[2]/2)),top=Math.min(...entries.map(([,p])=>p[1]+p[3]/2));
+  return Object.fromEntries(entries.map(([seat,[x,y,w,h]])=>[seat,[(x+w/2-left)*scale+24,(y+h/2-top)*scale+64,50,50]]));
 }
 
 async function initHallPage(){
@@ -290,7 +292,7 @@ async function initHallPage(){
   }
   function clampView(v){
     const bounds=rotatedBounds();
-    const w=Math.max(250,Math.min(bounds.w,v.w)),h=Math.max(denseMap?165:220,Math.min(bounds.h,v.h));
+    const w=Math.min(bounds.w,Math.max(250,v.w)),h=Math.min(bounds.h,Math.max(denseMap?165:220,v.h));
     return{x:Math.max(bounds.x,Math.min(bounds.x+bounds.w-w,v.x)),y:Math.max(bounds.y,Math.min(bounds.y+bounds.h-h,v.y)),w,h};
   }
   function setView(v){view=clampView(v);svg.setAttribute('viewBox',`${view.x} ${view.y} ${view.w} ${view.h}`);if(denseMap)svg.classList.toggle('dense-labels',view.w<=Math.max(250,svg.clientWidth/1.3))}
