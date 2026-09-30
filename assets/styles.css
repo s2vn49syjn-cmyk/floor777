@@ -369,3 +369,13 @@ button:disabled{opacity:.48;cursor:default}
 .diff-legend .closs{background:#fff;border:2px solid #bb001b}
 
 @media(max-width:620px){.brand-logo{width:46px;height:46px;flex-basis:46px;border-radius:14px}.brand{gap:12px}.brand>span:last-child{font-size:1.08rem;letter-spacing:.05em}}
+
+
+/* FLOOR777 neon wordmark */
+.brand-wordmark-link{display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;line-height:1;white-space:nowrap;min-width:0}
+.wordmark-main{display:flex;align-items:center;font-family:Impact,"Arial Black","Helvetica Neue",Arial,sans-serif;font-size:31px;font-weight:900;letter-spacing:-.035em;line-height:.82}
+.wordmark-floor{color:#fff;text-shadow:0 0 5px rgba(255,255,255,.72),0 0 14px rgba(170,205,255,.28)}
+.wordmark-777{margin-left:3px;color:#290006;-webkit-text-stroke:1.35px #ff2948;text-shadow:0 0 4px #ff183d,0 0 10px rgba(255,20,55,.92),0 0 22px rgba(255,20,55,.46)}
+.wordmark-sub{margin-left:1px;color:#eee;font-size:6.4px;font-weight:650;letter-spacing:.27em;line-height:1.1;text-shadow:0 0 5px rgba(255,255,255,.18)}
+.footer .brand-wordmark-link{transform:scale(.9);transform-origin:left center}
+@media(max-width:620px){.brand-wordmark-link{gap:2px}.wordmark-main{font-size:28px}.wordmark-sub{font-size:5.8px;letter-spacing:.24em}.header-inner{height:64px}}
