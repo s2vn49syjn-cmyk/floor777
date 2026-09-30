@@ -98,11 +98,12 @@ async function initHallPage(){
   const compactDraft=hall.layout_status==='draft-unverified';
   const denseMap=hall.compact_map===true;
   const largeSeatMap=['maruhan-megacity-sakai','harimaya-nakamozu'].includes(hall.id);
+  const comfortableExistingMap=['rakuen-plus','maruhan-megacity-sakai','harimaya-nakamozu'].includes(hall.id);
   const machineCount=new Map(); seats.forEach(x=>{const name=String(x.machine||'').trim();if(name && name!=='機種名未設定' && name!=='機種不明')machineCount.set(name,(machineCount.get(name)||0)+1)});
   const machineNames=[...machineCount.keys()].sort((a,b)=>a.localeCompare(b,'ja'));
   const svg=document.getElementById('floorMap');
   if(denseMap)svg.classList.add('dense-map');
-  if(generatedMap)svg.parentElement.classList.add('readable-map-viewport');
+  if(generatedMap||comfortableExistingMap)svg.parentElement.classList.add('readable-map-viewport');
   const resultBox=document.getElementById('resultSummary');
   const resultText=document.getElementById('resultText');
   const resultList=document.getElementById('resultList');
@@ -293,7 +294,7 @@ async function initHallPage(){
   }
   function clampView(v){
     const bounds=rotatedBounds();
-    const w=Math.min(bounds.w,Math.max(250,v.w)),h=Math.min(bounds.h,Math.max(denseMap?165:220,v.h));
+    const w=Math.min(bounds.w,Math.max(denseMap?180:250,v.w)),h=Math.min(bounds.h,Math.max(denseMap?165:220,v.h));
     return{x:Math.max(bounds.x,Math.min(bounds.x+bounds.w-w,v.x)),y:Math.max(bounds.y,Math.min(bounds.y+bounds.h-h,v.y)),w,h};
   }
   function setView(v){view=clampView(v);svg.setAttribute('viewBox',`${view.x} ${view.y} ${view.w} ${view.h}`);if(denseMap)svg.classList.toggle('dense-labels',view.w<=Math.max(250,svg.clientWidth/1.3))}
@@ -637,10 +638,9 @@ async function initHallPage(){
   input.setAttribute('aria-label',hall.no_live_stats?'台番号で検索':'機種名・台番号で検索');
   document.getElementById('recommendListToggle').onclick=()=>{showRecommendations=true;Floor777.storage.set(`floor777-recommend-${hall.id}`,'1');updateRecommendUI();renderMap();switchScreen('map');fullMap()};
   renderMap(); fullMap();
-  if(svg.clientWidth<620&&(denseMap||largeSeatMap))svg.style.height='560px';
   const generatedSeatSize=generatedMap?50:null;
   const generatedWidth=generatedSeatSize?Math.max(250,generatedSeatSize*svg.clientWidth/(svg.clientWidth<620?24:28)):null;
-  const initialSeatWidth=denseMap?(svg.clientWidth<620?250:500):largeSeatMap?(svg.clientWidth<620?700:1400):generatedWidth;
+  const initialSeatWidth=denseMap?(svg.clientWidth<620?190:380):largeSeatMap?(svg.clientWidth<620?520:1100):generatedWidth;
   if(initialSeatWidth){
     const aspect=svg.clientWidth/Math.max(1,svg.clientHeight);
     const width=Math.min(full.w,initialSeatWidth);
