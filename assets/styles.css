@@ -379,3 +379,9 @@ button:disabled{opacity:.48;cursor:default}
 .wordmark-sub{margin-left:1px;color:#eee;font-size:6.4px;font-weight:650;letter-spacing:.27em;line-height:1.1;text-shadow:0 0 5px rgba(255,255,255,.18)}
 .footer .brand-wordmark-link{transform:scale(.9);transform-origin:left center}
 @media(max-width:620px){.brand-wordmark-link{gap:2px}.wordmark-main{font-size:28px}.wordmark-sub{font-size:5.8px;letter-spacing:.24em}.header-inner{height:64px}}
+
+/* FLOOR777 PNG brand logo */
+.brand-image-link{display:inline-flex;align-items:center;justify-content:flex-start;min-width:0;line-height:1}
+.brand-image-logo{display:block;height:52px;width:auto;max-width:min(46vw,180px);object-fit:contain}
+.footer .brand-image-logo{height:44px;max-width:160px}
+@media(max-width:620px){.brand-image-logo{height:50px;max-width:152px}.header-inner{height:70px}.brand-image-link{flex:0 0 auto}}
