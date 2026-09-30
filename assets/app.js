@@ -47,6 +47,21 @@ function compactPositions(raw){
   return out;
 }
 
+function enlargeAdjacentSeats(raw,hallId){
+  const scales={
+    'maruhan-megacity-sakai':[3.2,.92],
+    'harimaya-nakamozu':[3.2,1.07]
+  };
+  const scale=scales[hallId];
+  if(!scale)return raw;
+  const entries=Object.entries(raw);
+  const minX=Math.min(...entries.map(([,p])=>p[0]));
+  const minY=Math.min(...entries.map(([,p])=>p[1]));
+  return Object.fromEntries(entries.map(([seat,[x,y]])=>[
+    seat,[(x-minX)*scale[0]+60,(y-minY)*scale[1]+60,50,50]
+  ]));
+}
+
 async function initHallPage(){
   const app=document.querySelector('[data-hall-app]');
   if(!app) return;
@@ -57,7 +72,7 @@ async function initHallPage(){
     Floor777.fetchJSON(`${base}data/${hallFile}`), Floor777.fetchJSON(`${base}data/${posFile}`)
   ]);
   if(!Array.isArray(hall.seats)||!hall.seats.length)throw Error('No hall seats');
-  const positions=hall.preserve_layout?rawPositions:compactPositions(rawPositions);
+  const positions=enlargeAdjacentSeats(hall.preserve_layout?rawPositions:compactPositions(rawPositions),hall.id);
   if(!Object.keys(positions).length)throw Error('No map positions');
   let stats=null;
   const liveStatsUrl=new URL(`${base}data/live/${hall.id}-stats.json`,location.href).href;
@@ -73,6 +88,7 @@ async function initHallPage(){
   const bySeat=new Map(seats.map(x=>[Number(x.seat),x]));
   const compactDraft=hall.layout_status==='draft-unverified';
   const denseMap=hall.compact_map===true;
+  const largeSeatMap=['maruhan-megacity-sakai','harimaya-nakamozu'].includes(hall.id);
   const machineCount=new Map(); seats.forEach(x=>{const name=String(x.machine||'').trim();if(name && name!=='機種名未設定' && name!=='機種不明')machineCount.set(name,(machineCount.get(name)||0)+1)});
   const machineNames=[...machineCount.keys()].sort((a,b)=>a.localeCompare(b,'ja'));
   const svg=document.getElementById('floorMap');
@@ -213,12 +229,15 @@ async function initHallPage(){
         seatText.setAttribute('y',y+h/2);seatText.setAttribute('dominant-baseline','middle');
         seatText.setAttribute('textLength',w-1.5);seatText.setAttribute('lengthAdjust','spacingAndGlyphs');
         seatText.style.fontSize='10px';
+      }else if(largeSeatMap&&!showValue){
+        seatText.setAttribute('y',y+19);
+        seatText.style.fontSize='18px';
       }else if(compactDraft&&!showValue){
         const digits=String(item.seat).length;
         seatText.style.fontSize=`${Math.max(4,Math.min(11,h*0.72,(w-1)/(digits*0.62)))}px`;
         seatText.setAttribute('y',y+h/2);
       }
-      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:27));nameText.setAttribute('class','seat-machine');nameText.textContent=(compactDraft||denseMap)&&['機種名未設定','機種不明',''].includes(String(item.machine||'').trim())?'':shortName(item.machine).slice(0,7);nameText.style.display=denseMap?'none':showNames||showValue?'':'none';
+      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:largeSeatMap?40:27));nameText.setAttribute('class','seat-machine');nameText.textContent=(compactDraft||denseMap||largeSeatMap)&&['機種名未設定','機種不明',''].includes(String(item.machine||'').trim())?'':shortName(item.machine).slice(0,7);nameText.style.display=denseMap?'none':showNames||showValue?'':'none';
       if(isDiffMode&&hasNumber(diffValue)){
         const d=Number(diffValue);
         g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
@@ -606,6 +625,20 @@ async function initHallPage(){
   input.setAttribute('aria-label',hall.no_live_stats?'台番号で検索':'機種名・台番号で検索');
   document.getElementById('recommendListToggle').onclick=()=>{showRecommendations=true;Floor777.storage.set(`floor777-recommend-${hall.id}`,'1');updateRecommendUI();renderMap();switchScreen('map');fullMap()};
   renderMap(); fullMap();
+  if(svg.clientWidth<620&&(denseMap||largeSeatMap))svg.style.height='560px';
+  const initialSeatWidth=denseMap?(svg.clientWidth<620?250:500):largeSeatMap?(svg.clientWidth<620?700:1400):null;
+  if(initialSeatWidth){
+    const aspect=svg.clientWidth/Math.max(1,svg.clientHeight);
+    const width=Math.min(full.w,initialSeatWidth);
+    const height=Math.min(full.h,width/aspect);
+    const centers=Object.values(positions).map(orientedPosition).map(([x,y,w,h])=>[x+w/2,y+h/2]);
+    let best=centers[0],bestCount=-1;
+    for(const center of centers){
+      const count=centers.reduce((n,[x,y])=>n+(Math.abs(x-center[0])<=width/2&&Math.abs(y-center[1])<=height/2),0);
+      if(count>bestCount){best=center;bestCount=count}
+    }
+    setView({x:best[0]-width/2,y:best[1]-height/2,w:width,h:height});
+  }
   const params=new URLSearchParams(location.search);if(params.get('mode')==='seat'){mode='seat';modeButtons.forEach(x=>x.classList.toggle('active',x.dataset.searchMode==='seat'));input.placeholder='例：821'}if(params.get('q')){input.value=params.get('q');runSearch(true)}if(params.get('seat'))selectSeat(Number(params.get('seat')),initialParams.get('view')==='map'||!initialParams.get('view'),false,false);
 }
 initHallPage().catch(err=>{console.error(err);const el=document.getElementById('loadError');if(el)el.hidden=false});
