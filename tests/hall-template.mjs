@@ -24,7 +24,7 @@ assert(!html.includes('hyper-arrow-mihara'));assert(!html.includes('HYPER ARROW'
 assert.equal(JSON.parse(fs.readFileSync(path.join(out,'registration.json'))).status,'draft');
 assert.equal(JSON.parse(fs.readFileSync(path.join(out,'data/test-hall.json'))).seat_count,5);
 assert.equal(JSON.parse(fs.readFileSync(path.join(out,'data/test-hall.json'))).readable_seat_boxes,true);
-assert.equal(JSON.parse(fs.readFileSync(path.join(out,'data/test-hall.json'))).seat_display_width_px,24);
+assert.equal(JSON.parse(fs.readFileSync(path.join(out,'data/test-hall.json'))).seat_display_width_px,undefined);
 const customInput=path.join(tmp,'custom.json'),customOut=path.join(tmp,'custom-output');
 fs.writeFileSync(customInput,JSON.stringify({...d,seat_display_width_px:30}));
 execFileSync(process.execPath,['tools/build-hall.mjs',customInput,'--out',customOut]);

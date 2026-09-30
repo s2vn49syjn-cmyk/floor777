@@ -8,12 +8,12 @@ if(!input){console.error('Usage: node tools/build-hall.mjs draft.json [--out NEW
 try {
  const d=JSON.parse(fs.readFileSync(input,'utf8'));
  const {positions,seats}=expandLayout(d);
- const seatDisplayWidth=d.seat_display_width_px??24;
- if(!Number.isInteger(seatDisplayWidth)||seatDisplayWidth<20||seatDisplayWidth>40)throw Error('公開時の台枠幅は20〜40pxで入力してください');
+ const seatDisplayWidth=d.seat_display_width_px;
+ if(seatDisplayWidth!=null&&(!Number.isInteger(seatDisplayWidth)||seatDisplayWidth<20||seatDisplayWidth>40))throw Error('公開時の台枠幅は20〜40pxで入力してください');
  const out=path.resolve(outIndex<0?path.join(root,'hall-output',d.id):args[outIndex+1]||'');
  if(fs.existsSync(out))throw Error('出力先が既に存在します。既存データを守るため新しいフォルダを指定してください');
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const hall={id:d.id,name:d.name,prefecture:d.prefecture,city:d.city,floor:'スロット',seat_count:seats.length,updated_at:d.layout_date,layout_updated_at:d.layout_date,preserve_layout:true,readable_seat_boxes:true,seat_display_width_px:seatDisplayWidth,source:{name:d.minrepo_url?'みんレポ':'FLOOR777島図ビルダー',url:d.minrepo_url||'',note:'台番号配置は提供資料から作成。機種確認中の台は収集結果との照合が必要。'},seats};
+ const hall={id:d.id,name:d.name,prefecture:d.prefecture,city:d.city,floor:'スロット',seat_count:seats.length,updated_at:d.layout_date,layout_updated_at:d.layout_date,preserve_layout:true,readable_seat_boxes:true,...(seatDisplayWidth!=null?{seat_display_width_px:seatDisplayWidth}:{}),source:{name:d.minrepo_url?'みんレポ':'FLOOR777島図ビルダー',url:d.minrepo_url||'',note:'台番号配置は提供資料から作成。機種確認中の台は収集結果との照合が必要。'},seats};
  let html=fs.readFileSync(path.join(root,'halls/hyper-arrow-mihara/index.html'),'utf8');
  // Keep the maintained Mihara page as the common shell, including its current assets.
  html=html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g,'');
