@@ -16,6 +16,7 @@ const appURL='http://floor777.test/floor777/halls/hyper-arrow-mihara/';
   const file=path.join(root,decodeURIComponent(u.pathname.replace(/^\/floor777\//,''))+(u.pathname.endsWith('/')?'index.html':''));
   try{return await route.fulfill({path:file})}catch{return route.fulfill({status:404,body:'Not found'})}
  });
+ await context.route('https://floor777.com/data/live/**',route=>route.fulfill({status:503,body:'unavailable'}));
  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
  async function open(){await page.goto(appURL);await page.waitForSelector('.seat');}
  async function assertNoOverflow(){assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'page horizontal overflow');}
