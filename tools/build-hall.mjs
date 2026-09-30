@@ -11,7 +11,7 @@ try {
  const out=path.resolve(outIndex<0?path.join(root,'hall-output',d.id):args[outIndex+1]||'');
  if(fs.existsSync(out))throw Error('出力先が既に存在します。既存データを守るため新しいフォルダを指定してください');
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const hall={id:d.id,name:d.name,prefecture:d.prefecture,city:d.city,floor:'スロット',seat_count:seats.length,updated_at:d.layout_date,layout_updated_at:d.layout_date,preserve_layout:true,auto_fit_map:true,source:{name:d.minrepo_url?'みんレポ':'FLOOR777島図ビルダー',url:d.minrepo_url||'',note:'台番号配置は提供資料から作成。機種確認中の台は収集結果との照合が必要。'},seats};
+ const hall={id:d.id,name:d.name,prefecture:d.prefecture,city:d.city,floor:'スロット',seat_count:seats.length,updated_at:d.layout_date,layout_updated_at:d.layout_date,preserve_layout:true,readable_seat_boxes:true,source:{name:d.minrepo_url?'みんレポ':'FLOOR777島図ビルダー',url:d.minrepo_url||'',note:'台番号配置は提供資料から作成。機種確認中の台は収集結果との照合が必要。'},seats};
  let html=fs.readFileSync(path.join(root,'halls/hyper-arrow-mihara/index.html'),'utf8');
  // Keep the maintained Mihara page as the common shell, including its current assets.
  html=html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g,'');
