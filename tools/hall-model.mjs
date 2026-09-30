@@ -76,8 +76,8 @@ export function expandLayout(d) {
     if (!['right','left','down','up'].includes(direction)) throw Error('並ぶ方向が不正です');
     numbers.forEach((n,i) => {
       if (!Number.isSafeInteger(n) || n < 1 || n > 99999 || positions[n]) throw Error(`台番号が不正または重複しています：${n}`);
-      const px=x+(direction==='right'?48*i:direction==='left'?-48*i:0);
-      const py=y+(direction==='down'?48*i:direction==='up'?-48*i:0);
+      const px=x+(direction==='right'?44*i:direction==='left'?-44*i:0);
+      const py=y+(direction==='down'?44*i:direction==='up'?-44*i:0);
       if(px<0 || py<0 || px>20000 || py>20000) throw Error('台が範囲外に出ています。開始位置を調整してください');
       positions[n]=[px,py,44,44]; seats.push({seat:n,machine:row.machine?.trim() || '機種確認中'});
     });

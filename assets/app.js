@@ -62,6 +62,11 @@ function enlargeAdjacentSeats(raw,hallId){
   ]));
 }
 
+function fitGeneratedMap(raw){
+  const entries=Object.entries(raw),left=Math.min(...entries.map(([,p])=>p[0])),top=Math.min(...entries.map(([,p])=>p[1]));
+  return Object.fromEntries(entries.map(([seat,[x,y,w,h]])=>[seat,[x-left+24,y-top+64,w,h]]));
+}
+
 async function initHallPage(){
   const app=document.querySelector('[data-hall-app]');
   if(!app) return;
@@ -72,7 +77,8 @@ async function initHallPage(){
     Floor777.fetchJSON(`${base}data/${hallFile}`), Floor777.fetchJSON(`${base}data/${posFile}`)
   ]);
   if(!Array.isArray(hall.seats)||!hall.seats.length)throw Error('No hall seats');
-  const positions=enlargeAdjacentSeats(hall.preserve_layout?rawPositions:compactPositions(rawPositions),hall.id);
+  const originalPositions=enlargeAdjacentSeats(hall.preserve_layout?rawPositions:compactPositions(rawPositions),hall.id);
+  const positions=hall.auto_fit_map?fitGeneratedMap(originalPositions):originalPositions;
   if(!Object.keys(positions).length)throw Error('No map positions');
   let stats=null;
   const liveStatsUrl=new URL(`${base}data/live/${hall.id}-stats.json`,location.href).href;
@@ -89,6 +95,7 @@ async function initHallPage(){
   const compactDraft=hall.layout_status==='draft-unverified';
   const denseMap=hall.compact_map===true;
   const largeSeatMap=['maruhan-megacity-sakai','harimaya-nakamozu'].includes(hall.id);
+  const generatedMap=hall.auto_fit_map===true;
   const machineCount=new Map(); seats.forEach(x=>{const name=String(x.machine||'').trim();if(name && name!=='機種名未設定' && name!=='機種不明')machineCount.set(name,(machineCount.get(name)||0)+1)});
   const machineNames=[...machineCount.keys()].sort((a,b)=>a.localeCompare(b,'ja'));
   const svg=document.getElementById('floorMap');
@@ -188,11 +195,12 @@ async function initHallPage(){
   const mu=document.getElementById('machineUpdated'); if(mu) mu.textContent=Floor777.formatDate(hall.machine_updated_at);
   document.getElementById('seatCount').textContent=Number(hall.seat_count).toLocaleString('ja-JP');
   document.getElementById('machineCount').textContent=machineNames.length.toLocaleString('ja-JP');
-  document.getElementById('sourceName').textContent=hall.source.name;
-  document.getElementById('sourceLink').href=hall.source.url;
+  const sourceName=document.getElementById('sourceName'),sourceLink=document.getElementById('sourceLink');
+  if(sourceName)sourceName.textContent=hall.source.name;
+  if(sourceLink)sourceLink.href=hall.source.url;
   document.getElementById('sourceDate').textContent=Floor777.formatDate(stats?.latest_date || hall.machine_updated_at);
   const statsBadge=document.getElementById('statsBadge');
-  if(stats?.latest_date){statsBadge.textContent=`台データ ${Floor777.formatDate(stats.latest_date)}`;statsBadge.classList.add('live');const mu2=document.getElementById('machineUpdated');if(mu2)mu2.textContent=Floor777.formatDate(stats.latest_date);if(stats.source?.name)document.getElementById('sourceName').textContent=stats.source.name;if(stats.source?.url)document.getElementById('sourceLink').href=stats.report_urls?.[stats.latest_date]||stats.source.url}
+  if(stats?.latest_date){statsBadge.textContent=`台データ ${Floor777.formatDate(stats.latest_date)}`;statsBadge.classList.add('live');const mu2=document.getElementById('machineUpdated');if(mu2)mu2.textContent=Floor777.formatDate(stats.latest_date);if(stats.source?.name&&sourceName)sourceName.textContent=stats.source.name;if(stats.source?.url&&sourceLink)sourceLink.href=stats.report_urls?.[stats.latest_date]||stats.source.url}
   else{statsBadge.textContent=hall.no_live_stats?'台データ未提供':'台データ同期前';statsBadge.classList.add('warn')}
   datalist.innerHTML=machineNames.map(n=>`<option value="${escapeHtml(n)}"></option>`).join('');
 
@@ -229,15 +237,16 @@ async function initHallPage(){
         seatText.setAttribute('y',y+h/2);seatText.setAttribute('dominant-baseline','middle');
         seatText.setAttribute('textLength',w-1.5);seatText.setAttribute('lengthAdjust','spacingAndGlyphs');
         seatText.style.fontSize='10px';
-      }else if(largeSeatMap&&!showValue){
-        seatText.setAttribute('y',y+19);
-        seatText.style.fontSize='18px';
+      }else if((largeSeatMap||generatedMap)&&!showValue){
+        const digits=String(item.seat).length;
+        seatText.setAttribute('y',y+h*.38);
+        seatText.style.fontSize=`${Math.min(20,h*.45,(w-2)/(digits*.62))}px`;
       }else if(compactDraft&&!showValue){
         const digits=String(item.seat).length;
         seatText.style.fontSize=`${Math.max(4,Math.min(11,h*0.72,(w-1)/(digits*0.62)))}px`;
         seatText.setAttribute('y',y+h/2);
       }
-      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?20:largeSeatMap?40:27));nameText.setAttribute('class','seat-machine');nameText.textContent=(compactDraft||denseMap||largeSeatMap)&&['機種名未設定','機種不明',''].includes(String(item.machine||'').trim())?'':shortName(item.machine).slice(0,7);nameText.style.display=denseMap?'none':showNames||showValue?'':'none';
+      const nameText=document.createElementNS(NS,'text');nameText.setAttribute('x',x+w/2);nameText.setAttribute('y',y+(showValue?(generatedMap?h*.5:20):(largeSeatMap||generatedMap)?h*.78:27));nameText.setAttribute('class','seat-machine');nameText.textContent=(compactDraft||denseMap||largeSeatMap||generatedMap)&&['機種名未設定','機種不明',''].includes(String(item.machine||'').trim())?'':shortName(item.machine).slice(0,7);nameText.style.display=denseMap?'none':showNames||showValue?'':'none';
       if(isDiffMode&&hasNumber(diffValue)){
         const d=Number(diffValue);
         g.classList.add(d>=4000?'diff-p4000':d>=3000?'diff-p3000':d>=2000?'diff-p2000':d>=1000?'diff-p1000':d>0?'diff-positive':d===0?'diff-zero':'diff-negative');
@@ -245,7 +254,7 @@ async function initHallPage(){
       }
       g.append(r,seatText,nameText);
       if(showValue){
-        const valueText=document.createElementNS(NS,'text');valueText.setAttribute('x',x+w/2);valueText.setAttribute('y',y+34);valueText.setAttribute('class','seat-value');
+        const valueText=document.createElementNS(NS,'text');valueText.setAttribute('x',x+w/2);valueText.setAttribute('y',y+(generatedMap?h*.82:34));valueText.setAttribute('class','seat-value');
         valueText.textContent=isDiffMode?mapValue(diffValue,'diff'):mapValue(rec?.latest?.spins,'spins');
         g.appendChild(valueText);g.setAttribute('aria-label',`${item.seat}番台 ${item.machine} ${isDiffMode?'差枚':'回転数'} ${valueText.textContent}`);
       }
@@ -625,8 +634,10 @@ async function initHallPage(){
   input.setAttribute('aria-label',hall.no_live_stats?'台番号で検索':'機種名・台番号で検索');
   document.getElementById('recommendListToggle').onclick=()=>{showRecommendations=true;Floor777.storage.set(`floor777-recommend-${hall.id}`,'1');updateRecommendUI();renderMap();switchScreen('map');fullMap()};
   renderMap(); fullMap();
-  if(svg.clientWidth<620&&(denseMap||largeSeatMap))svg.style.height='560px';
-  const initialSeatWidth=denseMap?(svg.clientWidth<620?250:500):largeSeatMap?(svg.clientWidth<620?700:1400):null;
+  if(svg.clientWidth<620&&(denseMap||largeSeatMap||hall.auto_fit_map))svg.style.height='560px';
+  const generatedSeatSize=hall.auto_fit_map?Object.values(positions).map(p=>p[2]).sort((a,b)=>a-b)[Math.floor(seats.length/2)]:null;
+  const generatedWidth=generatedSeatSize?Math.max(250,generatedSeatSize*svg.clientWidth/(svg.clientWidth<620?24:28)):null;
+  const initialSeatWidth=denseMap?(svg.clientWidth<620?250:500):largeSeatMap?(svg.clientWidth<620?700:1400):hall.auto_fit_map?generatedWidth:null;
   if(initialSeatWidth){
     const aspect=svg.clientWidth/Math.max(1,svg.clientHeight);
     const width=Math.min(full.w,initialSeatWidth);
