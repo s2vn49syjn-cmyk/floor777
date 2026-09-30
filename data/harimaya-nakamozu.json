@@ -6,12 +6,12 @@
   "floor": "46枚スロット",
   "seat_count": 153,
   "updated_at": "2026-09-25",
-  "layout_updated_at": "2026-09-29",
+  "layout_updated_at": "2026-09-30",
   "preserve_layout": true,
   "source": {
     "name": "P-WORLD SmartFloor・みんレポ",
     "url": "https://www.p-world.co.jp/hall/floor_maps/59fe32feff6f",
-    "note": "台番号224〜376の153件と台位置を掲載。P-WORLD SmartFloor由来の座標とみんレポ由来の台番号の公開利用、配置の確認は所有者が2026-09-29に完了。機種名・差枚データは準備中。"
+    "note": "台番号224〜376の153件と台位置を掲載。P-WORLD SmartFloor由来の座標とみんレポ由来の台番号の公開利用、配置の確認は所有者が2026-09-29に完了。表示用に台枠を拡大して隣接させている。機種名・差枚データは準備中。"
   },
   "seats": [
     {
