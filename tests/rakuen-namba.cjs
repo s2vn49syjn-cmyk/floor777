@@ -29,6 +29,12 @@ await page.locator('.seat[data-seat="585"]').click();assert(await page.locator('
 await page.locator('[data-map-value=diff]').click();const diff=realStats.seats['76'].latest.diff;assert.equal(await page.locator('.seat[data-seat="76"] .seat-value').textContent(),diff===null?'—':`${diff>0?'+':''}${Math.round(diff)}`);
 stats.seats['76'].latest.diff=null;stats.seats['76'].latest.spins=null;await open();
 for(const mode of ['diff','spins']){await page.locator(`[data-map-value=${mode}]`).click();assert.equal(await page.locator('.seat[data-seat="76"] .seat-value').textContent(),'—');}
+for(const days of ['3','7'])stats.seats['76'].periods[days]={days:Number(days),complete:false,diff_sum:99999,avg_spins:8888};
+await open();
+for(const days of ['3','7']){await page.locator(`[data-map-value=diff${days}]`).click();assert.equal(await page.locator('.seat[data-seat="76"] .seat-value').textContent(),'—');}
+await page.locator('[data-search-mode=seat]').click();await page.locator('#machineSearch').fill('76');await page.locator('#searchBtn').click();await page.locator('.seat[data-seat="76"]').click();
+for(const id of ['stat3Diff','stat3Spins','stat7Diff','stat7Spins'])assert.equal(await page.locator('#'+id).textContent(),'—');
+await page.locator('[data-close-detail]').click();
 await page.locator('#orientationBtn').click();assert.equal(await page.locator('.seat').count(),502);
 if(process.env.NAMBA_SCREENSHOT)await page.screenshot({path:process.env.NAMBA_SCREENSHOT,fullPage:true});
 assert.deepEqual(errors,[]);console.log(`PASS: Rakuen Namba 502 exact seats, excluded low-rate seats, preserved centers, no overlap, live ${realStats.latest_date}, machine/seat join, search, nulls, rotation, 320–1440px layouts`);

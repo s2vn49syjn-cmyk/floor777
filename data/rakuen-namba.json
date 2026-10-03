@@ -8559,5 +8559,6 @@
     "effective_date": null,
     "checked_at": "2026-10-03",
     "field_verified": false
-  }
+  },
+  "require_complete_periods": true
 }
