@@ -66,7 +66,11 @@ function sizeGeneratedMap(raw){
   const entries=Object.entries(raw),sizes=entries.map(([,p])=>p[2]).sort((a,b)=>a-b);
   const scale=50/sizes[Math.floor(sizes.length/2)];
   const left=Math.min(...entries.map(([,p])=>p[0]+p[2]/2)),top=Math.min(...entries.map(([,p])=>p[1]+p[3]/2));
-  return Object.fromEntries(entries.map(([seat,[x,y,w,h]])=>[seat,[(x+w/2-left)*scale+72,(y+h/2-top)*scale+96,50,50]]));
+  return Object.fromEntries(entries.map(([seat,[x,y,w,h,outline]])=>{
+    const box=[(x+w/2-left)*scale+72,(y+h/2-top)*scale+96,50,50];
+    if(Array.isArray(outline))box.push(outline.map(([px,py])=>[(px-left)*scale+97,(py-top)*scale+121]));
+    return [seat,box];
+  }));
 }
 
 async function initHallPage(){
@@ -238,7 +242,13 @@ async function initHallPage(){
       if(denseMap){const size=18;x+=(w-size)/2;y+=(h-size)/2;w=size;h=size}
       const rec=stats?.seats?.[String(item.seat)];
       const g=document.createElementNS(NS,'g');g.setAttribute('class','seat');g.dataset.seat=item.seat;g.dataset.machine=item.machine;g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label',`${item.seat}番台 ${item.machine}`);
-      const r=document.createElementNS(NS,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx',denseMap?'1.5':'3');
+      const outline=raw[4];
+      const r=document.createElementNS(NS,Array.isArray(outline)?'polygon':'rect');
+      if(Array.isArray(outline)){
+        r.setAttribute('points',outline.map(([px,py])=>flipped?`${full.w-px},${full.h-py}`:`${px},${py}`).join(' '));
+      }else{
+        r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx',denseMap?'1.5':'3');
+      }
       const seatText=document.createElementNS(NS,'text');seatText.setAttribute('x',x+w/2);seatText.setAttribute('y',y+10);seatText.setAttribute('class','seat-number');
       const diffValue=mapDisplay==='diff3'?(hasNumber(rec?.periods?.['3']?.diff_sum)?rec.periods['3'].diff_sum:null):mapDisplay==='diff7'?(hasNumber(rec?.periods?.['7']?.diff_sum)?rec.periods['7'].diff_sum:null):rec?.latest?.diff;
       const isDiffMode=['diff','diff3','diff7'].includes(mapDisplay);
