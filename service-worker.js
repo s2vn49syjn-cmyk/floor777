@@ -1,4 +1,4 @@
-const CACHE='floor777-20260930-pnglogo2';
+const CACHE='floor777-20261003-color1';
 const CORE=['./assets/brand/logo-neon-floor777-v2.png','./halls/kikuya-sakai-honten/','./data/kikuya-sakai-honten.json','./data/positions-kikuya-sakai-honten.json','./','./index.html','./halls/','./halls/hyper-arrow-mihara/','./halls/super-cosmo-sakai/','./assets/styles.css','./assets/common.js','./assets/home.js','./assets/app.js','./assets/shortlist.js','./assets/ads.js','./assets/site-config.js','./data/halls.json','./data/hyper-arrow-mihara.json','./data/positions-mihara.json','./data/super-cosmo-sakai.json','./data/positions-super-cosmo-sakai.json','./offline.html'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('floor777-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
