@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-30",
+  "updated_at": "2026-10-03",
   "halls": [
     {
       "id": "hyper-arrow-mihara",
@@ -101,8 +101,30 @@
       "updated_at": "2026-09-30",
       "path": "halls/rakuen-plus/",
       "status": "published",
-      "features": ["台番号検索", "島図", "向き切替"],
+      "features": [
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
       "machine_updated_at": null
+    },
+    {
+      "id": "rakuen-namba",
+      "name": "楽園なんば店",
+      "prefecture": "大阪府",
+      "city": "大阪市中央区",
+      "seat_count": 502,
+      "updated_at": "2026-10-03",
+      "category": "スロット",
+      "path": "halls/rakuen-namba/",
+      "status": "published",
+      "features": [
+        "機種名検索",
+        "台番号検索",
+        "島図",
+        "向き切替"
+      ],
+      "machine_updated_at": "2026-10-02"
     }
   ]
 }
