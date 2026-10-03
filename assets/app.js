@@ -90,6 +90,14 @@ async function initHallPage(){
     try{const loaded=await Floor777.fetchJSON(url);if(loaded?.seats && loaded?.hall_id===hall.id){stats=loaded;break}}
     catch(err){console.warn('Stats unavailable',err.message)}
   }
+  if(hall.require_complete_periods && stats?.seats){
+    for(const rec of Object.values(stats.seats)){
+      for(const days of ['3','7']){
+        const period=rec.periods?.[days];
+        if(period && period.complete!==true){period.diff_sum=null;period.avg_spins=null;}
+      }
+    }
+  }
   let seats=hall.seats.map(x=>({...x}));
   if(stats?.seats){
     seats=seats.map(x=>{const st=stats.seats[String(x.seat)];return st?.machine?{...x,machine:st.machine}:x});
